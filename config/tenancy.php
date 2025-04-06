@@ -19,7 +19,6 @@ return [
     'central_domains' => [
         '127.0.0.1',
         'localhost',
-        'alumni.test',
         // Make sure tenant1.localhost is NOT listed here
     ],
 

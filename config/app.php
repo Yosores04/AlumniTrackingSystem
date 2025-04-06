@@ -165,6 +165,7 @@ return [
          * Package Service Providers...
          */
         Stancl\Tenancy\TenancyServiceProvider::class,
+        Laravel\Socialite\SocialiteServiceProvider::class,
         
         /*
          * Application Service Providers...
@@ -176,5 +177,9 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\TenancyServiceProvider::class,
     ],
+
+    'aliases' => Illuminate\Support\Facades\Facade::defaultAliases()->merge([
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+    ])->toArray(),
 
 ];
