@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TenantController;
 use Illuminate\Support\Facades\Route;
 
 // Define central domain routes - fixed format for domain constraints
@@ -38,6 +39,16 @@ Route::get('/__debug', function () {
             ];
         })->toArray(),
     ];
+});
+
+// Public Tenant Management Routes - No Authentication Required
+Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
+Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
+
+// Tenant Management Routes - Protected by auth middleware
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
+    Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
 });
 
 Route::get('auth/google', [App\Http\Controllers\Auth\GoogleController::class, 'redirectToGoogle'])->name('auth.google');
