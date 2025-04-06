@@ -45,10 +45,10 @@ class GoogleController extends Controller
         
         Auth::login($user, true);
         
-        // Directly send the notification instead of using the event system
-        // This avoids the serialization issue with PDO
+        // Notify user of login (if needed)
         $user->notify(new LoginNotification(request()->ip(), request()->userAgent()));
         
-        return redirect('/dashboard');
+        // Redirect to tenant creation page instead of dashboard
+        return redirect()->route('tenants.create');
     }
 }

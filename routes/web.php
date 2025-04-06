@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\Auth\GoogleController;
 use Illuminate\Support\Facades\Route;
 
 // Define central domain routes - fixed format for domain constraints
@@ -45,12 +46,7 @@ Route::get('/__debug', function () {
 Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
 Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
 
-// Tenant Management Routes - Protected by auth middleware
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
-    Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
-});
-
-Route::get('auth/google', [App\Http\Controllers\Auth\GoogleController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'handleGoogleCallback']);
+// Google OAuth Routes with proper naming
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
