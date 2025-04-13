@@ -76,6 +76,19 @@
                                 </label>
                             </div>
 
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm">
+                                    <a href="{{ route('password.request') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                                        {{ __('Forgot your password?') }}
+                                    </a>
+                                </div>
+                                <div class="text-sm">
+                                    <a href="{{ route('request-domain') }}" class="font-medium text-green-600 hover:text-green-500">
+                                        {{ __('Request your own domain') }}
+                                    </a>
+                                </div>
+                            </div>
+
                             <button type="submit" class="btn btn-primary">Login</button>
                             
                             <a href="{{ route('auth.google') }}" class="btn btn-outline-dark">

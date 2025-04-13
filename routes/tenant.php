@@ -27,6 +27,7 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     Route::get('/', function () {
+<<<<<<< Updated upstream
         $settings = TenantSettings::getSettings();
         return view('tenant.landing', compact('settings'));
     });
@@ -44,16 +45,38 @@ Route::middleware([
             Route::get('/settings', [TenantSettingsController::class, 'edit'])->name('settings.edit');
             Route::put('/settings', [TenantSettingsController::class, 'update'])->name('settings.update');
         });
+=======
+        // Check if tenant is in read-only mode (e.g., suspended but still accessible for data viewing)
+        $readOnly = false;
+        $warningMessage = null;
+        
+        if (tenant() && isset(tenant()->data['status']) && tenant()->data['status'] !== 'active') {
+            $readOnly = true;
+            $warningMessage = 'This account is currently ' . tenant()->data['status'] . '. Some features may be unavailable.';
+        } elseif (tenant() && isset(tenant()->subscription['plan']) && tenant()->subscription['plan'] === 'free') {
+            $warningMessage = 'You are using a free plan with limited features. Upgrade for full access.';
+        }
+        
+        return view('tenant.welcome', [
+            'readOnly' => $readOnly,
+            'warningMessage' => $warningMessage
+        ]);
+>>>>>>> Stashed changes
     });
     
-    // Add a diagnostic route
     Route::get('/debug', function () {
+        // Check if tenant is in read-only mode
+        $readOnly = tenant() && isset(tenant()->data['status']) && tenant()->data['status'] !== 'active';
+        
         return [
-            'tenant_id' => tenant('id') ?? 'none',
+            'tenant_id' => tenant('id'),
             'domain' => request()->getHost(),
             'database_connection' => config('database.default'),
             'tenant_database' => config('database.connections.tenant.database') ?? 'Not set',
-            'is_tenant_context' => app()->bound('tenant'),
+            'time' => now()->format('Y-m-d H:i:s'),
+            'status' => tenant()->data['status'] ?? 'active',
+            'read_only' => $readOnly,
+            'subscription' => tenant()->subscription ?? ['plan' => 'free']
         ];
     });
 });
