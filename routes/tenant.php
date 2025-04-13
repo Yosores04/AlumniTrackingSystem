@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TenantSettingsController;
+use App\Http\Controllers\TenantDashboardController;
 use App\Http\Middleware\InitializeTenancy;
+use App\Models\TenantSettings;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 /*
@@ -24,7 +27,23 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is tenant: ' . tenant('id');
+        $settings = TenantSettings::getSettings();
+        return view('tenant.landing', compact('settings'));
+    });
+    
+    // Include authentication routes for tenants
+    require __DIR__.'/auth.php';
+    
+    // Authenticated routes
+    Route::middleware(['auth'])->group(function () {
+        // Dashboard route
+        Route::get('/dashboard', [TenantDashboardController::class, 'index'])->name('dashboard');
+        
+        // Admin routes for tenant settings
+        Route::name('tenant.')->group(function () {
+            Route::get('/settings', [TenantSettingsController::class, 'edit'])->name('settings.edit');
+            Route::put('/settings', [TenantSettingsController::class, 'update'])->name('settings.update');
+        });
     });
     
     // Add a diagnostic route

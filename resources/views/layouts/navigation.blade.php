@@ -15,6 +15,12 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    
+                    @if(app()->bound('tenant'))
+                    <x-nav-link :href="route('tenant.settings.edit')" :active="request()->routeIs('tenant.settings.edit')">
+                        {{ __('Site Settings') }}
+                    </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +76,12 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            
+            @if(app()->bound('tenant'))
+            <x-responsive-nav-link :href="route('tenant.settings.edit')" :active="request()->routeIs('tenant.settings.edit')">
+                {{ __('Site Settings') }}
+            </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
