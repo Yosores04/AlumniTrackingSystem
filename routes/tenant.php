@@ -27,7 +27,7 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     Route::get('/', function () {
-<<<<<<< Updated upstream
+
         $settings = TenantSettings::getSettings();
         return view('tenant.landing', compact('settings'));
     });
@@ -74,7 +74,7 @@ Route::middleware([
                 return view('tenant.directory.index');
             })->name('directory.index');
         });
-=======
+
         // Check if tenant is in read-only mode (e.g., suspended but still accessible for data viewing)
         $readOnly = false;
         $warningMessage = null;
@@ -90,7 +90,7 @@ Route::middleware([
             'readOnly' => $readOnly,
             'warningMessage' => $warningMessage
         ]);
->>>>>>> Stashed changes
+
     });
     
     Route::get('/debug', function () {
