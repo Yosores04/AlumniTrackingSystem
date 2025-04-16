@@ -1,196 +1,270 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-xl text-white leading-tight">
             {{ __('Tenant Settings') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+            <div class="app-card shadow-primary">
+                <div class="app-card-header">
+                    <h1 class="text-2xl font-semibold">Customize Your Site</h1>
+                </div>
+                <div class="app-card-body">
                     <div class="container mx-auto">
                         <div class="max-w-4xl mx-auto">
-                            <h1 class="text-2xl font-semibold mb-6">Customize Your Site</h1>
-                            
                             @if(session('success'))
-                                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                                <div class="bg-primary-10 border border-primary text-primary px-4 py-3 rounded relative mb-4" role="alert">
                                     <span class="block sm:inline">{{ session('success') }}</span>
                                 </div>
                             @endif
 
-                            <form action="{{ route('tenant.settings.update') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('tenant.settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                                 @csrf
                                 @method('PUT')
                                 
-                                <div class="mb-6">
-                                    <h2 class="text-xl font-medium mb-4 pb-2 border-b">General Settings</h2>
+                                <!-- General Settings Section -->
+                                <div>
+                                    <h2 class="section-heading mb-6">General Settings</h2>
                                     
-                                    <div class="mb-4">
-                                        <label for="site_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site Name</label>
-                                        <input type="text" name="site_name" id="site_name" value="{{ old('site_name', $settings->site_name) }}" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300">
-                                        @error('site_name')
-                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                        @enderror
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="site_name" class="form-label">Site Name</label>
+                                            <input type="text" id="site_name" name="site_name" value="{{ $settings->site_name }}" class="form-input">
+                                            @error('site_name')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="site_description" class="form-label">Site Description</label>
+                                            <input type="text" id="site_description" name="site_description" value="{{ $settings->site_description }}" class="form-input">
+                                            @error('site_description')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
                                     </div>
                                     
-                                    <div class="mb-4">
-                                        <label for="site_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site Description</label>
-                                        <textarea name="site_description" id="site_description" rows="3" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300">{{ old('site_description', $settings->site_description) }}</textarea>
-                                        @error('site_description')
-                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="mb-4">
-                                        <label for="welcome_message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Welcome Message</label>
-                                        <textarea name="welcome_message" id="welcome_message" rows="4" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300">{{ old('welcome_message', $settings->welcome_message) }}</textarea>
+                                    <div class="mt-4">
+                                        <label for="welcome_message" class="form-label">Welcome Message</label>
+                                        <textarea id="welcome_message" name="welcome_message" rows="3" class="form-textarea">{{ $settings->welcome_message }}</textarea>
                                         @error('welcome_message')
                                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                         @enderror
+                                        <p class="text-muted text-sm mt-1">This message will be displayed on your landing page.</p>
                                     </div>
                                     
-                                    <div class="mb-4">
-                                        <label for="footer_text" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Footer Text</label>
-                                        <textarea name="footer_text" id="footer_text" rows="3" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300">{{ old('footer_text', $settings->footer_text) }}</textarea>
+                                    <div class="mt-4">
+                                        <label for="footer_text" class="form-label">Footer Text</label>
+                                        <textarea id="footer_text" name="footer_text" rows="2" class="form-textarea">{{ $settings->footer_text }}</textarea>
                                         @error('footer_text')
                                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                         @enderror
                                     </div>
+                                </div>
+                                
+                                <!-- Brand Colors -->
+                                <div class="mb-8">
+                                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Brand Colors</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                        Select colors that represent your brand identity. These colors will be used throughout the site for buttons, accents, and UI elements.
+                                        <span class="block mt-2 text-xs italic">Note: RGB variables are automatically generated from these colors to enable consistent transparency effects across the application.</span>
+                                    </p>
                                     
-                                    <div class="mb-4">
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="is_public" value="1" {{ old('is_public', $settings->is_public) ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Make site publicly accessible</span>
-                                        </label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Primary Color -->
+                                        <div>
+                                            <x-input-label for="primary_color" :value="__('Primary Color')" />
+                                            <div class="flex mt-1">
+                                                <input type="color" id="primary_color" name="primary_color" value="{{ old('primary_color', $settings->primary_color) }}" class="h-10 p-0 border-0 rounded-l-md w-12">
+                                                <x-text-input id="primary_color_hex" name="primary_color_hex" type="text" class="rounded-l-none" :value="old('primary_color', $settings->primary_color)" required />
+                                            </div>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Main brand color used for buttons, links, and highlights.</p>
+                                            <x-input-error :messages="$errors->get('primary_color')" class="mt-2" />
+                                        </div>
+                                        
+                                        <!-- Secondary Color -->
+                                        <div>
+                                            <x-input-label for="secondary_color" :value="__('Secondary Color')" />
+                                            <div class="flex mt-1">
+                                                <input type="color" id="secondary_color" name="secondary_color" value="{{ old('secondary_color', $settings->secondary_color) }}" class="h-10 p-0 border-0 rounded-l-md w-12">
+                                                <x-text-input id="secondary_color_hex" name="secondary_color_hex" type="text" class="rounded-l-none" :value="old('secondary_color', $settings->secondary_color)" required />
+                                            </div>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Used for headers, footers, and secondary elements.</p>
+                                            <x-input-error :messages="$errors->get('secondary_color')" class="mt-2" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Accent Colors -->
+                                <div class="mb-8">
+                                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Accent Colors</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                        Accent colors add visual interest and highlight important elements across your site.
+                                        <span class="block mt-2 text-xs italic">Each accent color is also available as an RGB variable (e.g., --accent-color-rgb) for advanced styling with transparency.</span>
+                                    </p>
+                                    
+                                    <div>
+                                        <x-input-label for="accent_color" :value="__('Accent Color')" />
+                                        <div class="flex mt-1">
+                                            <input type="color" id="accent_color" name="accent_color" value="{{ old('accent_color', $settings->accent_color) }}" class="h-10 p-0 border-0 rounded-l-md w-12">
+                                            <x-text-input id="accent_color_hex" name="accent_color_hex" type="text" class="rounded-l-none" :value="old('accent_color', $settings->accent_color)" required />
+                                        </div>
+                                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Used for visual emphasis, tags, badges, and notifications.</p>
+                                        <x-input-error :messages="$errors->get('accent_color')" class="mt-2" />
                                     </div>
                                 </div>
                                 
-                                <div class="mb-6">
-                                    <h2 class="text-xl font-medium mb-4 pb-2 border-b">Appearance</h2>
+                                <!-- Content Colors -->
+                                <div class="mb-8">
+                                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Content Colors</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                        These colors define the background and text of your site's content areas.
+                                        <span class="block mt-2 text-xs italic">Background and text colors are also available as RGB variables for creating subtle gradients and shadows.</span>
+                                    </p>
                                     
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Background Color -->
                                         <div>
-                                            <label for="primary_color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Color</label>
-                                            <div class="flex">
-                                                <input type="color" name="primary_color" id="primary_color" value="{{ old('primary_color', $settings->primary_color) }}" class="h-10 w-10 border rounded-md mr-2">
-                                                <input type="text" value="{{ old('primary_color', $settings->primary_color) }}" class="flex-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300" oninput="document.getElementById('primary_color').value = this.value">
+                                            <x-input-label for="background_color" :value="__('Background Color')" />
+                                            <div class="flex mt-1">
+                                                <input type="color" id="background_color" name="background_color" value="{{ old('background_color', $settings->background_color) }}" class="h-10 p-0 border-0 rounded-l-md w-12">
+                                                <x-text-input id="background_color_hex" name="background_color_hex" type="text" class="rounded-l-none" :value="old('background_color', $settings->background_color)" required />
                                             </div>
-                                            @error('primary_color')
-                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                            @enderror
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Main background color of content areas.</p>
+                                            <x-input-error :messages="$errors->get('background_color')" class="mt-2" />
                                         </div>
                                         
+                                        <!-- Text Color -->
                                         <div>
-                                            <label for="secondary_color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Secondary Color</label>
-                                            <div class="flex">
-                                                <input type="color" name="secondary_color" id="secondary_color" value="{{ old('secondary_color', $settings->secondary_color) }}" class="h-10 w-10 border rounded-md mr-2">
-                                                <input type="text" value="{{ old('secondary_color', $settings->secondary_color) }}" class="flex-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300" oninput="document.getElementById('secondary_color').value = this.value">
+                                            <x-input-label for="text_color" :value="__('Text Color')" />
+                                            <div class="flex mt-1">
+                                                <input type="color" id="text_color" name="text_color" value="{{ old('text_color', $settings->text_color) }}" class="h-10 p-0 border-0 rounded-l-md w-12">
+                                                <x-text-input id="text_color_hex" name="text_color_hex" type="text" class="rounded-l-none" :value="old('text_color', $settings->text_color)" required />
                                             </div>
-                                            @error('secondary_color')
-                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                            @enderror
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Main text color for content.</p>
+                                            <x-input-error :messages="$errors->get('text_color')" class="mt-2" />
                                         </div>
-                                        
-                                        <div>
-                                            <label for="accent_color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Accent Color</label>
-                                            <div class="flex">
-                                                <input type="color" name="accent_color" id="accent_color" value="{{ old('accent_color', $settings->accent_color) }}" class="h-10 w-10 border rounded-md mr-2">
-                                                <input type="text" value="{{ old('accent_color', $settings->accent_color) }}" class="flex-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300" oninput="document.getElementById('accent_color').value = this.value">
-                                            </div>
-                                            @error('accent_color')
-                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-                                        
-                                        <div>
-                                            <label for="background_color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Background Color</label>
-                                            <div class="flex">
-                                                <input type="color" name="background_color" id="background_color" value="{{ old('background_color', $settings->background_color) }}" class="h-10 w-10 border rounded-md mr-2">
-                                                <input type="text" value="{{ old('background_color', $settings->background_color) }}" class="flex-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300" oninput="document.getElementById('background_color').value = this.value">
-                                            </div>
-                                            @error('background_color')
-                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-                                        
-                                        <div>
-                                            <label for="text_color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Text Color</label>
-                                            <div class="flex">
-                                                <input type="color" name="text_color" id="text_color" value="{{ old('text_color', $settings->text_color) }}" class="h-10 w-10 border rounded-md mr-2">
-                                                <input type="text" value="{{ old('text_color', $settings->text_color) }}" class="flex-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300" oninput="document.getElementById('text_color').value = this.value">
-                                            </div>
-                                            @error('text_color')
-                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mb-4">
-                                        <label for="logo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Logo</label>
-                                        @if($settings->logo_path)
-                                            <div class="mb-2">
-                                                <img src="{{ Storage::url($settings->logo_path) }}" alt="Current Logo" class="h-16 border p-1 rounded">
-                                            </div>
-                                        @endif
-                                        <input type="file" name="logo" id="logo" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                        @error('logo')
-                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="mb-4">
-                                        <label for="background_image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hero Background Image</label>
-                                        @if($settings->background_image_path)
-                                            <div class="mb-2">
-                                                <img src="{{ Storage::url($settings->background_image_path) }}" alt="Current Background" class="h-32 border p-1 rounded">
-                                            </div>
-                                        @endif
-                                        <input type="file" name="background_image" id="background_image" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                        @error('background_image')
-                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                        @enderror
                                     </div>
                                 </div>
                                 
-                                <div class="mb-6">
-                                    <h2 class="text-xl font-medium mb-4 pb-2 border-b">Social Media</h2>
+                                <!-- Logo & Background Section -->
+                                <div class="mt-8">
+                                    <h2 class="section-heading mb-6">Logo & Background</h2>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div>
+                                            <label class="form-label">Logo</label>
+                                            <div class="mt-2 app-card shadow-secondary overflow-hidden">
+                                                <div class="p-4 flex items-center justify-center bg-secondary-10">
+                                                    @if($settings->logo_path)
+                                                        <img src="{{ Storage::url($settings->logo_path) }}" alt="Logo" class="max-h-24">
+                                                    @elseif($settings->logo_url)
+                                                        <img src="{{ $settings->logo_url }}" alt="Logo" class="max-h-24">
+                                                    @else
+                                                        <div class="text-muted">No logo set</div>
+                                                    @endif
+                                                </div>
+                                                <div class="p-4 bg-secondary-5">
+                                                    <div class="grid grid-cols-1 gap-4">
+                                                        <div>
+                                                            <label class="block text-sm font-medium">Upload File</label>
+                                                            <input type="file" name="logo" class="mt-1 w-full">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-sm font-medium">Or Use URL</label>
+                                                            <input type="text" name="logo_url" value="{{ $settings->logo_url }}" class="form-input mt-1">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="form-label">Background Image</label>
+                                            <div class="mt-2 app-card shadow-secondary overflow-hidden">
+                                                <div class="p-4 h-32 flex items-center justify-center bg-secondary-10 bg-center bg-cover" style="background-image: url('{{ $settings->background_image_path ? Storage::url($settings->background_image_path) : ($settings->background_image_url ?? '') }}')">
+                                                    @if(!$settings->background_image_path && !$settings->background_image_url)
+                                                        <div class="text-muted">No background image set</div>
+                                                    @endif
+                                                </div>
+                                                <div class="p-4 bg-secondary-5">
+                                                    <div class="grid grid-cols-1 gap-4">
+                                                        <div>
+                                                            <label class="block text-sm font-medium">Upload File</label>
+                                                            <input type="file" name="background_image" class="mt-1 w-full">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-sm font-medium">Or Use URL</label>
+                                                            <input type="text" name="background_image_url" value="{{ $settings->background_image_url }}" class="form-input mt-1">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Social Media Section -->
+                                <div class="mt-8">
+                                    <h2 class="section-heading mb-6">Social Media</h2>
                                     
                                     <div class="mb-4">
                                         <label class="flex items-center">
-                                            <input type="checkbox" name="show_social_links" value="1" {{ old('show_social_links', $settings->show_social_links) ? 'checked' : '' }} class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Show social media links</span>
+                                            <input type="checkbox" name="show_social_links" value="1" {{ $settings->show_social_links ? 'checked' : '' }} class="rounded border-gray-300 text-primary">
+                                            <span class="ml-2">Show social media links on site</span>
                                         </label>
                                     </div>
                                     
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div class="mb-4">
-                                            <label for="facebook_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Facebook URL</label>
-                                            <input type="url" name="facebook_url" id="facebook_url" value="{{ old('facebook_url', $settings->facebook_url) }}" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="facebook_url" class="form-label">Facebook</label>
+                                            <div class="flex">
+                                                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-secondary-10 text-secondary rounded-l-md">
+                                                    <i class="fab fa-facebook-f"></i>
+                                                </span>
+                                                <input type="url" id="facebook_url" name="facebook_url" value="{{ $settings->facebook_url }}" class="form-input rounded-l-none flex-1">
+                                            </div>
                                             @error('facebook_url')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         
-                                        <div class="mb-4">
-                                            <label for="twitter_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Twitter URL</label>
-                                            <input type="url" name="twitter_url" id="twitter_url" value="{{ old('twitter_url', $settings->twitter_url) }}" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300">
+                                        <div>
+                                            <label for="twitter_url" class="form-label">Twitter</label>
+                                            <div class="flex">
+                                                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-secondary-10 text-secondary rounded-l-md">
+                                                    <i class="fab fa-twitter"></i>
+                                                </span>
+                                                <input type="url" id="twitter_url" name="twitter_url" value="{{ $settings->twitter_url }}" class="form-input rounded-l-none flex-1">
+                                            </div>
                                             @error('twitter_url')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         
-                                        <div class="mb-4">
-                                            <label for="instagram_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Instagram URL</label>
-                                            <input type="url" name="instagram_url" id="instagram_url" value="{{ old('instagram_url', $settings->instagram_url) }}" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300">
+                                        <div>
+                                            <label for="instagram_url" class="form-label">Instagram</label>
+                                            <div class="flex">
+                                                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-secondary-10 text-secondary rounded-l-md">
+                                                    <i class="fab fa-instagram"></i>
+                                                </span>
+                                                <input type="url" id="instagram_url" name="instagram_url" value="{{ $settings->instagram_url }}" class="form-input rounded-l-none flex-1">
+                                            </div>
                                             @error('instagram_url')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         
-                                        <div class="mb-4">
-                                            <label for="linkedin_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">LinkedIn URL</label>
-                                            <input type="url" name="linkedin_url" id="linkedin_url" value="{{ old('linkedin_url', $settings->linkedin_url) }}" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:border-blue-300">
+                                        <div>
+                                            <label for="linkedin_url" class="form-label">LinkedIn</label>
+                                            <div class="flex">
+                                                <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-secondary-10 text-secondary rounded-l-md">
+                                                    <i class="fab fa-linkedin-in"></i>
+                                                </span>
+                                                <input type="url" id="linkedin_url" name="linkedin_url" value="{{ $settings->linkedin_url }}" class="form-input rounded-l-none flex-1">
+                                            </div>
                                             @error('linkedin_url')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
@@ -198,10 +272,21 @@
                                     </div>
                                 </div>
                                 
-                                <div class="flex justify-end">
-                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:border-blue-300">
-                                        Save Settings
-                                    </button>
+                                <!-- Privacy Section -->
+                                <div class="mt-8">
+                                    <h2 class="section-heading mb-6">Privacy</h2>
+                                    
+                                    <div class="mb-4">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="is_public" value="1" {{ $settings->is_public ? 'checked' : '' }} class="rounded border-gray-300 text-primary">
+                                            <span class="ml-2">Make site public (visible to non-members)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Submit Button -->
+                                <div class="mt-8 flex justify-end">
+                                    <button type="submit" class="btn-primary">Save Settings</button>
                                 </div>
                             </form>
                         </div>
@@ -210,4 +295,47 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        // Function to sync color picker with text input
+        function setupColorPicker(colorPickerId, textInputId) {
+            const colorPicker = document.getElementById(colorPickerId);
+            const textInput = document.getElementById(textInputId);
+            
+            if (!colorPicker || !textInput) return;
+            
+            // Update text input when color picker changes
+            colorPicker.addEventListener('input', function() {
+                textInput.value = this.value;
+            });
+            
+            // Update color picker when text input changes
+            textInput.addEventListener('input', function() {
+                // Validate hex format
+                if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+                    colorPicker.value = this.value;
+                } else if (/^[0-9A-F]{6}$/i.test(this.value)) {
+                    // Add # if missing
+                    colorPicker.value = '#' + this.value;
+                    this.value = '#' + this.value;
+                }
+            });
+        }
+        
+        // Setup all color pickers when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            setupColorPicker('primary_color', 'primary_color_hex');
+            setupColorPicker('secondary_color', 'secondary_color_hex');
+            setupColorPicker('accent_color', 'accent_color_hex');
+            setupColorPicker('background_color', 'background_color_hex');
+            setupColorPicker('text_color', 'text_color_hex');
+            
+            // Ensure all text inputs have the # prefix
+            document.querySelectorAll('input[type="text"][id$="_hex"]').forEach(input => {
+                if (input.value && !input.value.startsWith('#')) {
+                    input.value = '#' + input.value;
+                }
+            });
+        });
+    </script>
 </x-app-layout>

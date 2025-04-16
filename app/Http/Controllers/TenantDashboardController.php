@@ -17,13 +17,45 @@ class TenantDashboardController extends Controller
         // Get tenant settings
         $settings = TenantSettings::getSettings();
         
-        // Add any additional data for the dashboard
-        $stats = [
-            'total_members' => 0, // Placeholder - To be implemented
-            'events_upcoming' => 0, // Placeholder - To be implemented
-            'announcements' => [], // Placeholder - To be implemented
-        ];
+        // Initialize variables with default values to prevent undefined variable errors
+        $totalAlumni = 0;
+        $totalJobs = 0;
+        $upcomingEvents = 0;
+        $totalNews = 0;
+        $recentActivities = collect([]);
+        $nextEvents = collect([]);
+        $employedAlumni = 0;
+        $furtherStudiesAlumni = 0;
+        $entrepreneurAlumni = 0;
+        $unemployedAlumni = 0;
+        $unknownStatusAlumni = 0;
+        $graduationYears = [];
+        $alumniCountByYear = [];
         
-        return view('tenant.dashboard', compact('settings', 'stats'));
+        // These variables would typically be populated from database models
+        // For example:
+        // $totalAlumni = \App\Models\Alumni::count();
+        // $totalJobs = \App\Models\Job::count();
+        // $upcomingEvents = \App\Models\Event::where('start_date', '>=', now())->count();
+        // $totalNews = \App\Models\News::count();
+        // $recentActivities = \App\Models\Activity::latest()->take(5)->get();
+        // $nextEvents = \App\Models\Event::where('start_date', '>=', now())->orderBy('start_date')->take(3)->get();
+        
+        return view('tenant.dashboard', compact(
+            'settings', 
+            'totalAlumni', 
+            'totalJobs', 
+            'upcomingEvents', 
+            'totalNews', 
+            'recentActivities', 
+            'nextEvents',
+            'employedAlumni',
+            'furtherStudiesAlumni',
+            'entrepreneurAlumni',
+            'unemployedAlumni',
+            'unknownStatusAlumni',
+            'graduationYears',
+            'alumniCountByYear'
+        ));
     }
 }

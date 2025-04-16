@@ -42,8 +42,37 @@ Route::middleware([
         
         // Admin routes for tenant settings
         Route::name('tenant.')->group(function () {
+            // Settings routes
             Route::get('/settings', [TenantSettingsController::class, 'edit'])->name('settings.edit');
             Route::put('/settings', [TenantSettingsController::class, 'update'])->name('settings.update');
+            
+            // Profile routes - these would typically use a ProfileController
+            Route::get('/profile', function() {
+                return view('tenant.profile.edit');
+            })->name('profile.edit');
+            
+            // Job routes - these would typically use a JobController
+            Route::get('/jobs', function() {
+                return view('tenant.jobs.index');
+            })->name('jobs.index');
+            
+            // Events routes - these would typically use an EventController
+            Route::get('/events', function() {
+                return view('tenant.events.index');
+            })->name('events.index');
+            Route::get('/events/{event}', function($event) {
+                return view('tenant.events.show', ['event' => $event]);
+            })->name('events.show');
+            
+            // News routes - these would typically use a NewsController
+            Route::get('/news', function() {
+                return view('tenant.news.index');
+            })->name('news.index');
+            
+            // Directory routes - these would typically use a DirectoryController
+            Route::get('/directory', function() {
+                return view('tenant.directory.index');
+            })->name('directory.index');
         });
 =======
         // Check if tenant is in read-only mode (e.g., suspended but still accessible for data viewing)

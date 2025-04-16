@@ -24,6 +24,8 @@ class TenantSettings extends Model
         'text_color',
         'logo_path',
         'background_image_path',
+        'logo_url',
+        'background_image_url',
         'welcome_message',
         'footer_text',
         'show_social_links',

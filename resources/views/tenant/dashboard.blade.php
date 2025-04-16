@@ -1,128 +1,298 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-xl text-white">
             {{ __('Tenant Dashboard') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Welcome card -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6">
-                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Welcome to {{ $settings->site_name }}</h2>
-                    <p class="text-gray-600 dark:text-gray-400">{{ $settings->site_description ?? 'Welcome to your alumni tracking dashboard.' }}</p>
+            <h1 class="text-3xl font-bold mb-8 tracking-tight">Welcome to Your Alumni Dashboard</h1>
+            
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="app-card bg-primary-5 border-l-4 border-primary shadow-primary rounded-lg overflow-hidden">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-primary">Total Alumni</h3>
+                            <i class="fas fa-users text-2xl text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="p-5 bg-primary-10">
+                        <div class="flex items-center justify-between">
+                            <p class="text-4xl font-bold">{{ $totalAlumni }}</p>
+                            <span class="px-2 py-1 rounded-md bg-primary text-white text-xs font-medium">Alumni Network</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="app-card bg-accent-5 border-l-4 border-accent shadow-accent rounded-lg overflow-hidden">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-accent">Job Opportunities</h3>
+                            <i class="fas fa-briefcase text-2xl text-accent"></i>
+                        </div>
+                    </div>
+                    <div class="p-5 bg-accent-10">
+                        <div class="flex items-center justify-between">
+                            <p class="text-4xl font-bold">{{ $totalJobs }}</p>
+                            <span class="px-2 py-1 rounded-md bg-accent text-white text-xs font-medium">Career Center</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="app-card bg-secondary-5 border-l-4 border-secondary shadow-secondary rounded-lg overflow-hidden">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-secondary">Upcoming Events</h3>
+                            <i class="fas fa-calendar-alt text-2xl text-secondary"></i>
+                        </div>
+                    </div>
+                    <div class="p-5 bg-secondary-10">
+                        <div class="flex items-center justify-between">
+                            <p class="text-4xl font-bold">{{ $upcomingEvents }}</p>
+                            <span class="px-2 py-1 rounded-md bg-secondary text-white text-xs font-medium">Events Calendar</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="app-card bg-primary-5 border-l-4 border-primary shadow-primary rounded-lg overflow-hidden">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-primary">News Articles</h3>
+                            <i class="fas fa-newspaper text-2xl text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="p-5 bg-primary-10">
+                        <div class="flex items-center justify-between">
+                            <p class="text-4xl font-bold">{{ $totalNews }}</p>
+                            <span class="px-2 py-1 rounded-md bg-primary text-white text-xs font-medium">Latest Updates</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <!-- Total Members -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-indigo-500 bg-opacity-75">
-                                <svg class="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Members</p>
-                                <p class="text-2xl font-semibold text-gray-900 dark:text-gray-200">{{ $stats['total_members'] }}</p>
-                            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Recent Activity -->
+                <div class="lg:col-span-2">
+                    <h2 class="text-2xl font-semibold mb-5 tracking-tight">Recent Activity</h2>
+                    <div class="app-card shadow-primary rounded-xl">
+                        <div class="app-card-body">
+                            @if(count($recentActivities) > 0)
+                                <div class="space-y-5">
+                                    @foreach($recentActivities as $activity)
+                                        <div class="flex">
+                                            <div class="bg-accent-10 text-accent w-10 h-10 flex items-center justify-center rounded-full mr-4 shrink-0">
+                                                @if($activity->type == 'job')
+                                                    <i class="fas fa-briefcase"></i>
+                                                @elseif($activity->type == 'event')
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                @elseif($activity->type == 'news')
+                                                    <i class="fas fa-newspaper"></i>
+                                                @else
+                                                    <i class="fas fa-bell"></i>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <div class="text-muted mb-1 text-sm">{{ $activity->created_at->diffForHumans() }}</div>
+                                                <div class="font-medium">{{ $activity->description }}</div>
+                                            </div>
+                                        </div>
+                                        @if(!$loop->last)
+                                            <hr class="my-4 border-primary-10">
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-10">
+                                    <i class="fas fa-stream text-muted text-4xl mb-4"></i>
+                                    <p class="text-muted font-medium">No recent activity</p>
+                                    <p class="text-muted text-sm mt-2">Check back later for updates</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
-
-                <!-- Upcoming Events -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-green-500 bg-opacity-75">
-                                <svg class="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Upcoming Events</p>
-                                <p class="text-2xl font-semibold text-gray-900 dark:text-gray-200">{{ $stats['events_upcoming'] }}</p>
-                            </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h2 class="text-2xl font-semibold mb-5 tracking-tight">Quick Links</h2>
+                    <div class="app-card shadow-secondary rounded-xl">
+                        <div class="app-card-body">
+                            <ul class="space-y-3">
+                                <li>
+                                    <a href="{{ route('tenant.profile.edit') }}" class="flex items-center p-3 rounded-lg hover:bg-primary-10 transition-colors">
+                                        <span class="bg-primary-10 text-primary p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
+                                            <i class="fas fa-user-edit"></i>
+                                        </span>
+                                        <span class="font-medium">Update Profile</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('tenant.jobs.index') }}" class="flex items-center p-3 rounded-lg hover:bg-accent-10 transition-colors">
+                                        <span class="bg-accent-10 text-accent p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
+                                            <i class="fas fa-briefcase"></i>
+                                        </span>
+                                        <span class="font-medium">Browse Job Opportunities</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('tenant.events.index') }}" class="flex items-center p-3 rounded-lg hover:bg-secondary-10 transition-colors">
+                                        <span class="bg-secondary-10 text-secondary p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </span>
+                                        <span class="font-medium">Upcoming Events</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('tenant.news.index') }}" class="flex items-center p-3 rounded-lg hover:bg-primary-10 transition-colors">
+                                        <span class="bg-primary-10 text-primary p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
+                                            <i class="fas fa-newspaper"></i>
+                                        </span>
+                                        <span class="font-medium">Latest News</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('tenant.directory.index') }}" class="flex items-center p-3 rounded-lg hover:bg-accent-10 transition-colors">
+                                        <span class="bg-accent-10 text-accent p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
+                                            <i class="fas fa-address-book"></i>
+                                        </span>
+                                        <span class="font-medium">Alumni Directory</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
-                </div>
-
-                <!-- Settings -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-purple-500 bg-opacity-75">
-                                <svg class="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Tenant Settings</p>
-                                <a href="{{ route('tenant.settings.edit') }}" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">Manage Settings</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Announcements -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Announcements</h3>
                     
-                    @if(count($stats['announcements']) > 0)
-                        <div class="space-y-4">
-                            @foreach($stats['announcements'] as $announcement)
-                            <div class="border-l-4 border-indigo-500 pl-4 py-2">
-                                <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $announcement['title'] ?? 'Announcement' }}</h4>
-                                <p class="text-gray-600 dark:text-gray-400">{{ $announcement['content'] ?? 'No content' }}</p>
-                                <span class="text-sm text-gray-500 dark:text-gray-500">{{ $announcement['date'] ?? now()->format('M d, Y') }}</span>
-                            </div>
-                            @endforeach
+                    <h2 class="text-2xl font-semibold mb-5 mt-8 tracking-tight">Alumni Status</h2>
+                    <div class="app-card shadow-accent rounded-xl overflow-hidden">
+                        <div class="app-card-body" style="height: 300px;">
+                            <canvas id="alumniStatusChart"></canvas>
                         </div>
-                    @else
-                        <p class="text-gray-600 dark:text-gray-400">No announcements at this time.</p>
-                    @endif
+                    </div>
                 </div>
             </div>
-
-            <!-- Quick Links -->
-            <div class="mt-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Links</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <a href="{{ url('/') }}" class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center">
-                            <svg class="h-6 w-6 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            <span>Home Page</span>
-                        </a>
-                        <a href="{{ route('tenant.settings.edit') }}" class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center">
-                            <svg class="h-6 w-6 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <span>Settings</span>
-                        </a>
-                        <a href="#" class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center">
-                            <svg class="h-6 w-6 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            <span>Alumni Directory</span>
-                        </a>
-                        <a href="#" class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center">
-                            <svg class="h-6 w-6 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span>Events</span>
-                        </a>
+            
+            <!-- Additional Charts and Stats -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
+                <div>
+                    <h2 class="text-2xl font-semibold mb-5 tracking-tight">Alumni by Graduation Year</h2>
+                    <div class="app-card shadow-primary rounded-xl overflow-hidden">
+                        <div class="app-card-body" style="height: 300px;">
+                            <canvas id="alumniYearChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h2 class="text-2xl font-semibold mb-5 tracking-tight">Upcoming Events</h2>
+                    <div class="app-card shadow-secondary rounded-xl">
+                        <div class="app-card-body">
+                            @if(count($nextEvents) > 0)
+                                <div class="space-y-5">
+                                    @foreach($nextEvents as $event)
+                                        <div class="flex">
+                                            <div class="mr-4 text-center">
+                                                <div class="w-14 bg-secondary-10 text-secondary font-bold rounded-t-lg py-1 text-xs uppercase">
+                                                    {{ $event->start_date->format('M') }}
+                                                </div>
+                                                <div class="w-14 bg-white border border-secondary-20 rounded-b-lg py-2 font-bold text-xl">
+                                                    {{ $event->start_date->format('d') }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold">{{ $event->title }}</h4>
+                                                <p class="text-muted text-sm mt-1">{{ $event->start_date->format('g:i A') }} - {{ $event->location }}</p>
+                                            </div>
+                                        </div>
+                                        @if(!$loop->last)
+                                            <hr class="my-4 border-secondary-10">
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-10">
+                                    <i class="fas fa-calendar-alt text-muted text-4xl mb-4"></i>
+                                    <p class="text-muted font-medium">No upcoming events</p>
+                                    <p class="text-muted text-sm mt-2">Check back later for updates</p>
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get primary, secondary and accent colors from CSS variables
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+            const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
+            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+            
+            // Alumni Status Chart
+            const statusCtx = document.getElementById('alumniStatusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Employed', 'Further Studies', 'Entrepreneurs', 'Unemployed', 'Unknown'],
+                    datasets: [{
+                        data: [
+                            {{ $employedAlumni }}, 
+                            {{ $furtherStudiesAlumni }}, 
+                            {{ $entrepreneurAlumni }}, 
+                            {{ $unemployedAlumni }}, 
+                            {{ $unknownStatusAlumni }}
+                        ],
+                        backgroundColor: [
+                            primaryColor, 
+                            accentColor, 
+                            secondaryColor, 
+                            '#EF4444', // Red
+                            '#9CA3AF', // Gray
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Alumni by Year Chart
+            const yearCtx = document.getElementById('alumniYearChart').getContext('2d');
+            new Chart(yearCtx, {
+                type: 'bar',
+                data: {
+                    labels: @json($graduationYears),
+                    datasets: [{
+                        label: 'Alumni Count',
+                        data: @json($alumniCountByYear),
+                        backgroundColor: primaryColor,
+                        borderColor: 'transparent',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </x-app-layout> 

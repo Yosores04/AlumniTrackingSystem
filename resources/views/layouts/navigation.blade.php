@@ -1,26 +1,34 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+<nav x-data="{ open: false }" class="primary-nav bg-secondary-80 border-b border-secondary-30 shadow-md fixed top-0 w-full z-50">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                    <a href="/" class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                        </svg>
+                        <span class="font-bold text-lg text-white tracking-tight">Alumni Hub</span>
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                <div class="hidden space-x-6 sm:-my-px sm:ms-8 sm:flex">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="nav-link flex items-center">
+                        <i class="fas fa-tachometer-alt mr-1.5"></i>
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     
-                    @if(app()->bound('tenant'))
-                    <x-nav-link :href="route('tenant.settings.edit')" :active="request()->routeIs('tenant.settings.edit')">
+                    <x-nav-link href="/" class="nav-link flex items-center">
+                        <i class="fas fa-home mr-1.5"></i>
+                        {{ __('Home') }}
+                    </x-nav-link>
+                    
+                    <x-nav-link :href="route('tenant.settings.edit')" :active="request()->routeIs('tenant.settings.edit')" class="nav-link flex items-center">
+                        <i class="fas fa-cog mr-1.5"></i>
                         {{ __('Site Settings') }}
                     </x-nav-link>
-                    @endif
                 </div>
             </div>
 
@@ -28,7 +36,7 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                        <button class="nav-link inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
@@ -40,8 +48,14 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
+                        <x-dropdown-link :href="route('profile.edit')" class="flex items-center">
+                            <i class="fas fa-user-circle mr-2 text-primary"></i>
                             {{ __('Profile') }}
+                        </x-dropdown-link>
+
+                        <x-dropdown-link :href="route('tenant.settings.edit')" class="flex items-center">
+                            <i class="fas fa-cog mr-2 text-primary"></i>
+                            {{ __('Site Settings') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -50,7 +64,9 @@
 
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                                                this.closest('form').submit();"
+                                    class="flex items-center">
+                                <i class="fas fa-sign-out-alt mr-2 text-primary"></i>
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
@@ -60,7 +76,7 @@
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
+                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-primary-30 focus:outline-none focus:bg-primary-30 focus:text-white transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -73,26 +89,32 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="flex items-center">
+                <i class="fas fa-tachometer-alt mr-2 text-primary"></i>
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             
-            @if(app()->bound('tenant'))
-            <x-responsive-nav-link :href="route('tenant.settings.edit')" :active="request()->routeIs('tenant.settings.edit')">
+            <x-responsive-nav-link href="/" class="flex items-center">
+                <i class="fas fa-home mr-2 text-primary"></i>
+                {{ __('Home') }}
+            </x-responsive-nav-link>
+            
+            <x-responsive-nav-link :href="route('tenant.settings.edit')" :active="request()->routeIs('tenant.settings.edit')" class="flex items-center">
+                <i class="fas fa-cog mr-2 text-primary"></i>
                 {{ __('Site Settings') }}
             </x-responsive-nav-link>
-            @endif
         </div>
 
         <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+        <div class="pt-4 pb-1 border-t border-secondary-30">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-sm text-secondary-20">{{ Auth::user()->email }}</div>
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
+                <x-responsive-nav-link :href="route('profile.edit')" class="flex items-center">
+                    <i class="fas fa-user-circle mr-2 text-primary"></i>
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 
@@ -102,7 +124,9 @@
 
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                                        this.closest('form').submit();"
+                            class="flex items-center">
+                        <i class="fas fa-sign-out-alt mr-2 text-primary"></i>
                         {{ __('Log Out') }}
                     </x-responsive-nav-link>
                 </form>
@@ -110,3 +134,6 @@
         </div>
     </div>
 </nav>
+
+<!-- Add padding to main content to account for fixed navbar -->
+<div class="pt-16"></div>
