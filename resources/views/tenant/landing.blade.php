@@ -9,7 +9,7 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=outfit:300,400,500,600,700|plus-jakarta-sans:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=playfair-display:400,500,600,700,800|montserrat:300,400,500,600,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 
     <!-- Scripts -->
@@ -45,17 +45,22 @@
         }
         
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--content-bg);
+            font-family: 'Montserrat', sans-serif;
+            background-image: url('/img/Login_Background.jpg') !important;
+            background-size: cover !important;
+            background-attachment: fixed !important;
+            background-position: center !important;
             color: var(--content-text);
-            line-height: 1.6;
-            letter-spacing: -0.01em;
+            line-height: 1.7;
+            letter-spacing: 0.01em;
+            font-weight: 400;
         }
         
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Outfit', sans-serif;
-            letter-spacing: -0.025em;
-            line-height: 1.2;
+            font-family: 'Playfair Display', serif;
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+            font-weight: 600;
         }
         
         /* Brand Elements */
@@ -189,8 +194,10 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background-color: rgba(var(--brand-secondary-rgb), 0.65);
+            height: 110%;
+            background: linear-gradient(to bottom, 
+                rgba(var(--brand-secondary-rgb), 0.65) 70%, 
+                rgba(var(--brand-secondary-rgb), 0) 100%);
             z-index: 1;
         }
         
@@ -215,23 +222,35 @@
         /* Navigation */
         .nav-link {
             color: var(--header-text);
-            transition: all 0.2s ease;
-            font-weight: 600;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.25rem;
             display: inline-flex;
             align-items: center;
-            background-color: rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .nav-link:hover {
             color: white;
-            background-color: rgba(var(--brand-primary-rgb), 0.2);
-            border-color: rgba(var(--brand-primary-rgb), 0.3);
-            transform: translateY(-1px);
+            background-color: rgba(var(--brand-primary-rgb), 0.3);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .nav-link i {
+            font-size: 1rem;
+            margin-right: 0.5rem;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
         }
         
         /* Social Links */
@@ -255,28 +274,28 @@
         }
     </style>
 </head>
-<body>
+<body style="background-image: url('{{ asset('img/Login_Background.jpg') }}'); background-size: cover; background-attachment: fixed; background-position: center;">
     <header class="main-header">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="brand-container">
-                @if($settings->logo_path)
+                <!-- @if($settings->logo_path)
                     <img src="{{ Storage::url($settings->logo_path) }}" alt="{{ $settings->site_name }}" class="brand-logo mr-4">
                 @elseif($settings->logo_url)
                     <img src="{{ $settings->logo_url }}" alt="{{ $settings->site_name }}" class="brand-logo mr-4">
                 @else
                     <h1 class="text-2xl brand-name">{{ $settings->site_name }}</h1>
-                @endif
+                @endif -->
             </div>
             
             <nav class="hidden md:flex space-x-4">
-                @auth
+                <!-- @auth
                     <a href="{{ url('/dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt mr-1.5"></i> Dashboard</a>
                 @else
-                    <a href="{{ route('login') }}" class="nav-link"><i class="fas fa-sign-in-alt mr-1.5"></i> Log in</a>
+                    <a href="{{ route('login') }}" class="nav-link"><i class="fas fa-lock mr-1.5"></i> Log in</a>
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="nav-link"><i class="fas fa-user-plus mr-1.5"></i> Register</a>
+                        <a href="{{ route('register') }}" class="nav-link"><i class="fas fa-user-graduate mr-1.5"></i> Register</a>
                     @endif
-                @endauth
+                @endauth -->
             </nav>
         </div>
     </header>
@@ -308,7 +327,7 @@
         
         <section class="py-20 px-4">
             <div class="container mx-auto max-w-6xl">
-                <h2 class="text-3xl font-semibold mb-10 text-center">About Our Alumni Network</h2>
+                <h2 class="text-3xl font-semibold mb-10 text-center text-white">About Our Alumni Network</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="card">
                         <h3 class="text-xl title-primary mb-3">Connect</h3>

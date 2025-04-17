@@ -12,10 +12,15 @@
         <link href="https://fonts.bunny.net/css?family=outfit:300,400,500,600,700|plus-jakarta-sans:400,500,600,700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 
+        <!-- Alpine JS via CDN to ensure it's available -->
+        <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         <style>
+            [x-cloak] { display: none !important; }
+            
             :root {
                 /* Brand Colors with RGB variables */
                 --primary-color: {{ $settings->primary_color ?? '#4338ca' }};
@@ -28,6 +33,36 @@
                 --background-rgb: {{ hex2rgbString($settings->background_color ?? '#f3f4f6') }};
                 --text-color: {{ $settings->text_color ?? '#1f2937' }};
                 --text-rgb: {{ hex2rgbString($settings->text_color ?? '#1f2937') }};
+            }
+            
+            /* Added sidebar styles */
+            .sidebar {
+                height: calc(100vh - 64px);
+                overflow-y: auto;
+                width: 260px;
+            }
+            
+            .sidebar-collapsed {
+                width: 80px;
+            }
+            
+            .main-content {
+                margin-left: 260px;
+            }
+            
+            .main-content-sidebar-collapsed {
+                margin-left: 80px;
+            }
+            
+            .link-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 12px;
+                flex-shrink: 0;
             }
             
             /* Typography */
@@ -184,25 +219,131 @@
             .nav-link {
                 @apply inline-flex items-center px-1 pt-1 text-sm font-medium leading-5 focus:outline-none transition duration-150 ease-in-out;
             }
+            
+            /* Media query for mobile responsiveness */
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 80px;
+                }
+                
+                .main-content {
+                    margin-left: 80px;
+                }
+            }
         </style>
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen">
+        <div class="min-h-screen flex flex-col">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-secondary shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+            <div class="pt-16 flex flex-1">
+                <!-- Simplified Sidebar -->
+                <aside class="sidebar bg-white shadow-sm border-r border-gray-200 fixed left-0 top-16 z-40">
+                    <div class="py-6 h-full overflow-y-auto">
+                        <div class="px-4 mb-6">
+                            <h2 class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Quick Actions</h2>
+                        </div>
+                        
+                        <nav class="space-y-1 px-2">
+                            <a href="{{ route('tenant.profile.edit') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-indigo-50 transition-colors duration-200">
+                                <div class="link-icon bg-indigo-100 text-indigo-600">
+                                    <i class="fas fa-user-edit"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">Update Profile</div>
+                                    <div class="text-xs text-gray-500">Manage your details</div>
+                                </div>
+                            </a>
+                            
+                            <a href="{{ route('tenant.jobs.index') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                                <div class="link-icon bg-blue-100 text-blue-600">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">Career Opportunities</div>
+                                    <div class="text-xs text-gray-500">Browse job listings</div>
+                                </div>
+                            </a>
+                            
+                            <a href="{{ route('tenant.events.index') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-green-50 transition-colors duration-200">
+                                <div class="link-icon bg-green-100 text-green-600">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">Events Calendar</div>
+                                    <div class="text-xs text-gray-500">Upcoming gatherings</div>
+                                </div>
+                            </a>
+                            
+                            <a href="{{ route('tenant.news.index') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-yellow-50 transition-colors duration-200">
+                                <div class="link-icon bg-yellow-100 text-yellow-600">
+                                    <i class="fas fa-newspaper"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">Latest News</div>
+                                    <div class="text-xs text-gray-500">Stay updated</div>
+                                </div>
+                            </a>
+                            
+                            <a href="{{ route('tenant.directory.index') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-red-50 transition-colors duration-200">
+                                <div class="link-icon bg-red-100 text-red-600">
+                                    <i class="fas fa-address-book"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">Alumni Network</div>
+                                    <div class="text-xs text-gray-500">Connect with graduates</div>
+                                </div>
+                            </a>
+                        </nav>
                     </div>
-                </header>
-            @endif
+                </aside>
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+                <!-- Main Content with sidebar padding -->
+                <div class="main-content flex-1 transition-all duration-300">
+                    <!-- Page Heading -->
+                    @if (isset($header))
+                        <header class="bg-secondary shadow">
+                            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                                {{ $header }}
+                            </div>
+                        </header>
+                    @endif
+
+                    <!-- Page Content -->
+                    <main class="py-4 px-4 sm:px-6 lg:px-8">
+                        {{ $slot }}
+                    </main>
+                </div>
+            </div>
         </div>
+        
+        <script>
+            // Simple JavaScript to handle mobile responsiveness
+            document.addEventListener('DOMContentLoaded', function() {
+                function handleResize() {
+                    if (window.innerWidth <= 768) {
+                        document.querySelectorAll('.sidebar').forEach(el => {
+                            el.classList.add('sidebar-collapsed');
+                        });
+                        document.querySelectorAll('.main-content').forEach(el => {
+                            el.classList.add('main-content-sidebar-collapsed');
+                        });
+                    } else {
+                        document.querySelectorAll('.sidebar').forEach(el => {
+                            el.classList.remove('sidebar-collapsed');
+                        });
+                        document.querySelectorAll('.main-content').forEach(el => {
+                            el.classList.remove('main-content-sidebar-collapsed');
+                        });
+                    }
+                }
+                
+                // Initial call
+                handleResize();
+                
+                // Add event listener
+                window.addEventListener('resize', handleResize);
+            });
+        </script>
     </body>
 </html>

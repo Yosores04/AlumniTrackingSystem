@@ -1,88 +1,307 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-white">
-            {{ __('Tenant Dashboard') }}
+            {{ __('Alumni Dashboard') }}
         </h2>
     </x-slot>
 
+    <!-- Custom CSS for dashboard enhancements -->
+    <style>
+        .dashboard-container {
+            background-color: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card {
+            border-radius: 12px;
+            transition: all 0.3s;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-body {
+            padding: 20px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .stat-icon {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .card-primary {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+        }
+        
+        .card-secondary {
+            background: linear-gradient(135deg, #0EA5E9, #0284C7);
+            color: white;
+        }
+        
+        .card-accent {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        
+        .card-neutral {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-left: 1rem;
+        }
+        
+        .section-title:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #4F46E5, #7C3AED);
+            border-radius: 4px;
+        }
+        
+        .activity-card, .link-card, .event-card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-color: white;
+            transition: all 0.3s;
+        }
+        
+        .activity-card:hover, .link-card:hover, .event-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .quick-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        
+        .quick-link:hover {
+            background-color: #F9FAFB;
+            transform: translateX(5px);
+        }
+        
+        .link-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+            transition: all 0.3s;
+        }
+        
+        .quick-link:hover .link-icon {
+            transform: scale(1.1);
+        }
+        
+        .event-date {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            overflow: hidden;
+            width: 60px;
+            margin-right: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .date-month {
+            background-color: #4F46E5;
+            color: white;
+            width: 100%;
+            padding: 4px 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .date-day {
+            background-color: white;
+            color: #1F2937;
+            width: 100%;
+            padding: 6px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .chart-container {
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem;
+            color: #9CA3AF;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold mb-8 tracking-tight">Welcome to Your Alumni Dashboard</h1>
-            
-            <!-- Stats Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <div class="app-card bg-primary-5 border-l-4 border-primary shadow-primary rounded-lg overflow-hidden">
-                    <div class="p-5">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-xl font-semibold text-primary">Total Alumni</h3>
-                            <i class="fas fa-users text-2xl text-primary"></i>
+            <div class="dashboard-container">
+                <h1 class="text-3xl font-bold mb-8 tracking-tight text-gray-900">Welcome to Your Alumni Portal</h1>
+                
+                <!-- Stats Overview with Enhanced Design -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                    <div class="stat-card card-primary">
+                        <div class="stat-header">
+                            <h3 class="font-semibold text-xl">Alumni Network</h3>
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="stat-body">
+                            <div>
+                                <div class="stat-number">{{ $totalAlumni }}</div>
+                                <div class="stat-label">Registered Alumni</div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-xs font-medium uppercase tracking-wider">Total</span>
                         </div>
                     </div>
-                    <div class="p-5 bg-primary-10">
-                        <div class="flex items-center justify-between">
-                            <p class="text-4xl font-bold">{{ $totalAlumni }}</p>
-                            <span class="px-2 py-1 rounded-md bg-primary text-white text-xs font-medium">Alumni Network</span>
+                    
+                    <div class="stat-card card-secondary">
+                        <div class="stat-header">
+                            <h3 class="font-semibold text-xl">Job Opportunities</h3>
+                            <div class="stat-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                        </div>
+                        <div class="stat-body">
+                            <div>
+                                <div class="stat-number">{{ $totalJobs }}</div>
+                                <div class="stat-label">Available Positions</div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-xs font-medium uppercase tracking-wider">Careers</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card card-accent">
+                        <div class="stat-header">
+                            <h3 class="font-semibold text-xl">Upcoming Events</h3>
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                        </div>
+                        <div class="stat-body">
+                            <div>
+                                <div class="stat-number">{{ $upcomingEvents }}</div>
+                                <div class="stat-label">Scheduled Activities</div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-xs font-medium uppercase tracking-wider">Events</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card card-neutral">
+                        <div class="stat-header">
+                            <h3 class="font-semibold text-xl">News Articles</h3>
+                            <div class="stat-icon">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                        </div>
+                        <div class="stat-body">
+                            <div>
+                                <div class="stat-number">{{ $totalNews }}</div>
+                                <div class="stat-label">Published Updates</div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-xs font-medium uppercase tracking-wider">News</span>
                         </div>
                     </div>
                 </div>
                 
-                <div class="app-card bg-accent-5 border-l-4 border-accent shadow-accent rounded-lg overflow-hidden">
-                    <div class="p-5">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-xl font-semibold text-accent">Job Opportunities</h3>
-                            <i class="fas fa-briefcase text-2xl text-accent"></i>
-                        </div>
-                    </div>
-                    <div class="p-5 bg-accent-10">
-                        <div class="flex items-center justify-between">
-                            <p class="text-4xl font-bold">{{ $totalJobs }}</p>
-                            <span class="px-2 py-1 rounded-md bg-accent text-white text-xs font-medium">Career Center</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="app-card bg-secondary-5 border-l-4 border-secondary shadow-secondary rounded-lg overflow-hidden">
-                    <div class="p-5">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-xl font-semibold text-secondary">Upcoming Events</h3>
-                            <i class="fas fa-calendar-alt text-2xl text-secondary"></i>
-                        </div>
-                    </div>
-                    <div class="p-5 bg-secondary-10">
-                        <div class="flex items-center justify-between">
-                            <p class="text-4xl font-bold">{{ $upcomingEvents }}</p>
-                            <span class="px-2 py-1 rounded-md bg-secondary text-white text-xs font-medium">Events Calendar</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="app-card bg-primary-5 border-l-4 border-primary shadow-primary rounded-lg overflow-hidden">
-                    <div class="p-5">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-xl font-semibold text-primary">News Articles</h3>
-                            <i class="fas fa-newspaper text-2xl text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="p-5 bg-primary-10">
-                        <div class="flex items-center justify-between">
-                            <p class="text-4xl font-bold">{{ $totalNews }}</p>
-                            <span class="px-2 py-1 rounded-md bg-primary text-white text-xs font-medium">Latest Updates</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Recent Activity -->
-                <div class="lg:col-span-2">
-                    <h2 class="text-2xl font-semibold mb-5 tracking-tight">Recent Activity</h2>
-                    <div class="app-card shadow-primary rounded-xl">
-                        <div class="app-card-body">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                    <!-- Recent Activity with Enhanced Design -->
+                    <div>
+                        <h2 class="section-title">Recent Activities</h2>
+                        <div class="activity-card p-6">
                             @if(count($recentActivities) > 0)
-                                <div class="space-y-5">
+                                <div class="space-y-6">
                                     @foreach($recentActivities as $activity)
-                                        <div class="flex">
-                                            <div class="bg-accent-10 text-accent w-10 h-10 flex items-center justify-center rounded-full mr-4 shrink-0">
+                                        <div class="flex items-start">
+                                            <div class="activity-icon mr-4
+                                                @if($activity->type == 'job')
+                                                    bg-blue-100 text-blue-600
+                                                @elseif($activity->type == 'event')
+                                                    bg-green-100 text-green-600
+                                                @elseif($activity->type == 'news')
+                                                    bg-yellow-100 text-yellow-600
+                                                @else
+                                                    bg-purple-100 text-purple-600
+                                                @endif
+                                            ">
                                                 @if($activity->type == 'job')
                                                     <i class="fas fa-briefcase"></i>
                                                 @elseif($activity->type == 'event')
@@ -93,130 +312,79 @@
                                                     <i class="fas fa-bell"></i>
                                                 @endif
                                             </div>
-                                            <div>
-                                                <div class="text-muted mb-1 text-sm">{{ $activity->created_at->diffForHumans() }}</div>
-                                                <div class="font-medium">{{ $activity->description }}</div>
+                                            <div class="flex-1">
+                                                <div class="text-gray-500 text-sm mb-1">{{ $activity->created_at->diffForHumans() }}</div>
+                                                <div class="font-medium text-gray-800">{{ $activity->description }}</div>
                                             </div>
                                         </div>
                                         @if(!$loop->last)
-                                            <hr class="my-4 border-primary-10">
+                                            <div class="border-b border-gray-100 my-4"></div>
                                         @endif
                                     @endforeach
                                 </div>
                             @else
-                                <div class="text-center py-10">
-                                    <i class="fas fa-stream text-muted text-4xl mb-4"></i>
-                                    <p class="text-muted font-medium">No recent activity</p>
-                                    <p class="text-muted text-sm mt-2">Check back later for updates</p>
+                                <div class="empty-state">
+                                    <i class="fas fa-stream empty-icon"></i>
+                                    <p class="font-medium">No recent activity</p>
+                                    <p class="text-sm mt-2">Check back later for updates</p>
                                 </div>
                             @endif
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Quick Links -->
-                <div>
-                    <h2 class="text-2xl font-semibold mb-5 tracking-tight">Quick Links</h2>
-                    <div class="app-card shadow-secondary rounded-xl">
-                        <div class="app-card-body">
-                            <ul class="space-y-3">
-                                <li>
-                                    <a href="{{ route('tenant.profile.edit') }}" class="flex items-center p-3 rounded-lg hover:bg-primary-10 transition-colors">
-                                        <span class="bg-primary-10 text-primary p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
-                                            <i class="fas fa-user-edit"></i>
-                                        </span>
-                                        <span class="font-medium">Update Profile</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('tenant.jobs.index') }}" class="flex items-center p-3 rounded-lg hover:bg-accent-10 transition-colors">
-                                        <span class="bg-accent-10 text-accent p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
-                                            <i class="fas fa-briefcase"></i>
-                                        </span>
-                                        <span class="font-medium">Browse Job Opportunities</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('tenant.events.index') }}" class="flex items-center p-3 rounded-lg hover:bg-secondary-10 transition-colors">
-                                        <span class="bg-secondary-10 text-secondary p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
-                                            <i class="fas fa-calendar-alt"></i>
-                                        </span>
-                                        <span class="font-medium">Upcoming Events</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('tenant.news.index') }}" class="flex items-center p-3 rounded-lg hover:bg-primary-10 transition-colors">
-                                        <span class="bg-primary-10 text-primary p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
-                                            <i class="fas fa-newspaper"></i>
-                                        </span>
-                                        <span class="font-medium">Latest News</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('tenant.directory.index') }}" class="flex items-center p-3 rounded-lg hover:bg-accent-10 transition-colors">
-                                        <span class="bg-accent-10 text-accent p-2 rounded-lg mr-3 flex items-center justify-center w-10 h-10 shrink-0">
-                                            <i class="fas fa-address-book"></i>
-                                        </span>
-                                        <span class="font-medium">Alumni Directory</span>
-                                    </a>
-                                </li>
-                            </ul>
                         </div>
                     </div>
                     
-                    <h2 class="text-2xl font-semibold mb-5 mt-8 tracking-tight">Alumni Status</h2>
-                    <div class="app-card shadow-accent rounded-xl overflow-hidden">
-                        <div class="app-card-body" style="height: 300px;">
-                            <canvas id="alumniStatusChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Additional Charts and Stats -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
-                <div>
-                    <h2 class="text-2xl font-semibold mb-5 tracking-tight">Alumni by Graduation Year</h2>
-                    <div class="app-card shadow-primary rounded-xl overflow-hidden">
-                        <div class="app-card-body" style="height: 300px;">
-                            <canvas id="alumniYearChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h2 class="text-2xl font-semibold mb-5 tracking-tight">Upcoming Events</h2>
-                    <div class="app-card shadow-secondary rounded-xl">
-                        <div class="app-card-body">
+                    <!-- Upcoming Events Section -->
+                    <div>
+                        <h2 class="section-title">Upcoming Events</h2>
+                        <div class="event-card p-6">
                             @if(count($nextEvents) > 0)
-                                <div class="space-y-5">
+                                <div class="space-y-6">
                                     @foreach($nextEvents as $event)
-                                        <div class="flex">
-                                            <div class="mr-4 text-center">
-                                                <div class="w-14 bg-secondary-10 text-secondary font-bold rounded-t-lg py-1 text-xs uppercase">
-                                                    {{ $event->start_date->format('M') }}
-                                                </div>
-                                                <div class="w-14 bg-white border border-secondary-20 rounded-b-lg py-2 font-bold text-xl">
-                                                    {{ $event->start_date->format('d') }}
-                                                </div>
+                                        <div class="flex items-start">
+                                            <div class="event-date">
+                                                <div class="date-month">{{ $event->start_date->format('M') }}</div>
+                                                <div class="date-day">{{ $event->start_date->format('d') }}</div>
                                             </div>
                                             <div>
-                                                <h4 class="font-semibold">{{ $event->title }}</h4>
-                                                <p class="text-muted text-sm mt-1">{{ $event->start_date->format('g:i A') }} - {{ $event->location }}</p>
+                                                <h4 class="font-semibold text-gray-800">{{ $event->title }}</h4>
+                                                <p class="text-sm text-gray-500 mt-1">
+                                                    <i class="fas fa-clock mr-2 text-gray-400"></i>
+                                                    {{ $event->start_date->format('g:i A') }}
+                                                </p>
+                                                <p class="text-sm text-gray-500 mt-1">
+                                                    <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+                                                    {{ $event->location }}
+                                                </p>
                                             </div>
                                         </div>
                                         @if(!$loop->last)
-                                            <hr class="my-4 border-secondary-10">
+                                            <div class="border-b border-gray-100 my-4"></div>
                                         @endif
                                     @endforeach
                                 </div>
                             @else
-                                <div class="text-center py-10">
-                                    <i class="fas fa-calendar-alt text-muted text-4xl mb-4"></i>
-                                    <p class="text-muted font-medium">No upcoming events</p>
-                                    <p class="text-muted text-sm mt-2">Check back later for updates</p>
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-alt empty-icon"></i>
+                                    <p class="font-medium">No upcoming events</p>
+                                    <p class="text-sm mt-2">Check back later for updates</p>
                                 </div>
                             @endif
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts and Stats with Enhanced Design -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+                    <div>
+                        <h2 class="section-title">Alumni Status</h2>
+                        <div class="chart-container" style="position: relative; height: 270px; max-height: 270px; overflow: hidden;">
+                            <canvas id="alumniStatusChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h2 class="section-title">Alumni by Year</h2>
+                        <div class="chart-container" style="position: relative; height: 270px; max-height: 270px; overflow: hidden;">
+                            <canvas id="alumniYearChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -226,10 +394,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get primary, secondary and accent colors from CSS variables
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
-            const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
-            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+            // Chart.js Configuration with Enhanced Styling
+            Chart.defaults.font.family = "'Inter', 'Helvetica', 'Arial', sans-serif";
+            Chart.defaults.font.size = 13;
+            Chart.defaults.color = '#6B7280';
             
             // Alumni Status Chart
             const statusCtx = document.getElementById('alumniStatusChart').getContext('2d');
@@ -246,22 +414,55 @@
                             {{ $unknownStatusAlumni }}
                         ],
                         backgroundColor: [
-                            primaryColor, 
-                            accentColor, 
-                            secondaryColor, 
-                            '#EF4444', // Red
+                            '#4F46E5', // Indigo
+                            '#0EA5E9', // Sky blue
+                            '#10B981', // Green
+                            '#F59E0B', // Amber
                             '#9CA3AF', // Gray
                         ],
-                        borderWidth: 0
+                        borderWidth: 0,
+                        borderRadius: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    cutout: '60%',
+                    layout: {
+                        padding: 10
+                    },
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                boxWidth: 8,
+                                boxHeight: 8,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            cornerRadius: 8,
+                            boxPadding: 6
                         }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true,
+                        duration: 1000
                     }
                 }
             });
@@ -275,21 +476,71 @@
                     datasets: [{
                         label: 'Alumni Count',
                         data: @json($alumniCountByYear),
-                        backgroundColor: primaryColor,
-                        borderColor: 'transparent',
-                        borderWidth: 0
+                        backgroundColor: '#4F46E5',
+                        borderRadius: 6,
+                        borderWidth: 0,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.7
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        padding: 10
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            cornerRadius: 8,
+                            boxPadding: 6
+                        }
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                precision: 0
+                                precision: 0,
+                                padding: 8,
+                                maxTicksLimit: 5,
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                display: true,
+                                drawBorder: false,
+                                color: 'rgba(243, 244, 246, 1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                padding: 8,
+                                maxRotation: 0,
+                                font: {
+                                    size: 11
+                                }
                             }
                         }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuad'
                     }
                 }
             });
