@@ -18,7 +18,7 @@ class CheckSubscription
         $tenant = tenant();
         
         // Check if tenant has an active subscription
-        if (!$tenant->hasActiveSubscription()) {
+        if (!method_exists($tenant, 'hasActiveSubscription') || !$tenant->hasActiveSubscription()) {
             return redirect()->route('plans.index')
                 ->with('error', 'Your subscription has expired. Please renew your subscription to continue using this feature.');
         }
@@ -30,6 +30,11 @@ class CheckSubscription
         
         // Check if the tenant's plan includes the requested feature
         $plan = $tenant->plan;
+        
+        // If plan is null, we can't check features
+        if (!$plan) {
+            return $this->featureNotAvailable();
+        }
         
         switch ($feature) {
             case 'custom_fields':
@@ -63,14 +68,14 @@ class CheckSubscription
                 break;
                 
             case 'instructors':
-                if ($tenant->hasReachedInstructorLimit()) {
+                if (method_exists($tenant, 'hasReachedInstructorLimit') && $tenant->hasReachedInstructorLimit()) {
                     return redirect()->route('tenant.instructors.index')
                         ->with('error', 'You have reached the maximum number of instructors allowed in your plan. Please upgrade to add more instructors.');
                 }
                 break;
                 
             case 'alumni':
-                if ($tenant->hasReachedAlumniLimit()) {
+                if (method_exists($tenant, 'hasReachedAlumniLimit') && $tenant->hasReachedAlumniLimit()) {
                     return redirect()->route('tenant.dashboard')
                         ->with('error', 'You have reached the maximum number of alumni records allowed in your plan. Please upgrade to add more alumni.');
                 }

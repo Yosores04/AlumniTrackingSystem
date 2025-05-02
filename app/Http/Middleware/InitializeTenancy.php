@@ -43,23 +43,17 @@ class InitializeTenancy extends InitializeTenancyByDomain
                     $status = $tenant->status;
                     
                     if ($status !== 'active') {
-                        // Initialize tenancy anyway to make tenant data available in views
+                        // Tenant is suspended, show suspended message
                         tenancy()->initialize($tenant);
-                        
-                        // Get reason and other metadata from the data column
-                        $data = $tenant->data ?? [];
-                        $reason = $data['suspension_reason'] ?? null;
-                        $suspendedAt = $data['suspended_at'] ?? now()->toDateTimeString();
-                        
+                        $data = $tenant->data ?: [];
                         $subscription = $tenant->subscription ?? [];
                         $plan = $subscription['plan'] ?? 'free';
                         
-                        // Tenant is not active, show suspension page with read-only data
-                        return response()->view('tenants.suspended', [
+                        return response()->view('central.suspended', [
                             'tenant' => $tenant,
                             'status' => $status,
-                            'reason' => $reason,
-                            'suspended_at' => $suspendedAt,
+                            'reason' => $data['suspension_reason'] ?? 'This account has been suspended.',
+                            'suspended_at' => isset($data['suspended_at']) ? \Carbon\Carbon::parse($data['suspended_at'])->format('F j, Y') : null,
                             'plan' => $plan
                         ], 403);
                     }

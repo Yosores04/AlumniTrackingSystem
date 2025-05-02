@@ -1,25 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Manage Domain Requests</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-100">
+<x-central-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-white">
+            {{ __('Manage Domain Requests') }}
+        </h2>
+    </x-slot>
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="mb-6 flex justify-between items-center">
-                <h1 class="font-semibold text-2xl text-gray-800 leading-tight">
-                    {{ __('Manage Domain Requests') }}
-                </h1>
-                <a href="{{ route('tenants.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Back to Dashboard
-                </a>
-            </div>
-
             @if(session('success'))
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                     <strong class="font-bold">Success!</strong>
@@ -91,11 +78,11 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
                                             <div class="flex items-center space-x-2">
-                                                <button onclick="approveRequest({{ $request->id }})" class="text-green-600 hover:text-green-900" title="Approve">
-                                                    <i class="fas fa-check"></i> Approve
+                                                <button onclick="approveRequest({{ $request->id }})" class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full hover:bg-green-200">
+                                                    <i class="fas fa-check mr-1"></i> Approve
                                                 </button>
-                                                <button onclick="showRejectModal({{ $request->id }})" class="text-red-600 hover:text-red-900 ml-3" title="Reject">
-                                                    <i class="fas fa-times"></i> Reject
+                                                <button onclick="showRejectModal({{ $request->id }})" class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full hover:bg-red-200 ml-2">
+                                                    <i class="fas fa-times mr-1"></i> Reject
                                                 </button>
                                             </div>
                                         </td>
@@ -173,7 +160,7 @@
                                         <td class="px-6 py-4 whitespace-no-wrap text-center">
                                             @if($request->status === 'approved')
                                                 <a href="http://{{ $request->domain_prefix }}.localhost:8000" target="_blank" class="text-blue-600 hover:text-blue-900">
-                                                    <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                                    <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200">
                                                         <i class="fas fa-external-link-alt mr-1"></i> Visit Domain
                                                     </span>
                                                 </a>
@@ -252,12 +239,12 @@
     </div>
 
     <script>
-        // Approve request function
         function approveRequest(id) {
             if (confirm('Are you sure you want to approve this domain request?')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = `/domain-requests/${id}/approve`;
+                form.style.display = 'none';
                 
                 const csrfToken = document.createElement('input');
                 csrfToken.type = 'hidden';
@@ -269,37 +256,35 @@
                 form.submit();
             }
         }
-
-        // Reject modal functionality
-        let currentRequestId = null;
         
         function showRejectModal(id) {
-            currentRequestId = id;
             document.getElementById('reject-form').action = `/domain-requests/${id}/reject`;
             document.getElementById('reject-modal').classList.remove('hidden');
         }
         
-        document.getElementById('close-reject-modal').addEventListener('click', function() {
-            document.getElementById('reject-modal').classList.add('hidden');
-        });
-        
-        document.getElementById('cancel-reject').addEventListener('click', function() {
-            document.getElementById('reject-modal').classList.add('hidden');
-        });
-
-        // Rejection reason modal
         function showRejectionReason(reason) {
             document.getElementById('rejection-reason-text').textContent = reason;
             document.getElementById('rejection-reason-modal').classList.remove('hidden');
         }
         
-        document.getElementById('close-reason-modal').addEventListener('click', function() {
-            document.getElementById('rejection-reason-modal').classList.add('hidden');
-        });
-        
-        document.getElementById('close-reason-btn').addEventListener('click', function() {
-            document.getElementById('rejection-reason-modal').classList.add('hidden');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close reject modal
+            document.getElementById('close-reject-modal').addEventListener('click', function() {
+                document.getElementById('reject-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-reject').addEventListener('click', function() {
+                document.getElementById('reject-modal').classList.add('hidden');
+            });
+            
+            // Close reason modal
+            document.getElementById('close-reason-modal').addEventListener('click', function() {
+                document.getElementById('rejection-reason-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('close-reason-btn').addEventListener('click', function() {
+                document.getElementById('rejection-reason-modal').classList.add('hidden');
+            });
         });
     </script>
-</body>
-</html>
+</x-central-app-layout>

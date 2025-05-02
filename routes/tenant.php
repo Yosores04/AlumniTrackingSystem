@@ -5,9 +5,11 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TenantSettingsController;
 use App\Http\Controllers\TenantDashboardController;
+use App\Http\Controllers\InstructorController;
 use App\Http\Middleware\InitializeTenancy;
 use App\Models\TenantSettings;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +41,93 @@ Route::middleware([
     Route::middleware(['auth'])->group(function () {
         // Dashboard route
         Route::get('/dashboard', [TenantDashboardController::class, 'index'])->name('dashboard');
+        
+        // Instructor Dashboard route
+        Route::get('/instructor-dashboard', [App\Http\Controllers\InstructorDashboardController::class, 'index'])
+            ->middleware(\App\Http\Middleware\EnsureInstructor::class)
+            ->name('instructor.dashboard');
+        
+        // Instructor Alumni Management routes
+        Route::prefix('instructor')->name('instructor.')->middleware(\App\Http\Middleware\EnsureInstructor::class)->group(function() {
+            Route::get('/alumni', [App\Http\Controllers\InstructorAlumniController::class, 'index'])
+                ->name('alumni.index');
+                
+            Route::get('/alumni/create', [App\Http\Controllers\InstructorAlumniController::class, 'create'])
+                ->name('alumni.create');
+                
+            Route::post('/alumni', [App\Http\Controllers\InstructorAlumniController::class, 'store'])
+                ->name('alumni.store');
+                
+            Route::get('/alumni/{id}', [App\Http\Controllers\InstructorAlumniController::class, 'show'])
+                ->name('alumni.show');
+                
+            Route::get('/alumni/{id}/edit', [App\Http\Controllers\InstructorAlumniController::class, 'edit'])
+                ->name('alumni.edit');
+                
+            Route::put('/alumni/{id}', [App\Http\Controllers\InstructorAlumniController::class, 'update'])
+                ->name('alumni.update');
+                
+            Route::delete('/alumni/{id}', [App\Http\Controllers\InstructorAlumniController::class, 'destroy'])
+                ->name('alumni.destroy');
+                
+            Route::get('/alumni-import', [App\Http\Controllers\InstructorAlumniController::class, 'importForm'])
+                ->name('alumni.import');
+                
+            Route::post('/alumni-import', [App\Http\Controllers\InstructorAlumniController::class, 'import'])
+                ->name('alumni.import.process');
+                
+            Route::get('/alumni-reports', [App\Http\Controllers\InstructorAlumniController::class, 'reports'])
+                ->name('alumni.reports');
+        });
+        
+        // Tenant Admin Alumni Management routes
+        Route::prefix('alumni')->group(function() {
+            Route::get('/', [App\Http\Controllers\AlumniController::class, 'index'])
+                ->name('alumni.index');
+                
+            Route::get('/create', [App\Http\Controllers\AlumniController::class, 'create'])
+                ->name('alumni.create');
+                
+            Route::post('/', [App\Http\Controllers\AlumniController::class, 'store'])
+                ->name('alumni.store');
+                
+            Route::get('/{id}', [App\Http\Controllers\AlumniController::class, 'show'])
+                ->name('alumni.show');
+                
+            Route::get('/{id}/edit', [App\Http\Controllers\AlumniController::class, 'edit'])
+                ->name('alumni.edit');
+                
+            Route::put('/{id}', [App\Http\Controllers\AlumniController::class, 'update'])
+                ->name('alumni.update');
+                
+            Route::delete('/{id}', [App\Http\Controllers\AlumniController::class, 'destroy'])
+                ->name('alumni.destroy');
+                
+            Route::get('/import', [App\Http\Controllers\AlumniController::class, 'importForm'])
+                ->name('alumni.import');
+                
+            Route::post('/import', [App\Http\Controllers\AlumniController::class, 'import'])
+                ->name('alumni.import.process');
+                
+            Route::get('/reports', [App\Http\Controllers\AlumniController::class, 'reports'])
+                ->name('alumni.reports');
+        });
+        
+        // Debug route for subscription - REMOVE IN PRODUCTION
+        Route::get('/debug-subscription', function() {
+            // Get tenant directly from database
+            $tenantId = tenant('id');
+            $tenantData = DB::table('tenants')->where('id', $tenantId)->first();
+            
+            return response()->json([
+                'tenant_id' => $tenantId,
+                'dashboard_subscription' => tenant()->subscription ?? null,
+                'db_subscription' => $tenantData ? $tenantData->subscription : null,
+                'db_subscription_decoded' => $tenantData && is_string($tenantData->subscription) 
+                    ? json_decode($tenantData->subscription, true) 
+                    : null
+            ]);
+        });
         
         // Admin routes for tenant settings
         Route::name('tenant.')->group(function () {
@@ -73,6 +162,19 @@ Route::middleware([
             Route::get('/directory', function() {
                 return view('tenant.directory.index');
             })->name('directory.index');
+            
+            // Instructor management routes - restrict to tenant admins
+            Route::prefix('instructors')->name('instructors.')
+                ->middleware([\App\Http\Middleware\CheckSubscription::class . ':instructors', \App\Http\Middleware\EnsureTenantAdmin::class])
+                ->group(function () {
+                    Route::get('/', [InstructorController::class, 'index'])->name('index');
+                    Route::get('/create', [InstructorController::class, 'create'])->name('create');
+                    Route::post('/', [InstructorController::class, 'store'])->name('store');
+                    Route::get('/{id}', [InstructorController::class, 'show'])->name('show');
+                    Route::get('/{id}/edit', [InstructorController::class, 'edit'])->name('edit');
+                    Route::put('/{id}', [InstructorController::class, 'update'])->name('update');
+                    Route::delete('/{id}', [InstructorController::class, 'destroy'])->name('destroy');
+                });
         });
 
         // Check if tenant is in read-only mode (e.g., suspended but still accessible for data viewing)

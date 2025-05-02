@@ -1,15 +1,13 @@
-<nav x-data="{ open: false }" class="primary-nav bg-secondary-80 border-b border-secondary-30 shadow-md fixed top-0 w-full z-50">
+<nav x-data="{ open: false }" class="primary-nav bg-secondary-80 border-b border-secondary-30 shadow-md fixed top-0 w-full z-0">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
-                <div class="shrink-0 flex items-center">
+                   <div class="shrink-0 flex items-center">
                     <a href="/" class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                        </svg>
-                        <span class="font-bold text-lg text-white tracking-tight">Alumni Hub</span>
+                        <img src="{{ asset('img/1.svg') }}" class="h-8 w-auto mr-2" alt="Alumni Logo">
+                        <span class="font-bold text-lg text-white tracking-tight">Tenant Admin</span>
                     </a>
                 </div>
 
@@ -28,6 +26,16 @@
                     <x-nav-link :href="route('tenant.settings.edit')" :active="request()->routeIs('tenant.settings.edit')" class="nav-link flex items-center">
                         <i class="fas fa-cog mr-1.5"></i>
                         {{ __('Site Settings') }}
+                    </x-nav-link>
+                    
+                    <x-nav-link :href="route('tenant.instructors.index')" :active="request()->routeIs('tenant.instructors.*')" class="nav-link flex items-center">
+                        <i class="fas fa-chalkboard-teacher mr-1.5"></i>
+                        {{ __('Instructors') }}
+                    </x-nav-link>
+                    
+                    <x-nav-link :href="route('alumni.index')" :active="request()->routeIs('alumni.*')" class="nav-link flex items-center">
+                        <i class="fas fa-user-graduate mr-1.5"></i>
+                        {{ __('Alumni') }}
                     </x-nav-link>
                 </div>
             </div>
@@ -48,7 +56,7 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')" class="flex items-center">
+                        <x-dropdown-link :href="route('tenant.profile.edit')" class="flex items-center">
                             <i class="fas fa-user-circle mr-2 text-primary"></i>
                             {{ __('Profile') }}
                         </x-dropdown-link>
@@ -103,6 +111,16 @@
                 <i class="fas fa-cog mr-2 text-primary"></i>
                 {{ __('Site Settings') }}
             </x-responsive-nav-link>
+            
+            <x-responsive-nav-link :href="route('tenant.instructors.index')" :active="request()->routeIs('tenant.instructors.*')" class="flex items-center">
+                <i class="fas fa-chalkboard-teacher mr-2 text-primary"></i>
+                {{ __('Instructors') }}
+            </x-responsive-nav-link>
+            
+            <x-responsive-nav-link :href="route('alumni.index')" :active="request()->routeIs('alumni.*')" class="flex items-center">
+                <i class="fas fa-user-graduate mr-2 text-primary"></i>
+                {{ __('Alumni') }}
+            </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
@@ -113,7 +131,7 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')" class="flex items-center">
+                <x-responsive-nav-link :href="route('tenant.profile.edit')" class="flex items-center">
                     <i class="fas fa-user-circle mr-2 text-primary"></i>
                     {{ __('Profile') }}
                 </x-responsive-nav-link>

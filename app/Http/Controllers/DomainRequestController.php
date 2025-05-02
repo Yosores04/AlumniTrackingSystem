@@ -119,9 +119,18 @@ class DomainRequestController extends Controller
             ]);
             $tenant->domains()->create(['domain' => $domain]);
 
-            // Run migrations only (no user creation)
+            // Run migrations and create admin user
             tenancy()->initialize($tenant);
             
+            // Create admin user for this new tenant with a random password
+            $password = \Illuminate\Support\Str::random(10);
+            \App\Models\User::create([
+                'name' => $domainRequest->admin_name,
+                'email' => $domainRequest->admin_email,
+                'password' => bcrypt($password),
+                'role' => \App\Models\User::ROLE_TENANT_ADMIN,
+            ]);
+
             // Return to central context
             tenancy()->end();
 
@@ -135,12 +144,13 @@ class DomainRequestController extends Controller
             // Prepare domain information
             $domain = $domainRequest->domain_prefix . '.localhost';
             
-            // Create credentials array for email (even without user creation)
+            // Create credentials array for email with the password
             $credentials = [
                 'domain' => $domain,
                 'name' => $domainRequest->admin_name,
                 'email' => $domainRequest->admin_email,
-                'login_url' => 'http://' . $domain,
+                'password' => $password,
+                'login_url' => 'http://' . $domain . ':8000',
             ];
 
             // Uncomment this to send approval email

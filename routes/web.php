@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Route;
 
 // Define central domain routes - fixed format for domain constraints
 foreach (config('tenancy.central_domains') as $domain) {
-    Route::domain($domain)->group(function () {
+    Route::domain($domain)->name('central.')->group(function () {
         Route::get('/', function () {
             return view('auth.login');
         });
 
         Route::get('/dashboard', function () {
-            return view('dashboard');
+            return view('central.dashboard');
         })->middleware(['auth', 'verified'])->name('dashboard');
 
         Route::middleware('auth')->group(function () {
@@ -98,14 +98,33 @@ Route::get('/tenants/{id}/initialize-status', [TenantController::class, 'initial
 Route::get('/request-domain', [DomainRequestController::class, 'showRequestForm'])->name('request-domain');
 Route::post('/domain-requests', [DomainRequestController::class, 'store'])->name('domain-requests.store');
 
-// Admin domain request management routes (middleware disabled for now for easier testing)
+// Admin domain request management routes
+Route::middleware(['auth', \App\Http\Middleware\EnsureCentralAdmin::class])->group(function() {
+    Route::get('/domain-requests', [DomainRequestController::class, 'index'])->name('domain-requests.index');
+    Route::post('/domain-requests/{id}/approve', [DomainRequestController::class, 'approve'])->name('domain-requests.approve');
+    Route::post('/domain-requests/{id}/reject', [DomainRequestController::class, 'reject'])->name('domain-requests.reject');
+});
 
-
-
-Route::post('/domain-requests/{id}/reject', [DomainRequestController::class, 'reject'])->name('domain-requests.reject');Route::post('/domain-requests/{id}/approve', [DomainRequestController::class, 'approve'])->name('domain-requests.approve');Route::get('/domain-requests', [DomainRequestController::class, 'index'])->name('domain-requests.index');
 // Resource routes for tenants
-Route::resource('tenants', TenantController::class);
+Route::resource('tenants', TenantController::class)->middleware(['auth', \App\Http\Middleware\EnsureCentralAdmin::class]);
 
 // Add this route with your other routes
 Route::get('/fix-all-tenant-data', [TenantController::class, 'fixAllTenantsData'])->name('tenants.fix-all-data');
+
+// Plans & Subscription Routes
+Route::get('plans', [App\Http\Controllers\PlanController::class, 'index'])->name('plans.index');
+Route::get('plans/{plan}', [App\Http\Controllers\PlanController::class, 'show'])->name('plans.show');
+Route::post('plans/{plan}/subscribe', [App\Http\Controllers\PlanController::class, 'subscribe'])->name('plans.subscribe');
+Route::get('subscription', [App\Http\Controllers\PlanController::class, 'currentSubscription'])->name('plans.subscription');
+Route::post('subscription/cancel', [App\Http\Controllers\PlanController::class, 'cancelSubscription'])->name('plans.cancel');
+
+// Admin Routes (can be expanded as needed)
+Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware\EnsureCentralAdmin::class])->group(function () {
+    Route::get('plans', [App\Http\Controllers\PlanController::class, 'adminIndex'])->name('plans.index');
+    Route::get('plans/create', [App\Http\Controllers\PlanController::class, 'adminCreate'])->name('plans.create');
+    Route::post('plans', [App\Http\Controllers\PlanController::class, 'adminStore'])->name('plans.store');
+    Route::get('plans/{plan}', [App\Http\Controllers\PlanController::class, 'adminShow'])->name('plans.show');
+    Route::get('plans/{plan}/edit', [App\Http\Controllers\PlanController::class, 'adminEdit'])->name('plans.edit');
+    Route::put('plans/{plan}', [App\Http\Controllers\PlanController::class, 'adminUpdate'])->name('plans.update');
+});
 

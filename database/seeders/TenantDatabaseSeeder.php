@@ -19,6 +19,7 @@ class TenantDatabaseSeeder extends Seeder
             'name' => 'Tenant Admin',
             'email' => 'admin@' . tenant('id') . '.com',
             'password' => Hash::make('password'),
+            'role' => User::ROLE_TENANT_ADMIN,
         ]);
 
         // Create default tenant settings

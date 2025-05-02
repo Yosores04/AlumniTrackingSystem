@@ -166,58 +166,154 @@
             
             /* Form Styles */
             .form-label {
-                @apply block text-sm font-medium mb-1;
+                @apply block text-sm font-medium mb-1 text-gray-700;
             }
             
-            .form-input {
-                @apply w-full px-3 py-2 border border-secondary-30 rounded-md focus:outline-none focus:ring focus:border-primary;
+            .form-control {
+                @apply w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-40 focus:border-primary transition-all;
             }
             
-            .form-textarea {
-                @apply w-full px-3 py-2 border border-secondary-30 rounded-md focus:outline-none focus:ring focus:border-primary;
+            select.form-control {
+                @apply pr-10 appearance-none bg-no-repeat bg-right;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+                background-size: 1.5em 1.5em;
             }
             
-            .section-heading {
-                @apply text-xl font-medium pb-2 border-b border-secondary-20;
+            textarea.form-control {
+                @apply resize-none;
+            }
+            
+            /* Enhanced Card Styles */
+            .content-card {
+                @apply bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6 transition-all duration-300;
+            }
+            
+            .content-card:hover {
+                @apply shadow-md border-gray-300;
             }
             
             /* Button Styles */
             .btn {
-                @apply px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition;
+                @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
             }
             
             .btn-primary {
-                @apply bg-primary text-white hover:bg-primary-80 focus:ring-primary;
+                @apply bg-primary hover:bg-primary-80 text-white focus:ring-primary-40;
             }
             
             .btn-secondary {
-                @apply bg-secondary text-white hover:bg-secondary-80 focus:ring-secondary;
+                @apply bg-white text-gray-700 border-gray-300 hover:bg-gray-50 focus:ring-primary-30;
             }
             
-            .btn-accent {
-                @apply bg-accent text-white hover:bg-accent-80 focus:ring-accent;
+            .btn-danger {
+                @apply bg-red-600 hover:bg-red-700 text-white focus:ring-red-500;
             }
             
-            .btn-outline {
-                @apply bg-transparent border border-current;
+            .btn-sm {
+                @apply px-3 py-1.5 text-xs;
             }
             
-            /* Dashboard Cards */
-            .dashboard-card-primary {
-                @apply app-card relative overflow-hidden border-l-4 border-primary;
+            /* Table styles */
+            .data-table {
+                @apply w-full divide-y divide-gray-200 bg-white rounded-lg overflow-hidden border border-gray-200;
             }
             
-            .dashboard-card-secondary {
-                @apply app-card relative overflow-hidden border-l-4 border-secondary;
+            .data-table thead {
+                @apply bg-gray-50;
             }
             
-            .dashboard-card-accent {
-                @apply app-card relative overflow-hidden border-l-4 border-accent;
+            .data-table th {
+                @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
             }
             
-            /* Navigation Link */
-            .nav-link {
-                @apply inline-flex items-center px-1 pt-1 text-sm font-medium leading-5 focus:outline-none transition duration-150 ease-in-out;
+            .data-table tbody {
+                @apply divide-y divide-gray-200;
+            }
+            
+            .data-table tbody tr {
+                @apply hover:bg-gray-50 transition-colors duration-150;
+            }
+            
+            .data-table td {
+                @apply px-6 py-4 whitespace-nowrap text-sm;
+            }
+            
+            /* Badge styles */
+            .badge {
+                @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+            }
+            
+            .badge-success {
+                @apply bg-green-100 text-green-800;
+            }
+            
+            .badge-warning {
+                @apply bg-yellow-100 text-yellow-800;
+            }
+            
+            .badge-info {
+                @apply bg-blue-100 text-blue-800;
+            }
+            
+            .badge-danger {
+                @apply bg-red-100 text-red-800;
+            }
+            
+            /* Section styles */
+            .section-divider {
+                @apply border-b border-gray-200 my-6;
+            }
+            
+            .section-header {
+                @apply flex items-center justify-between mb-4;
+            }
+            
+            /* Avatar improvements */
+            .avatar {
+                @apply relative inline-block rounded-full overflow-hidden bg-gray-100 flex-shrink-0;
+            }
+            
+            .avatar-sm {
+                @apply w-8 h-8;
+            }
+            
+            .avatar-md {
+                @apply w-12 h-12;
+            }
+            
+            .avatar-lg {
+                @apply w-20 h-20;
+            }
+            
+            /* Notification styles */
+            .notification {
+                @apply bg-white rounded-md border-l-4 p-4 shadow-sm mb-4;
+            }
+            
+            .notification-info {
+                @apply border-blue-500 bg-blue-50;
+            }
+            
+            .notification-success {
+                @apply border-green-500 bg-green-50;
+            }
+            
+            .notification-warning {
+                @apply border-yellow-500 bg-yellow-50;
+            }
+            
+            .notification-error {
+                @apply border-red-500 bg-red-50;
+            }
+            
+            /* Animation utilities */
+            .animate-fade-in {
+                animation: fadeIn 0.3s ease-in-out;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
             }
             
             /* Media query for mobile responsiveness */
@@ -235,86 +331,20 @@
     <body class="font-sans antialiased">
         <div class="min-h-screen flex flex-col">
             @include('layouts.navigation')
+                    <div>
+                        @if (isset($header))
+                            <header class="bg-secondary shadow">
+                                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                                    {{ $header }}
+                                </div>
+                            </header>
+                        @endif
 
-            <div class="pt-16 flex flex-1">
-                <!-- Simplified Sidebar -->
-                <aside class="sidebar bg-white shadow-sm border-r border-gray-200 fixed left-0 top-16 z-40">
-                    <div class="py-6 h-full overflow-y-auto">
-                        <div class="px-4 mb-6">
-                            <h2 class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Quick Actions</h2>
-                        </div>
-                        
-                        <nav class="space-y-1 px-2">
-                            <a href="{{ route('tenant.profile.edit') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-indigo-50 transition-colors duration-200">
-                                <div class="link-icon bg-indigo-100 text-indigo-600">
-                                    <i class="fas fa-user-edit"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-800">Update Profile</div>
-                                    <div class="text-xs text-gray-500">Manage your details</div>
-                                </div>
-                            </a>
-                            
-                            <a href="{{ route('tenant.jobs.index') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                                <div class="link-icon bg-blue-100 text-blue-600">
-                                    <i class="fas fa-briefcase"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-800">Career Opportunities</div>
-                                    <div class="text-xs text-gray-500">Browse job listings</div>
-                                </div>
-                            </a>
-                            
-                            <a href="{{ route('tenant.events.index') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-green-50 transition-colors duration-200">
-                                <div class="link-icon bg-green-100 text-green-600">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-800">Events Calendar</div>
-                                    <div class="text-xs text-gray-500">Upcoming gatherings</div>
-                                </div>
-                            </a>
-                            
-                            <a href="{{ route('tenant.news.index') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-yellow-50 transition-colors duration-200">
-                                <div class="link-icon bg-yellow-100 text-yellow-600">
-                                    <i class="fas fa-newspaper"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-800">Latest News</div>
-                                    <div class="text-xs text-gray-500">Stay updated</div>
-                                </div>
-                            </a>
-                            
-                            <a href="{{ route('tenant.directory.index') }}" class="group flex items-center px-3 py-3 rounded-lg hover:bg-red-50 transition-colors duration-200">
-                                <div class="link-icon bg-red-100 text-red-600">
-                                    <i class="fas fa-address-book"></i>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-800">Alumni Network</div>
-                                    <div class="text-xs text-gray-500">Connect with graduates</div>
-                                </div>
-                            </a>
-                        </nav>
+                        <!-- Page Content -->
+                        <main class="container-fluid px-4 py-6 flex-grow mt-8">
+                            @yield('content')
+                        </main>
                     </div>
-                </aside>
-
-                <!-- Main Content with sidebar padding -->
-                <div class="main-content flex-1 transition-all duration-300">
-                    <!-- Page Heading -->
-                    @if (isset($header))
-                        <header class="bg-secondary shadow">
-                            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                                {{ $header }}
-                            </div>
-                        </header>
-                    @endif
-
-                    <!-- Page Content -->
-                    <main class="py-4 px-4 sm:px-6 lg:px-8">
-                        {{ $slot }}
-                    </main>
-                </div>
-            </div>
         </div>
         
         <script>

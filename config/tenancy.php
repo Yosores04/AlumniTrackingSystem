@@ -75,6 +75,29 @@ return [
          */
             // 'pgsql' => Stancl\Tenancy\TenantDatabaseManagers\PostgreSQLSchemaManager::class, // Separate by schema instead of database
         ],
+
+        // The connection that will be used as a template for the dynamically created tenant database connection.
+        // Configure your template however you wish. Use null to disable.
+        'template_connection' => null,
+        
+        // Array of connections to bypass tenant-specific database connection switching
+        'excluded_connections' => [],
+        
+        // Specify which migrations should be run when creating a new tenant
+        'migration_whitelist' => [
+            // Include all migrations except plans table migrations
+            '0001_01_01_000000_create_users_table.php',
+            '0001_01_01_000001_create_cache_table.php',
+            // Exclude the following migrations for tenant databases
+            // '2023_10_05_000000_create_plans_table.php',
+            // '2023_10_05_000001_add_plan_id_to_tenants_table.php',
+        ],
+        
+        // Alternatively, you can use a blacklist approach
+        'migration_blacklist' => [
+            '2023_10_05_000000_create_plans_table.php',
+            '2023_10_05_000001_add_plan_id_to_tenants_table.php',
+        ],
     ],
 
     /**

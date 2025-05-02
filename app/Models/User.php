@@ -12,6 +12,14 @@ class User extends Authenticatable
     use HasFactory, Notifiable; // Removed HasApiTokens
 
     /**
+     * Role constants
+     */
+    const ROLE_CENTRAL_ADMIN = 'central_admin';
+    const ROLE_TENANT_ADMIN = 'tenant_admin';
+    const ROLE_INSTRUCTOR = 'instructor';
+    const ROLE_USER = 'user';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -21,6 +29,7 @@ class User extends Authenticatable
         'email',
         'password',
         'password_expires_at',
+        'role',
     ];
 
     /**
@@ -50,5 +59,37 @@ class User extends Authenticatable
     public function hasExpiredPassword()
     {
         return $this->password_expires_at && $this->password_expires_at->isPast();
+    }
+    
+    /**
+     * Check if the user is a central admin
+     */
+    public function isCentralAdmin()
+    {
+        return $this->role === self::ROLE_CENTRAL_ADMIN;
+    }
+    
+    /**
+     * Check if the user is a tenant admin
+     */
+    public function isTenantAdmin()
+    {
+        return $this->role === self::ROLE_TENANT_ADMIN;
+    }
+    
+    /**
+     * Check if the user is any type of admin (central or tenant)
+     */
+    public function isAdmin()
+    {
+        return $this->isCentralAdmin() || $this->isTenantAdmin();
+    }
+    
+    /**
+     * Check if the user is an instructor
+     */
+    public function isInstructor()
+    {
+        return $this->role === self::ROLE_INSTRUCTOR;
     }
 }

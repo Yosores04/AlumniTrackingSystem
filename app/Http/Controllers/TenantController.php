@@ -22,8 +22,8 @@ class TenantController extends Controller
         // Fetch all tenants and eager load their domains to reduce database queries
         $tenants = \App\Models\Tenant::with('domains')->latest()->paginate(10);
         
-        // Pass tenants to the view
-        return view('tenants.create', compact('tenants'));
+        // Pass tenants to the view - use central namespace instead of tenants
+        return view('central.create', compact('tenants'));
     }
 
     /**
@@ -71,6 +71,32 @@ class TenantController extends Controller
             ]);
             $tenant->domains()->create(['domain' => $domain]);
 
+            // Assign default "Free" plan to new tenant
+            try {
+                $freePlan = \App\Models\Plan::where('slug', 'free')->first();
+                if ($freePlan) {
+                    $tenant->plan_id = $freePlan->id;
+                    $tenant->billing_cycle = 'monthly';
+                    $tenant->plan_expires_at = now()->addYear(); // Give them a full year on free plan
+                    $tenant->save();
+                    
+                    Log::info('Assigned free plan to new tenant', [
+                        'tenant_id' => $tenant->id,
+                        'plan_id' => $freePlan->id
+                    ]);
+                } else {
+                    Log::warning('Free plan not found when creating tenant', [
+                        'tenant_id' => $tenant->id
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error assigning free plan to tenant', [
+                    'tenant_id' => $tenant->id,
+                    'error' => $e->getMessage()
+                ]);
+                // Continue with tenant creation even if plan assignment fails
+            }
+
             // Run migrations and create admin user
             tenancy()->initialize($tenant);
             
@@ -79,6 +105,7 @@ class TenantController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => bcrypt($password),
+                'role' => \App\Models\User::ROLE_TENANT_ADMIN,
             ]);
 
             // Return to central context
@@ -223,19 +250,32 @@ class TenantController extends Controller
             
             // Update subscription if provided
             if ($request->filled('subscription_plan')) {
-                // Get existing subscription or initialize array
-                $subscription = $tenant->subscription ?? [];
+                Log::info('Updating subscription plan', ['plan' => $request->subscription_plan]);
                 
-                // Add billing period end date if needed
-                $billingPeriodEnd = $tenant->subscription['billing_period_end'] ?? now()->addMonth()->toDateTimeString();
+                // Get plan ID from the database based on slug
+                $plan = \App\Models\Plan::where('slug', $request->subscription_plan)->first();
                 
-                $subscription = [
-                    'plan' => $request->subscription_plan,
-                    'updated_at' => now()->toDateTimeString(),
-                    'billing_period_end' => $billingPeriodEnd
-                ];
-                
-                $tenant->subscription = $subscription;
+                if ($plan) {
+                    // Update the plan_id in the tenant record
+                    $tenant->plan_id = $plan->id;
+                    $tenant->billing_cycle = 'monthly'; // Default to monthly
+                    $tenant->plan_expires_at = now()->addMonth(); // Default expiration in 1 month
+                    
+                    // Update the JSON subscription field for backward compatibility
+                    $tenant->subscription = [
+                        'plan' => $request->subscription_plan,
+                        'updated_at' => now()->toDateTimeString(),
+                        'billing_period_end' => now()->addMonth()->toDateTimeString()
+                    ];
+                    
+                    Log::info('Plan found and assigned', [
+                        'plan_id' => $plan->id,
+                        'plan_name' => $plan->name,
+                        'subscription' => $tenant->subscription
+                    ]);
+                } else {
+                    Log::error('Plan not found', ['requested_plan' => $request->subscription_plan]);
+                }
             }
             
             // Debug logging
@@ -245,7 +285,8 @@ class TenantController extends Controller
                 'new_status' => $tenant->status,
                 'status_changed' => $statusChanged,
                 'data' => $data,
-                'subscription' => $tenant->subscription ?? null
+                'subscription' => $tenant->subscription ?? null,
+                'plan_id' => $tenant->plan_id
             ]);
             
             // Save tenant
@@ -325,7 +366,24 @@ class TenantController extends Controller
                 $currentPeriodEnd = now()->addMonth()->toDateTimeString();
             }
             
-            // Update subscription
+            // Get plan ID from the database based on slug
+            $plan = \App\Models\Plan::where('slug', $request->plan)->first();
+            
+            if ($plan) {
+                // Update the plan_id in the tenant record
+                $tenant->plan_id = $plan->id;
+                $tenant->billing_cycle = 'monthly'; // Default to monthly
+                $tenant->plan_expires_at = now()->addMonth(); // Default expiration in 1 month
+                
+                Log::info('Plan found and assigned in subscription update', [
+                    'plan_id' => $plan->id,
+                    'plan_name' => $plan->name
+                ]);
+            } else {
+                Log::error('Plan not found in subscription update', ['requested_plan' => $request->plan]);
+            }
+            
+            // Update subscription json field for backward compatibility
             $subscription = [
                 'plan' => $request->plan,
                 'updated_at' => now()->toDateTimeString(),
@@ -335,6 +393,13 @@ class TenantController extends Controller
             
             $tenant->subscription = $subscription;
             $tenant->save();
+            
+            Log::info('Tenant subscription updated', [
+                'tenant_id' => $tenant->id, 
+                'plan' => $request->plan,
+                'plan_id' => $tenant->plan_id,
+                'subscription' => $subscription
+            ]);
             
             return redirect()->route('tenants.create', ['tab' => 'list'])
                 ->with('success', "Tenant subscription updated to {$request->plan} plan");
@@ -367,7 +432,7 @@ class TenantController extends Controller
             }
         }
         
-        return view('tenants.debug', compact('columns', 'tenants', 'status'));
+        return view('central.debug', compact('columns', 'tenants', 'status'));
     }
 
     /**
@@ -416,16 +481,37 @@ class TenantController extends Controller
             $before = [
                 'id' => $tenant->id,
                 'data_before' => $tenant->data,
-                'data_type_before' => gettype($tenant->data)
+                'data_type_before' => gettype($tenant->data),
+                'plan_id_before' => $tenant->plan_id
             ];
             
-            // Apply the fix - set status to active
-            $newData = json_encode(['status' => 'active']);
+            // Fix data JSON structure
+            $data = json_decode($tenant->data, true) ?: [];
+            if (!isset($data['status'])) {
+                $data['status'] = 'active';
+            }
             
-            // Update directly with SQL
-            DB::table('tenants')
-                ->where('id', $tenant->id)
-                ->update(['data' => $newData]);
+            // Check if plan_id exists in data and needs to be moved to the plan_id column
+            $planIdChanged = false;
+            if (isset($data['plan_id']) && ($tenant->plan_id === null || $tenant->plan_id === 0)) {
+                // Move plan_id from data to the dedicated column
+                $planId = (int)$data['plan_id'];
+                DB::table('tenants')
+                    ->where('id', $tenant->id)
+                    ->update(['plan_id' => $planId]);
+                
+                // Remove plan_id from data to avoid duplication
+                unset($data['plan_id']);
+                $planIdChanged = true;
+            }
+            
+            // Update data column if modified
+            $newData = json_encode($data);
+            if ($newData !== $tenant->data) {
+                DB::table('tenants')
+                    ->where('id', $tenant->id)
+                    ->update(['data' => $newData]);
+            }
                 
             // Get the tenant again to confirm changes
             $updatedTenant = DB::table('tenants')->where('id', $tenant->id)->first();
@@ -434,7 +520,9 @@ class TenantController extends Controller
             $results[] = array_merge($before, [
                 'data_after' => $updatedTenant->data,
                 'data_type_after' => gettype($updatedTenant->data),
-                'parsed_after' => json_decode($updatedTenant->data, true)
+                'parsed_after' => json_decode($updatedTenant->data, true),
+                'plan_id_after' => $updatedTenant->plan_id,
+                'plan_id_changed' => $planIdChanged
             ]);
         }
         

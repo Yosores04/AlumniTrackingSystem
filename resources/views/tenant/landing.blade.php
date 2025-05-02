@@ -46,7 +46,6 @@
         
         body {
             font-family: 'Montserrat', sans-serif;
-            background-image: url('/img/Login_Background.jpg') !important;
             background-size: cover !important;
             background-attachment: fixed !important;
             background-position: center !important;
@@ -70,16 +69,6 @@
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
         
-        /* .brand-container {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            background-color: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        } */
         
         .brand-name {
             color: var(--header-text);
@@ -274,34 +263,34 @@
         }
     </style>
 </head>
-<body style="background-image: url('{{ asset('img/Login_Background.jpg') }}'); background-size: cover; background-attachment: fixed; background-position: center;">
+<body>
     <header class="main-header">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="brand-container">
-                <!-- @if($settings->logo_path)
+                @if($settings->logo_path)
                     <img src="{{ Storage::url($settings->logo_path) }}" alt="{{ $settings->site_name }}" class="brand-logo mr-4">
                 @elseif($settings->logo_url)
                     <img src="{{ $settings->logo_url }}" alt="{{ $settings->site_name }}" class="brand-logo mr-4">
                 @else
                     <h1 class="text-2xl brand-name">{{ $settings->site_name }}</h1>
-                @endif -->
+                @endif
             </div>
             
             <nav class="hidden md:flex space-x-4">
-                <!-- @auth
+                @auth
                     <a href="{{ url('/dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt mr-1.5"></i> Dashboard</a>
                 @else
                     <a href="{{ route('login') }}" class="nav-link"><i class="fas fa-lock mr-1.5"></i> Log in</a>
                     @if (Route::has('register'))
                         <a href="{{ route('register') }}" class="nav-link"><i class="fas fa-user-graduate mr-1.5"></i> Register</a>
                     @endif
-                @endauth -->
+                @endauth
             </nav>
         </div>
     </header>
     
     <main>
-        <section class="hero-section" style="background-image: url('{{ $settings->background_image_path ? Storage::url($settings->background_image_path) : ($settings->background_image_url ? $settings->background_image_url : asset('images/default-background.jpg')) }}')">
+        <section class="hero-section" style="background-image: url('{{ $settings->background_image_path ? Storage::url($settings->background_image_path) : ($settings->background_image_url ? $settings->background_image_url : asset('img/default-background.jpg')) }}')">
             <div class="hero-content text-center text-white">
                 <h1 class="text-5xl font-bold mb-6">{{ $settings->site_name }}</h1>
                 @if($settings->site_description)

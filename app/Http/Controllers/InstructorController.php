@@ -10,6 +10,16 @@ use Illuminate\Validation\Rule;
 class InstructorController extends Controller
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware([\App\Http\Middleware\EnsureTenantAdmin::class]);
+    }
+
+    /**
      * Display a listing of instructors.
      */
     public function index(Request $request)

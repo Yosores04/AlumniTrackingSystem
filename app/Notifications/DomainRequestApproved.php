@@ -38,7 +38,7 @@ class DomainRequestApproved extends Notification implements ShouldQueue
             ->subject('Your Domain Request Has Been Approved!')
             ->greeting('Hello ' . $this->credentials['name'] . '!')
             ->line('We are pleased to inform you that your domain request has been approved.')
-            ->line('Your domain is now active: ' . $this->credentials['domain'])
+            ->line('Your domain is now active: ' . $this->credentials['domain'] . ':8000')
             ->action('Visit Your Domain', $this->credentials['login_url']);
             
         // Add login credentials only if they exist

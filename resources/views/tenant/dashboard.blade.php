@@ -211,12 +211,63 @@
     </style>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            @if (tenant()->plan)
+            <div class="mb-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                @if (tenant()->plan->slug !== 'premium')
+                                    <a href="{{ route('plans.index') }}" class="px-4 py-2 bg-accent text-white rounded-md hover:bg-accent-dark">
+                                        Upgrade Plan
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <div class="dashboard-container">
                 <h1 class="text-3xl font-bold mb-8 tracking-tight text-gray-900">Welcome to Your Alumni Portal</h1>
                 
-                <!-- Stats Overview with Enhanced Design -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <!-- Subscription Info -->
+                <div class="mb-6 p-4 rounded-lg border border-gray-200 bg-white">
+                    <div class="flex items-center">
+                        <div class="mr-2 text-lg font-semibold">
+                            @if (tenant()->plan)
+                            Subscription: <span class="font-bold text-accent">{{ tenant()->plan->name }}</span>
+                            @else
+                            Subscription: <span class="font-bold text-accent">{{ isset($subscriptionPlan['plan_name']) ? $subscriptionPlan['plan_name'] : (isset($subscriptionPlan['plan']) ? ucfirst($subscriptionPlan['plan']) : 'Free Plan') }}</span>
+                            @endif
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            @if (tenant()->plan)
+                            · {{ ucfirst(tenant()->billing_cycle) }} billing · Renews on {{ tenant()->plan_expires_at ? (is_string(tenant()->plan_expires_at) ? date('M d, Y', strtotime(tenant()->plan_expires_at)) : tenant()->plan_expires_at->format('M d, Y')) : \Carbon\Carbon::now()->addMonth()->format('M d, Y') }}
+                            @else
+                            · Monthly billing · Renews on {{ \Carbon\Carbon::parse($subscriptionPlan['billing_period_end'] ?? \Carbon\Carbon::now()->addMonth())->format('M d, Y') }}
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <!-- Alumni Count -->
+                    <div class="p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="rounded-full bg-primary-100 p-3 mr-4">
+                                <i class="fas fa-user-graduate text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Total Alumni</p>
+                                <p class="text-xl font-semibold">{{ $totalAlumni ?? 0 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="stat-card card-primary">
                         <div class="stat-header">
                             <h3 class="font-semibold text-xl">Alumni Network</h3>
@@ -365,7 +416,7 @@
                                 <div class="empty-state">
                                     <i class="fas fa-calendar-alt empty-icon"></i>
                                     <p class="font-medium">No upcoming events</p>
-                                    <p class="text-sm mt-2">Check back later for updates</p>
+                                    <p class="text-sm mt-2">Check back later for scheduled events</p>
                                 </div>
                             @endif
                         </div>
@@ -385,6 +436,56 @@
                         <h2 class="section-title">Alumni by Year</h2>
                         <div class="chart-container" style="position: relative; height: 270px; max-height: 270px; overflow: hidden;">
                             <canvas id="alumniYearChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alumni Management Card -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Alumni Management</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <a href="{{ route('alumni.index') }}" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
+                                <div class="rounded-full bg-primary-100 p-3 mr-3">
+                                    <i class="fas fa-users text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">View Alumni</p>
+                                    <p class="text-sm text-gray-500">Browse and manage alumni records</p>
+                                </div>
+                            </a>
+                            
+                            <a href="{{ route('alumni.create') }}" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
+                                <div class="rounded-full bg-green-100 p-3 mr-3">
+                                    <i class="fas fa-user-plus text-green-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Add Alumni</p>
+                                    <p class="text-sm text-gray-500">Create new alumni record</p>
+                                </div>
+                            </a>
+                            
+                            <a href="{{ route('alumni.import') }}" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
+                                <div class="rounded-full bg-blue-100 p-3 mr-3">
+                                    <i class="fas fa-file-import text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Import Data</p>
+                                    <p class="text-sm text-gray-500">Bulk import alumni records</p>
+                                </div>
+                            </a>
+                            
+                            <a href="{{ route('alumni.reports') }}" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
+                                <div class="rounded-full bg-purple-100 p-3 mr-3">
+                                    <i class="fas fa-chart-bar text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Reports</p>
+                                    <p class="text-sm text-gray-500">View alumni statistics and reports</p>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>

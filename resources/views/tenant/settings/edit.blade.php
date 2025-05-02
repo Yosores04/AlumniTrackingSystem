@@ -20,6 +20,58 @@
                                 </div>
                             @endif
 
+                            <!-- Current Plan Information -->
+                            <div class="mb-8 p-4 border rounded-lg bg-gradient-to-r from-primary-50 to-secondary-50">
+                                @php
+                                    // First try to get plan from tenant model, which should be most accurate
+                                    if (function_exists('tenant') && tenant() && tenant()->plan) {
+                                        $normalizedPlanType = strtolower(tenant()->plan->slug);
+                                        $displayPlan = tenant()->plan->name;
+                                    } else {
+                                        // Fallback to the planType variable from the controller
+                                        $normalizedPlanType = strtolower($planType);
+                                        if (strpos($normalizedPlanType, 'premium') !== false) {
+                                            $normalizedPlanType = 'premium';
+                                            $displayPlan = 'Premium';
+                                        } elseif (strpos($normalizedPlanType, 'basic') !== false) {
+                                            $normalizedPlanType = 'basic';
+                                            $displayPlan = 'Basic';
+                                        } else {
+                                            $normalizedPlanType = 'free';
+                                            $displayPlan = 'Free';
+                                        }
+                                    }
+                                @endphp
+                                
+                                <h3 class="font-semibold mb-2">Current Plan: {{ $displayPlan }}</h3>
+                                <div class="text-sm">
+                                    @if($normalizedPlanType === 'free')
+                                        <p class="mb-2">You are currently on the <strong>{{ $displayPlan }}</strong>. You can customize:</p>
+                                        <ul class="list-disc ml-6 mb-3">
+                                            <li>Site Name</li>
+                                            <li>Site Description</li>
+                                            <li>Welcome Message</li>
+                                            <li>Footer Text</li>
+                                        </ul>
+                                        <p>Upgrade to enable more customization options!</p>
+                                    @elseif($normalizedPlanType === 'basic')
+                                        <p class="mb-2">You are currently on the <strong>{{ $displayPlan }}</strong>. In addition to the Free Plan features, you can customize:</p>
+                                        <ul class="list-disc ml-6 mb-3">
+                                            <li>All color settings</li>
+                                        </ul>
+                                        <p>Upgrade to Premium to unlock all customization options!</p>
+                                    @elseif($normalizedPlanType === 'premium')
+                                        <p class="mb-2">You are on the <strong>{{ $displayPlan }}</strong> with full customization capabilities:</p>
+                                        <ul class="list-disc ml-6 mb-3">
+                                            <li>All text settings</li>
+                                            <li>All color settings</li>
+                                            <li>Logo & Background images</li>
+                                            <li>Social media links</li>
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
+
                             <form action="{{ route('tenant.settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                                 @csrf
                                 @method('PUT')
@@ -64,7 +116,8 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Brand Colors -->
+                                <!-- Brand Colors - Only for Basic and Premium -->
+                                @if(in_array($normalizedPlanType, ['basic', 'premium']))
                                 <div class="mb-8">
                                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Brand Colors</h3>
                                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -148,8 +201,20 @@
                                         </div>
                                     </div>
                                 </div>
+                                @else
+                                <!-- Message for users on free plan -->
+                                <div class="mb-8 p-4 border border-dashed border-gray-300 rounded-lg">
+                                    <h3 class="text-lg font-medium text-gray-600 mb-2">Color Customization</h3>
+                                    <p class="text-gray-500">
+                                        <i class="fas fa-lock mr-2"></i>
+                                        Color customization is available on the Basic and Premium plans. 
+                                        <a href="{{ route('plans.subscription') }}" class="text-primary underline">Upgrade your plan</a> to unlock this feature.
+                                    </p>
+                                </div>
+                                @endif
                                 
-                                <!-- Logo & Background Section -->
+                                <!-- Logo & Background Section - Only for Premium -->
+                                @if($normalizedPlanType === 'premium')
                                 <div class="mt-8">
                                     <h2 class="section-heading mb-6">Logo & Background</h2>
                                     
@@ -271,22 +336,22 @@
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <!-- Privacy Section -->
-                                <div class="mt-8">
-                                    <h2 class="section-heading mb-6">Privacy</h2>
-                                    
-                                    <div class="mb-4">
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="is_public" value="1" {{ $settings->is_public ? 'checked' : '' }} class="rounded border-gray-300 text-primary">
-                                            <span class="ml-2">Make site public (visible to non-members)</span>
-                                        </label>
-                                    </div>
+                                @else
+                                <!-- Message for users not on premium plan -->
+                                <div class="mt-8 p-4 border border-dashed border-gray-300 rounded-lg">
+                                    <h3 class="text-lg font-medium text-gray-600 mb-2">Advanced Customization</h3>
+                                    <p class="text-gray-500">
+                                        <i class="fas fa-lock mr-2"></i>
+                                        Logo, background images, and social media customization is available on the Premium plan. 
+                                        <a href="{{ route('plans.subscription') }}" class="text-primary underline">Upgrade to Premium</a> to unlock these features.
+                                    </p>
                                 </div>
+                                @endif
                                 
-                                <!-- Submit Button -->
-                                <div class="mt-8 flex justify-end">
-                                    <button type="submit" class="btn-primary">Save Settings</button>
+                                <div class="pt-5 border-t border-gray-200">
+                                    <div class="flex justify-end">
+                                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -295,47 +360,39 @@
             </div>
         </div>
     </div>
-    
+
+    @push('scripts')
     <script>
-        // Function to sync color picker with text input
-        function setupColorPicker(colorPickerId, textInputId) {
-            const colorPicker = document.getElementById(colorPickerId);
-            const textInput = document.getElementById(textInputId);
-            
-            if (!colorPicker || !textInput) return;
-            
-            // Update text input when color picker changes
-            colorPicker.addEventListener('input', function() {
-                textInput.value = this.value;
-            });
-            
-            // Update color picker when text input changes
-            textInput.addEventListener('input', function() {
-                // Validate hex format
-                if (/^#[0-9A-F]{6}$/i.test(this.value)) {
-                    colorPicker.value = this.value;
-                } else if (/^[0-9A-F]{6}$/i.test(this.value)) {
-                    // Add # if missing
-                    colorPicker.value = '#' + this.value;
-                    this.value = '#' + this.value;
-                }
-            });
-        }
-        
-        // Setup all color pickers when the DOM is loaded
+        // Handle color picker synchronization
         document.addEventListener('DOMContentLoaded', function() {
-            setupColorPicker('primary_color', 'primary_color_hex');
-            setupColorPicker('secondary_color', 'secondary_color_hex');
-            setupColorPicker('accent_color', 'accent_color_hex');
-            setupColorPicker('background_color', 'background_color_hex');
-            setupColorPicker('text_color', 'text_color_hex');
+            const colorInputs = [
+                ['primary_color', 'primary_color_hex'],
+                ['secondary_color', 'secondary_color_hex'],
+                ['accent_color', 'accent_color_hex'],
+                ['background_color', 'background_color_hex'],
+                ['text_color', 'text_color_hex']
+            ];
             
-            // Ensure all text inputs have the # prefix
-            document.querySelectorAll('input[type="text"][id$="_hex"]').forEach(input => {
-                if (input.value && !input.value.startsWith('#')) {
-                    input.value = '#' + input.value;
+            colorInputs.forEach(pair => {
+                if (document.getElementById(pair[0]) && document.getElementById(pair[1])) {
+                    const colorPicker = document.getElementById(pair[0]);
+                    const hexInput = document.getElementById(pair[1]);
+                    
+                    // Update text input when color picker changes
+                    colorPicker.addEventListener('input', () => {
+                        hexInput.value = colorPicker.value;
+                    });
+                    
+                    // Update color picker when text input changes
+                    hexInput.addEventListener('input', () => {
+                        const hexValue = hexInput.value;
+                        if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hexValue)) {
+                            colorPicker.value = hexValue;
+                        }
+                    });
                 }
             });
         });
     </script>
+    @endpush
 </x-app-layout>

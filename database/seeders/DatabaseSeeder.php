@@ -22,7 +22,14 @@ class DatabaseSeeder extends Seeder
             User::factory()->create([
                 'name' => 'Central Admin',
                 'email' => 'admin@central.com',
+                'role' => User::ROLE_CENTRAL_ADMIN,
             ]);
         }
+
+        // Add new seeder
+        $this->call([
+            PlanSeeder::class,
+            // ... other seeders if they exist ...
+        ]);
     }
 }

@@ -31,7 +31,10 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'id', 
         'data', 
         'status',
-        'subscription'
+        'subscription',
+        'plan_id',
+        'billing_cycle',
+        'plan_expires_at'
     ];
 
     /**
@@ -88,5 +91,68 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function getIsActiveAttribute()
     {
         return $this->status === 'active';
+    }
+
+    /**
+     * Get the plan associated with this tenant.
+     */
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    /**
+     * Check if the tenant has reached alumni limit.
+     */
+    public function hasReachedAlumniLimit()
+    {
+        if (!$this->plan) {
+            return true; // No plan means no access
+        }
+
+        if ($this->plan->hasUnlimitedAlumni()) {
+            return false; // Unlimited
+        }
+
+        // Count alumni in the tenant database
+        // This is a placeholder - implement the actual count method based on your application
+        $alumniCount = 0; // Replace with actual count
+        
+        return $alumniCount >= $this->plan->max_alumni;
+    }
+
+    /**
+     * Check if the tenant has reached instructor limit.
+     */
+    public function hasReachedInstructorLimit()
+    {
+        if (!$this->plan) {
+            return true; // No plan means no access
+        }
+
+        if ($this->plan->hasUnlimitedInstructors()) {
+            return false; // Unlimited
+        }
+
+        // Count instructors in the tenant database
+        $instructorCount = User::where('role', User::ROLE_INSTRUCTOR)->count();
+        
+        return $instructorCount >= $this->plan->max_instructors;
+    }
+
+    /**
+     * Check if subscription is active.
+     */
+    public function hasActiveSubscription()
+    {
+        if (!$this->plan_id) {
+            return false;
+        }
+
+        if ($this->plan->slug === 'free') {
+            return true; // Free plan is always active
+        }
+
+        return !$this->plan_expires_at || $this->plan_expires_at > now();
     }
 }

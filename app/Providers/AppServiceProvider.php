@@ -10,6 +10,7 @@ use App\Models\TenantSettings;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Log;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('currentTenant', function ($app) {
             return tenant();
         });
+
+        // Register the subscription singleton
+        $this->app->singleton('subscription', function ($app) {
+            return function($passable, $next) use ($app) {
+                // Simply pass through to the CheckSubscription middleware
+                return $app->make(\App\Http\Middleware\CheckSubscription::class)
+                          ->handle($passable, $next, $app->request->route()->parameter('subscription'));
+            };
+        });
     }
 
     /**
@@ -31,6 +41,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register tenant observer
         Tenant::observe(TenantObserver::class);
+
+        // Register custom Blade components
+        Blade::component('central-app-layout', \App\View\Components\CentralAppLayout::class);
+        Blade::component('instructor-layout', \App\View\Components\InstructorLayout::class);
 
         // Pass tenant settings to all tenant views
         View::composer('tenant.*', function ($view) {
@@ -52,5 +66,18 @@ class AppServiceProvider extends ServiceProvider
         if (App::environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Add any custom blade directives here
+        Blade::if('admin', function () {
+            return auth()->check() && auth()->user()->isAdmin();
+        });
+        
+        Blade::if('tenant_admin', function () {
+            return auth()->check() && auth()->user()->isTenantAdmin();
+        });
+        
+        Blade::if('instructor', function () {
+            return auth()->check() && auth()->user()->isInstructor();
+        });
     }
 }
