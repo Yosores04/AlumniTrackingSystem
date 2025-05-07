@@ -1,7 +1,7 @@
 # Alumni Tracking System
 
 <p align="center">
-  <img src="public/img/logo.png" alt="Alumni Tracking System Logo" width="200">
+  <img src="public/img/1.svg" alt="Alumni Tracking System Logo" width="200">
 </p>
 
 ## About The Project
