@@ -12,8 +12,8 @@
         <link href="https://fonts.bunny.net/css?family=outfit:300,400,500,600,700|plus-jakarta-sans:400,500,600,700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 
-        <!-- Alpine JS via CDN to ensure it's available -->
-        <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
+        <!-- Alpine JS - Load directly to ensure it's available -->
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -322,13 +322,14 @@
             
             /* Avatar */
             .avatar {
-                width: 2.5rem;
-                height: 2.5rem;
+                width: 2rem;
+                height: 2rem;
                 border-radius: 9999px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 overflow: hidden;
+                border: 2px solid rgba(255, 255, 255, 0.4);
             }
             
             .avatar img {
@@ -340,20 +341,36 @@
             /* Profile dropdown */
             .profile-dropdown {
                 position: relative;
+                z-index: 100;
             }
             
             .profile-dropdown-content {
                 position: absolute;
                 right: 0;
-                top: calc(100% + 0.5rem);
+                top: calc(100% + 0.75rem);
                 width: 240px;
                 background: white;
-                border-radius: 0.5rem;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                border-radius: 0.75rem;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
                 padding: 0.5rem 0;
-                z-index: 50;
-                border: 1px solid #e5e7eb;
-                transition: opacity 0.2s ease, transform 0.2s ease;
+                z-index: 100;
+                border: 1px solid #f3f4f6;
+                transition: opacity 0.3s ease, transform 0.3s ease;
+                overflow: visible !important;
+            }
+            
+            .profile-dropdown-content::before {
+                content: '';
+                position: absolute;
+                top: -8px;
+                right: 24px;
+                width: 16px;
+                height: 16px;
+                background: white;
+                transform: rotate(45deg);
+                border-left: 1px solid #f3f4f6;
+                border-top: 1px solid #f3f4f6;
+                z-index: -1;
             }
             
             .profile-dropdown-item {
@@ -361,17 +378,30 @@
                 align-items: center;
                 padding: 0.75rem 1rem;
                 color: #1f2937;
-                transition: background-color 0.15s ease;
+                transition: all 0.15s ease;
+                font-size: 0.9rem;
             }
             
             .profile-dropdown-item:hover {
-                background-color: #f3f4f6;
+                background-color: #f9fafb;
+            }
+            
+            .profile-dropdown-item:first-child {
+                border-top-left-radius: 0.5rem;
+                border-top-right-radius: 0.5rem;
+            }
+            
+            .profile-dropdown-item:last-child {
+                border-bottom-left-radius: 0.5rem;
+                border-bottom-right-radius: 0.5rem;
             }
             
             .profile-dropdown-item i {
                 margin-right: 0.75rem;
                 font-size: 1rem;
                 color: #6b7280;
+                width: 20px;
+                text-align: center;
             }
         </style>
         
@@ -383,7 +413,23 @@
                 <div class="container-fluid px-4 py-2">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center">
-                            <img src="{{ asset('images/alumni-logo.png') }}" alt="Alumni Logo" class="h-8 mr-3">
+                            @php
+                                use Illuminate\Support\Facades\Storage;
+                                $settings = \App\Models\TenantSettings::getSettings();
+                                $logoUrl = null;
+                                
+                                if ($settings->logo_url) {
+                                    $logoUrl = $settings->logo_url;
+                                } elseif ($settings->logo_path) {
+                                    $logoUrl = Storage::url($settings->logo_path);
+                                }
+                            @endphp
+
+                            @if ($logoUrl)
+                                <img src="{{ $logoUrl }}" class="h-8 mr-3" alt="{{ $settings->site_name ?? 'Alumni Logo' }}">
+                            @else
+                                <img src="/img/1.svg" alt="Alumni Logo" class="h-8 mr-3">
+                            @endif
                             <span class="font-bold text-lg tracking-tight">Instructor Portal</span>
                         </div>
                         <div class="flex items-center space-x-2">
@@ -396,36 +442,45 @@
                             <a href="{{ route('instructor.alumni.create') }}" class="nav-link {{ request()->routeIs('instructor.alumni.create') ? 'active' : '' }}">
                                 <i class="fas fa-user-plus"></i> Register Alumni
                             </a>
+                            <a href="{{ url('/support') }}" class="nav-link {{ request()->is('support*') ? 'active' : '' }}">
+                                <i class="fas fa-headset"></i> Support
+                            </a>
                             
                             <div class="profile-dropdown ml-4" x-data="{ open: false }">
-                                <button @click="open = !open" class="flex items-center focus:outline-none">
-                                    <span class="mr-2 text-sm font-medium">{{ Auth::user()->name }}</span>
-                                    <div class="avatar bg-white">
+                                <button @click.stop.prevent="open = !open" type="button" class="flex items-center bg-secondary-70 hover:bg-secondary-60 text-white px-3 py-2 rounded-full focus:outline-none transition-colors">
+                                    <div class="avatar bg-white mr-2">
                                         <img src="{{ Auth::user()->profile_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&color=7F9CF5&background=EBF4FF' }}" alt="{{ Auth::user()->name }}">
                                     </div>
+                                    <span class="mr-1 text-sm font-medium">{{ Auth::user()->name }}</span>
+                                    <i class="fas text-xs ml-1" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                                 </button>
                                 
-                                <div x-show="open" 
-                                     @click.away="open = false" 
-                                     x-transition:enter="transition ease-out duration-100"
+                                <div x-cloak x-show="open" 
+                                     @click.outside="open = false"
+                                     x-transition:enter="transition ease-out duration-200"
                                      x-transition:enter-start="transform opacity-0 scale-95"
                                      x-transition:enter-end="transform opacity-100 scale-100"
-                                     x-transition:leave="transition ease-in duration-75"
+                                     x-transition:leave="transition ease-in duration-150"
                                      x-transition:leave-start="transform opacity-100 scale-100"
                                      x-transition:leave-end="transform opacity-0 scale-95"
-                                     class="profile-dropdown-content"
-                                     style="display: none;">
-                                    <a href="#" class="profile-dropdown-item">
-                                        <i class="fas fa-user"></i> Profile
+                                     class="profile-dropdown-content">
+                                    <a href="{{ route('instructor.dashboard') }}" class="profile-dropdown-item" @click.stop>
+                                        <i class="fas fa-tachometer-alt"></i> Dashboard
                                     </a>
-                                    <a href="#" class="profile-dropdown-item">
-                                        <i class="fas fa-cog"></i> Settings
+                                    <a href="#" class="profile-dropdown-item" @click.stop>
+                                        <i class="fas fa-user"></i> My Profile
+                                    </a>
+                                    <a href="{{ url('/support') }}" class="profile-dropdown-item" @click.stop>
+                                        <i class="fas fa-headset"></i> Support
+                                    </a>
+                                    <a href="#" class="profile-dropdown-item" @click.stop>
+                                        <i class="fas fa-cog"></i> Account Settings
                                     </a>
                                     <div class="border-t border-gray-200 my-1"></div>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
-                                        <button type="submit" class="profile-dropdown-item w-full text-left">
-                                            <i class="fas fa-sign-out-alt"></i> Sign out
+                                        <button type="submit" class="profile-dropdown-item w-full text-left text-red-600 hover:text-red-700 hover:bg-red-50" @click.stop>
+                                            <i class="fas fa-sign-out-alt"></i> Sign Out
                                         </button>
                                     </form>
                                 </div>
@@ -457,6 +512,9 @@
             </footer>
         </div>
         
+        <!-- Confirmation Dialog Component -->
+        @include('components.confirm-dialog')
+        
         @stack('scripts')
         
         <script>
@@ -471,6 +529,44 @@
                         });
                     });
                 });
+                
+                // Fallback dropdown handler if Alpine.js fails
+                const profileDropdownBtn = document.querySelector('.profile-dropdown button');
+                const profileDropdownContent = document.querySelector('.profile-dropdown-content');
+                
+                if (profileDropdownBtn && profileDropdownContent) {
+                    // Check if Alpine.js is working properly
+                    const parentEl = profileDropdownBtn.closest('[x-data]');
+                    const alpineWorking = parentEl && typeof parentEl.__x !== 'undefined';
+                    
+                    if (!alpineWorking) {
+                        console.log('Alpine.js not detected, using fallback dropdown handler');
+                        // Remove Alpine attributes to avoid conflicts
+                        profileDropdownBtn.removeAttribute('x-on:click');
+                        profileDropdownBtn.removeAttribute('@click');
+                        profileDropdownContent.removeAttribute('x-show');
+                        profileDropdownContent.removeAttribute('@click.outside');
+                        
+                        // Initially hide the dropdown
+                        profileDropdownContent.style.display = 'none';
+                        
+                        // Toggle dropdown on button click
+                        profileDropdownBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const isVisible = profileDropdownContent.style.display === 'block';
+                            profileDropdownContent.style.display = isVisible ? 'none' : 'block';
+                        });
+                        
+                        // Close dropdown when clicking outside
+                        document.addEventListener('click', function(e) {
+                            if (!profileDropdownBtn.contains(e.target) && !profileDropdownContent.contains(e.target)) {
+                                profileDropdownContent.style.display = 'none';
+                            }
+                        });
+                    }
+                }
             });
         </script>
     </body>

@@ -40,7 +40,10 @@
                 <div class="h-24 bg-gradient-to-r from-blue-500 to-blue-600"></div>
                 <div class="px-4 pt-0 pb-6 text-center">
                     <div class="-mt-12 mb-4">
-                        @if($alumni->profile_photo_path)
+                        @if($alumni->profile_photo_url)
+                            <img src="{{ $alumni->profile_photo_url }}" alt="{{ $alumni->name }}" 
+                                class="w-24 h-24 rounded-full border-4 border-white mx-auto object-cover shadow-md">
+                        @elseif($alumni->profile_photo_path)
                             <img src="{{ Storage::url($alumni->profile_photo_path) }}" alt="{{ $alumni->name }}" 
                                 class="w-24 h-24 rounded-full border-4 border-white mx-auto object-cover shadow-md">
                         @else
@@ -271,7 +274,7 @@
                 <div class="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
                     <button @click="toggle('skills')" class="w-full flex justify-between items-center p-4 focus:outline-none">
                         <div class="flex items-center">
-                            <i class="fas fa-award text-yellow-600 mr-3"></i>
+                            <i class="fas fa-trophy text-amber-600 mr-3"></i>
                             <h3 class="text-base font-semibold">Skills & Achievements</h3>
                         </div>
                         <i class="fas transition-transform duration-300 ease-in-out" :class="isOpen('skills') ? 'fa-chevron-up rotate-0' : 'fa-chevron-down rotate-180'"></i>
@@ -285,18 +288,40 @@
                          x-transition:leave-start="opacity-100 transform translate-y-0"
                          x-transition:leave-end="opacity-0 transform -translate-y-4">
                         <div class="border-t border-gray-200 p-4">
-                            <div class="grid grid-cols-1 gap-4">
+                            <div class="space-y-4">
                                 <div>
-                                    <h4 class="text-xs font-semibold uppercase text-gray-500 mb-1">Skills</h4>
-                                    <p>{{ $alumni->skills ?? 'Not provided' }}</p>
+                                    <h4 class="text-xs font-semibold uppercase text-gray-500 mb-2">Skills</h4>
+                                    @if($alumni->skills)
+                                        <div class="flex flex-wrap gap-1">
+                                            @foreach(explode(',', $alumni->skills) as $skill)
+                                                @if(trim($skill))
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        {{ trim($skill) }}
+                                                    </span>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <p class="text-gray-600">No skills provided</p>
+                                    @endif
                                 </div>
+                                
                                 <div>
-                                    <h4 class="text-xs font-semibold uppercase text-gray-500 mb-1">Achievements</h4>
-                                    <p>{{ $alumni->achievements ?? 'Not provided' }}</p>
+                                    <h4 class="text-xs font-semibold uppercase text-gray-500 mb-2">Achievements</h4>
+                                    @if($alumni->achievements)
+                                        <p class="text-gray-600">{{ $alumni->achievements }}</p>
+                                    @else
+                                        <p class="text-gray-600">No achievements provided</p>
+                                    @endif
                                 </div>
+                                
                                 <div>
-                                    <h4 class="text-xs font-semibold uppercase text-gray-500 mb-1">Certifications</h4>
-                                    <p>{{ $alumni->certifications ?? 'Not provided' }}</p>
+                                    <h4 class="text-xs font-semibold uppercase text-gray-500 mb-2">Certifications</h4>
+                                    @if($alumni->certifications)
+                                        <p class="text-gray-600">{{ $alumni->certifications }}</p>
+                                    @else
+                                        <p class="text-gray-600">No certifications provided</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -304,11 +329,10 @@
                 </div>
                 
                 <!-- Notes Accordion -->
-                @if($alumni->notes)
                 <div class="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
                     <button @click="toggle('notes')" class="w-full flex justify-between items-center p-4 focus:outline-none">
                         <div class="flex items-center">
-                            <i class="fas fa-sticky-note text-red-600 mr-3"></i>
+                            <i class="fas fa-sticky-note text-yellow-600 mr-3"></i>
                             <h3 class="text-base font-semibold">Notes</h3>
                         </div>
                         <i class="fas transition-transform duration-300 ease-in-out" :class="isOpen('notes') ? 'fa-chevron-up rotate-0' : 'fa-chevron-down rotate-180'"></i>
@@ -322,11 +346,17 @@
                          x-transition:leave-start="opacity-100 transform translate-y-0"
                          x-transition:leave-end="opacity-0 transform -translate-y-4">
                         <div class="border-t border-gray-200 p-4">
-                            <p class="whitespace-pre-line">{{ $alumni->notes }}</p>
+                            @if($alumni->notes)
+                                <p class="text-gray-600 whitespace-pre-line">{{ $alumni->notes }}</p>
+                            @else
+                                <p class="text-gray-600">No notes have been added for this alumni.</p>
+                            @endif
+                            
+                            <!-- Timestamps - When the record was created and last updated -->
+                            <x-timestamps :model="$alumni" />
                         </div>
                     </div>
                 </div>
-                @endif
                 
                 <!-- Contact History Accordion -->
                 <div class="bg-white rounded-lg shadow border border-gray-100 overflow-hidden">
@@ -376,10 +406,22 @@
             
             <!-- Delete Record Button -->
             <div class="mt-6 text-right">
-                <form action="{{ route('instructor.alumni.destroy', $alumni->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this alumni record? This action cannot be undone.');">
+                <form id="delete-form" action="{{ route('instructor.alumni.destroy', $alumni->id) }}" method="POST" class="inline-block">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn bg-red-500 hover:bg-red-600 text-white">
+                    <button 
+                        type="button" 
+                        class="btn bg-red-500 hover:bg-red-600 text-white"
+                        onclick="window.dispatchEvent(new CustomEvent('open-confirm', {
+                            detail: {
+                                title: 'Delete Alumni Record',
+                                message: 'Are you sure you want to delete this alumni record? This action cannot be undone.',
+                                type: 'danger',
+                                confirmButtonText: 'Delete',
+                                onConfirm: () => document.getElementById('delete-form').submit()
+                            }
+                        }))"
+                    >
                         <i class="fas fa-trash mr-2"></i> Delete Record
                     </button>
                 </form>

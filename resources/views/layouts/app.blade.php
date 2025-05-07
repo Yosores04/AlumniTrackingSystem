@@ -347,6 +347,12 @@
                     </div>
         </div>
         
+        <!-- Confirmation Dialog Component -->
+        @include('components.confirm-dialog')
+        
+        <!-- Upgrade Request Modal Component -->
+        @include('components.upgrade-request-modal')
+        
         <script>
             // Simple JavaScript to handle mobile responsiveness
             document.addEventListener('DOMContentLoaded', function() {

@@ -10,6 +10,25 @@
             <a href="{{ route('instructor.alumni.create') }}" class="btn btn-primary">
                 <i class="fas fa-user-plus mr-2"></i> Add Alumni
             </a>
+            <a href="{{ url('/support') }}" class="btn btn-secondary">
+                <i class="fas fa-headset mr-2"></i> Support
+            </a>
+        </div>
+    </div>
+
+    <!-- Support Banner -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-500 text-lg"></i>
+            </div>
+            <div class="ml-3 flex-grow">
+                <p class="text-sm text-blue-700">
+                    Access the support system to manage alumni inquiries or request assistance. 
+                    <a href="{{ url('/support') }}" class="text-blue-700 font-bold hover:underline">Go to Support Center →</a>
+                    <br><small>(Debug: Current port is {{ request()->getPort() }} | <a href="{{ url('/debug-routes') }}" class="underline">View All Routes</a>)</small>
+                </p>
+            </div>
         </div>
     </div>
 
@@ -201,11 +220,11 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('instructor.alumni.import') }}" class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                    <a href="{{ route('instructor.alumni.report') }}" class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
                         <div class="bg-green-100 p-2 rounded-lg mr-3">
-                            <i class="fas fa-file-import text-green-600"></i>
+                            <i class="fas fa-file-pdf text-green-600"></i>
                         </div>
-                        <span>Import Alumni Data</span>
+                        <span>Generate PDF Report</span>
                     </a>
                 </li>
                 <li>

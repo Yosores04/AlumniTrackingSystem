@@ -17,6 +17,7 @@ class User extends Authenticatable
     const ROLE_CENTRAL_ADMIN = 'central_admin';
     const ROLE_TENANT_ADMIN = 'tenant_admin';
     const ROLE_INSTRUCTOR = 'instructor';
+    const ROLE_ALUMNI = 'alumni';
     const ROLE_USER = 'user';
 
     /**
@@ -91,5 +92,13 @@ class User extends Authenticatable
     public function isInstructor()
     {
         return $this->role === self::ROLE_INSTRUCTOR;
+    }
+    
+    /**
+     * Get the alumni profile associated with the user.
+     */
+    public function alumni()
+    {
+        return $this->hasOne(Alumni::class);
     }
 }

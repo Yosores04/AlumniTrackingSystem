@@ -1,14 +1,12 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-white leading-tight">
-            {{ __('Tenant Settings') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
+@section('title', 'Site Settings')
+
+@section('content')
+    <div class="py-8 mt-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="app-card shadow-primary">
-                <div class="app-card-header">
+                <div class="app-card-header bg-secondary-5 border-b border-secondary-20">
                     <h1 class="text-2xl font-semibold">Customize Your Site</h1>
                 </div>
                 <div class="app-card-body">
@@ -21,7 +19,7 @@
                             @endif
 
                             <!-- Current Plan Information -->
-                            <div class="mb-8 p-4 border rounded-lg bg-gradient-to-r from-primary-50 to-secondary-50">
+                            <div class="mb-8 p-6 border rounded-lg bg-gradient-to-r from-secondary-5 to-primary-5 shadow-sm">
                                 @php
                                     // First try to get plan from tenant model, which should be most accurate
                                     if (function_exists('tenant') && tenant() && tenant()->plan) {
@@ -43,7 +41,7 @@
                                     }
                                 @endphp
                                 
-                                <h3 class="font-semibold mb-2">Current Plan: {{ $displayPlan }}</h3>
+                                <h3 class="text-xl font-bold mb-3">Current Plan: {{ $displayPlan }}</h3>
                                 <div class="text-sm">
                                     @if($normalizedPlanType === 'free')
                                         <p class="mb-2">You are currently on the <strong>{{ $displayPlan }}</strong>. You can customize:</p>
@@ -77,21 +75,21 @@
                                 @method('PUT')
                                 
                                 <!-- General Settings Section -->
-                                <div>
-                                    <h2 class="section-heading mb-6">General Settings</h2>
+                                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
+                                    <h2 class="text-xl font-semibold mb-6 text-gray-800 border-b pb-2">General Settings</h2>
                                     
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <label for="site_name" class="form-label">Site Name</label>
-                                            <input type="text" id="site_name" name="site_name" value="{{ $settings->site_name }}" class="form-input">
+                                            <label for="site_name" class="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
+                                            <input type="text" id="site_name" name="site_name" value="{{ $settings->site_name }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-40 focus:border-primary transition-all">
                                             @error('site_name')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         
                                         <div>
-                                            <label for="site_description" class="form-label">Site Description</label>
-                                            <input type="text" id="site_description" name="site_description" value="{{ $settings->site_description }}" class="form-input">
+                                            <label for="site_description" class="block text-sm font-medium text-gray-700 mb-1">Site Description</label>
+                                            <input type="text" id="site_description" name="site_description" value="{{ $settings->site_description }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-40 focus:border-primary transition-all">
                                             @error('site_description')
                                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                             @enderror
@@ -99,17 +97,17 @@
                                     </div>
                                     
                                     <div class="mt-4">
-                                        <label for="welcome_message" class="form-label">Welcome Message</label>
-                                        <textarea id="welcome_message" name="welcome_message" rows="3" class="form-textarea">{{ $settings->welcome_message }}</textarea>
+                                        <label for="welcome_message" class="block text-sm font-medium text-gray-700 mb-1">Welcome Message</label>
+                                        <textarea id="welcome_message" name="welcome_message" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-40 focus:border-primary transition-all">{{ $settings->welcome_message }}</textarea>
                                         @error('welcome_message')
                                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                         @enderror
-                                        <p class="text-muted text-sm mt-1">This message will be displayed on your landing page.</p>
+                                        <p class="text-sm text-gray-500 mt-1">This message will be displayed on your landing page.</p>
                                     </div>
                                     
                                     <div class="mt-4">
-                                        <label for="footer_text" class="form-label">Footer Text</label>
-                                        <textarea id="footer_text" name="footer_text" rows="2" class="form-textarea">{{ $settings->footer_text }}</textarea>
+                                        <label for="footer_text" class="block text-sm font-medium text-gray-700 mb-1">Footer Text</label>
+                                        <textarea id="footer_text" name="footer_text" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-40 focus:border-primary transition-all">{{ $settings->footer_text }}</textarea>
                                         @error('footer_text')
                                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                         @enderror
@@ -208,7 +206,11 @@
                                     <p class="text-gray-500">
                                         <i class="fas fa-lock mr-2"></i>
                                         Color customization is available on the Basic and Premium plans. 
-                                        <a href="{{ route('plans.subscription') }}" class="text-primary underline">Upgrade your plan</a> to unlock this feature.
+                                        <a href="{{ route('tenant.plan.upgrade.request', 'basic') }}" 
+                                           class="text-primary underline">
+                                            Upgrade your plan
+                                        </a> 
+                                        to unlock this feature.
                                     </p>
                                 </div>
                                 @endif
@@ -223,24 +225,17 @@
                                             <label class="form-label">Logo</label>
                                             <div class="mt-2 app-card shadow-secondary overflow-hidden">
                                                 <div class="p-4 flex items-center justify-center bg-secondary-10">
-                                                    @if($settings->logo_path)
-                                                        <img src="{{ Storage::url($settings->logo_path) }}" alt="Logo" class="max-h-24">
-                                                    @elseif($settings->logo_url)
+                                                    @if($settings->logo_url)
                                                         <img src="{{ $settings->logo_url }}" alt="Logo" class="max-h-24">
                                                     @else
                                                         <div class="text-muted">No logo set</div>
                                                     @endif
                                                 </div>
                                                 <div class="p-4 bg-secondary-5">
-                                                    <div class="grid grid-cols-1 gap-4">
-                                                        <div>
-                                                            <label class="block text-sm font-medium">Upload File</label>
-                                                            <input type="file" name="logo" class="mt-1 w-full">
-                                                        </div>
-                                                        <div>
-                                                            <label class="block text-sm font-medium">Or Use URL</label>
-                                                            <input type="text" name="logo_url" value="{{ $settings->logo_url }}" class="form-input mt-1">
-                                                        </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium">Logo URL</label>
+                                                        <input type="text" name="logo_url" value="{{ $settings->logo_url }}" class="form-input mt-1 w-full" placeholder="https://example.com/logo.png">
+                                                        <p class="mt-1 text-xs text-gray-500">Enter the URL of your logo image.</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -249,21 +244,16 @@
                                         <div>
                                             <label class="form-label">Background Image</label>
                                             <div class="mt-2 app-card shadow-secondary overflow-hidden">
-                                                <div class="p-4 h-32 flex items-center justify-center bg-secondary-10 bg-center bg-cover" style="background-image: url('{{ $settings->background_image_path ? Storage::url($settings->background_image_path) : ($settings->background_image_url ?? '') }}')">
-                                                    @if(!$settings->background_image_path && !$settings->background_image_url)
+                                                <div class="p-4 h-32 flex items-center justify-center bg-secondary-10 bg-center bg-cover" style="background-image: url('{{ $settings->background_image_url ?? '' }}')">
+                                                    @if(!$settings->background_image_url)
                                                         <div class="text-muted">No background image set</div>
                                                     @endif
                                                 </div>
                                                 <div class="p-4 bg-secondary-5">
-                                                    <div class="grid grid-cols-1 gap-4">
-                                                        <div>
-                                                            <label class="block text-sm font-medium">Upload File</label>
-                                                            <input type="file" name="background_image" class="mt-1 w-full">
-                                                        </div>
-                                                        <div>
-                                                            <label class="block text-sm font-medium">Or Use URL</label>
-                                                            <input type="text" name="background_image_url" value="{{ $settings->background_image_url }}" class="form-input mt-1">
-                                                        </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium">Background Image URL</label>
+                                                        <input type="text" name="background_image_url" value="{{ $settings->background_image_url }}" class="form-input mt-1 w-full" placeholder="https://example.com/background.jpg">
+                                                        <p class="mt-1 text-xs text-gray-500">Enter the URL of your background image.</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -343,14 +333,20 @@
                                     <p class="text-gray-500">
                                         <i class="fas fa-lock mr-2"></i>
                                         Logo, background images, and social media customization is available on the Premium plan. 
-                                        <a href="{{ route('plans.subscription') }}" class="text-primary underline">Upgrade to Premium</a> to unlock these features.
+                                        <a href="{{ route('tenant.plan.upgrade.request', 'premium') }}" 
+                                           class="text-primary underline">
+                                            Upgrade to Premium
+                                        </a> 
+                                        to unlock these features.
                                     </p>
                                 </div>
                                 @endif
                                 
-                                <div class="pt-5 border-t border-gray-200">
+                                <div class="pt-8 mt-6 border-t border-gray-200">
                                     <div class="flex justify-end">
-                                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                                        <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-secondary hover:bg-secondary-80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary-70 transition-colors">
+                                            <i class="fas fa-save mr-2"></i> Save Settings
+                                        </button>
                                     </div>
                                 </div>
                             </form>
@@ -395,4 +391,3 @@
         });
     </script>
     @endpush
-</x-app-layout>

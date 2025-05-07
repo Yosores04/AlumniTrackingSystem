@@ -1,3 +1,7 @@
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
+
 <nav x-data="{ open: false }" class="primary-nav bg-secondary-80 border-b border-secondary-30 shadow-md fixed top-0 w-full z-0">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -6,7 +10,22 @@
                 <!-- Logo -->
                    <div class="shrink-0 flex items-center">
                     <a href="/" class="flex items-center">
-                        <img src="{{ asset('img/1.svg') }}" class="h-8 w-auto mr-2" alt="Alumni Logo">
+                        @php
+                            $settings = \App\Models\TenantSettings::getSettings();
+                            $logoUrl = null;
+                            
+                            if ($settings->logo_url) {
+                                $logoUrl = $settings->logo_url;
+                            } elseif ($settings->logo_path) {
+                                $logoUrl = Storage::url($settings->logo_path);
+                            }
+                        @endphp
+
+                        @if ($logoUrl)
+                            <img src="{{ $logoUrl }}" class="h-8 w-auto mr-2" alt="{{ $settings->site_name ?? 'Alumni Logo' }}">
+                        @else
+                            <img src="/img/1.svg" class="h-8 w-auto mr-2" alt="Alumni Logo">
+                        @endif
                         <span class="font-bold text-lg text-white tracking-tight">Tenant Admin</span>
                     </a>
                 </div>
@@ -37,6 +56,18 @@
                         <i class="fas fa-user-graduate mr-1.5"></i>
                         {{ __('Alumni') }}
                     </x-nav-link>
+                    
+                    <x-nav-link :href="url('/support')" :active="request()->is('support*')" class="nav-link flex items-center">
+                        <i class="fas fa-headset mr-1.5"></i>
+                        {{ __('Support') }}
+                    </x-nav-link>
+                    
+                    @if(Auth::user()->isAdmin())
+                    <x-nav-link :href="route('system.versions')" :active="request()->routeIs('system.*')" class="nav-link flex items-center">
+                        <i class="fas fa-code-branch mr-1.5"></i>
+                        {{ __('System') }}
+                    </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -121,6 +152,18 @@
                 <i class="fas fa-user-graduate mr-2 text-primary"></i>
                 {{ __('Alumni') }}
             </x-responsive-nav-link>
+            
+            <x-responsive-nav-link :href="url('/support')" :active="request()->is('support*')" class="flex items-center">
+                <i class="fas fa-headset mr-2 text-primary"></i>
+                {{ __('Support') }}
+            </x-responsive-nav-link>
+            
+            @if(Auth::user()->isAdmin())
+            <x-responsive-nav-link :href="route('system.versions')" :active="request()->routeIs('system.*')" class="flex items-center">
+                <i class="fas fa-code-branch mr-2 text-primary"></i>
+                {{ __('System') }}
+            </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

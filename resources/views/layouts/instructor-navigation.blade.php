@@ -1,1 +1,0 @@
-<!-- This file is not used anymore as the navigation is included directly in instructor.blade.php --> 

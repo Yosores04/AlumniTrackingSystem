@@ -7,8 +7,8 @@
     <div class="mb-6 flex justify-between items-center">
         <h2 class="text-xl font-semibold section-heading">Alumni Management</h2>
         <div class="flex space-x-3">
-            <a href="{{ route('instructor.alumni.import') }}" class="btn btn-secondary">
-                <i class="fas fa-file-import mr-2"></i> Import Alumni
+            <a href="{{ route('instructor.alumni.report-form') }}" class="btn btn-secondary">
+                <i class="fas fa-file-pdf mr-2"></i> Generate Report
             </a>
             <a href="{{ route('instructor.alumni.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus mr-2"></i> Add New
@@ -147,10 +147,23 @@
                             <a href="{{ route('instructor.alumni.edit', $alum->id) }}" class="btn btn-secondary py-1 px-2" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form action="{{ route('instructor.alumni.destroy', $alum->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this alumni record?');">
+                            <form id="delete-form-{{ $alum->id }}" action="{{ route('instructor.alumni.destroy', $alum->id) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-secondary py-1 px-2 text-red-600 hover:text-red-800" title="Delete">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-secondary py-1 px-2 text-red-600 hover:text-red-800" 
+                                    title="Delete"
+                                    onclick="window.dispatchEvent(new CustomEvent('open-confirm', {
+                                        detail: {
+                                            title: 'Delete Alumni Record',
+                                            message: 'Are you sure you want to delete this alumni record? This action cannot be undone.',
+                                            type: 'danger',
+                                            confirmButtonText: 'Delete',
+                                            onConfirm: () => document.getElementById('delete-form-{{ $alum->id }}').submit()
+                                        }
+                                    }))"
+                                >
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -176,4 +189,10 @@
         {{ $alumni->withQueryString()->links() }}
     </div>
 </div>
-@endsection 
+@endsection
+
+@push('scripts')
+<script>
+    // Any additional scripts needed can go here
+</script>
+@endpush 

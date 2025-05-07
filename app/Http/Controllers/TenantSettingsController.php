@@ -231,8 +231,6 @@ class TenantSettingsController extends Controller
         // Add image and social media validation for premium plan only
         if ($planType === 'premium') {
             $premiumRules = [
-                'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'background_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'logo_url' => 'nullable|url',
                 'background_image_url' => 'nullable|url',
                 'show_social_links' => 'nullable|boolean',
@@ -294,51 +292,25 @@ class TenantSettingsController extends Controller
         if ($planType === 'premium') {
             Log::info('Updating premium plan features');
             
-            // Handle logo upload
-            if ($request->hasFile('logo')) {
-                // Delete old logo if it exists
-                if ($settings->logo_path) {
-                    Storage::disk('public')->delete($settings->logo_path);
-                }
-                
-                $logoPath = $request->file('logo')->store('tenant-' . tenant('id') . '/logos', 'public');
-                $settings->logo_path = $logoPath;
-                $settings->logo_url = null; // Clear URL if file is uploaded
-                
-                Log::info('Logo file uploaded', ['path' => $logoPath]);
-            } elseif ($request->filled('logo_url')) {
-                // Use logo URL instead
+            // Handle logo URL
+            if ($request->filled('logo_url')) {
                 $settings->logo_url = $request->logo_url;
-                // Clear file path if URL is provided
+                // Clear file path if it exists
                 if ($settings->logo_path) {
                     Storage::disk('public')->delete($settings->logo_path);
                     $settings->logo_path = null;
                 }
-                
                 Log::info('Logo URL set', ['url' => $request->logo_url]);
             }
             
-            // Handle background image upload
-            if ($request->hasFile('background_image')) {
-                // Delete old background image if it exists
-                if ($settings->background_image_path) {
-                    Storage::disk('public')->delete($settings->background_image_path);
-                }
-                
-                $backgroundPath = $request->file('background_image')->store('tenant-' . tenant('id') . '/backgrounds', 'public');
-                $settings->background_image_path = $backgroundPath;
-                $settings->background_image_url = null; // Clear URL if file is uploaded
-                
-                Log::info('Background image uploaded', ['path' => $backgroundPath]);
-            } elseif ($request->filled('background_image_url')) {
-                // Use background image URL instead
+            // Handle background image URL
+            if ($request->filled('background_image_url')) {
                 $settings->background_image_url = $request->background_image_url;
-                // Clear file path if URL is provided
+                // Clear file path if it exists
                 if ($settings->background_image_path) {
                     Storage::disk('public')->delete($settings->background_image_path);
                     $settings->background_image_path = null;
                 }
-                
                 Log::info('Background image URL set', ['url' => $request->background_image_url]);
             }
             

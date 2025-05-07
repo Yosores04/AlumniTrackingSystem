@@ -128,3 +128,24 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware
     Route::put('plans/{plan}', [App\Http\Controllers\PlanController::class, 'adminUpdate'])->name('plans.update');
 });
 
+// Support Ticket Routes
+Route::resource('support', App\Http\Controllers\SupportTicketController::class);
+Route::post('support/{id}/response', [App\Http\Controllers\SupportTicketController::class, 'addResponse'])->name('support.response');
+
+// Debug Routes - remove in production
+Route::get('/debug-routes', function () {
+    $routes = collect(Route::getRoutes())->map(function ($route) {
+        return $route;
+    });
+    
+    return view('debug-routes', ['routes' => $routes]);
+})->middleware(['auth']);
+
+// System Version Management Routes (Admin Only)
+Route::prefix('system')->name('system.')->middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
+    Route::get('versions', [App\Http\Controllers\SystemVersionController::class, 'index'])->name('versions');
+    Route::get('check-updates', [App\Http\Controllers\SystemVersionController::class, 'checkForUpdates'])->name('check-updates');
+    Route::post('update/{id}', [App\Http\Controllers\SystemVersionController::class, 'updateToVersion'])->name('update');
+    Route::post('rollback/{id}', [App\Http\Controllers\SystemVersionController::class, 'rollback'])->name('rollback');
+});
+

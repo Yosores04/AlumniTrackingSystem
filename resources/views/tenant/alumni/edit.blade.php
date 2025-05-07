@@ -159,16 +159,27 @@
                 </div>
                 
                 <div class="mb-4">
-                    <label for="profile_photo" class="block text-sm text-gray-700 mb-1">Profile Photo</label>
-                    @if($alumni->profile_photo_path)
-                        <div class="mb-2 flex items-center">
-                            <img src="{{ Storage::url($alumni->profile_photo_path) }}" alt="{{ $alumni->name }}" class="w-12 h-12 rounded-full object-cover mr-2">
-                            <span class="text-sm text-gray-600">Current profile photo</span>
-                        </div>
-                    @endif
-                    <input type="file" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" 
-                           id="profile_photo" name="profile_photo">
-                    <p class="mt-1 text-xs text-gray-500">Max file size: 2MB. Allowed formats: JPEG, PNG, GIF</p>
+                    <label for="profile_photo_url" class="block text-sm text-gray-700 mb-1">Profile Photo URL</label>
+                    
+                    <div class="mt-2 mb-3">
+                        <!-- Current photo preview -->
+                        @if($alumni->profile_photo_path)
+                            <div class="mb-2 flex items-center">
+                                <img src="{{ Storage::url($alumni->profile_photo_path) }}" alt="{{ $alumni->name }}" class="w-12 h-12 rounded-full object-cover mr-2">
+                                <span class="text-sm text-gray-600">Current profile photo (uploaded file)</span>
+                            </div>
+                        @elseif($alumni->profile_photo_url)
+                            <div class="mb-2 flex items-center">
+                                <img src="{{ $alumni->profile_photo_url }}" alt="{{ $alumni->name }}" class="w-12 h-12 rounded-full object-cover mr-2">
+                                <span class="text-sm text-gray-600">Current profile photo (URL)</span>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    <input type="url" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                        id="profile_photo_url" name="profile_photo_url" value="{{ old('profile_photo_url', $alumni->profile_photo_url) }}" 
+                        placeholder="https://example.com/photo.jpg">
+                    <p class="mt-1 text-xs text-gray-500">Enter a direct URL to an image</p>
                 </div>
                 
                 <div class="mb-4">
@@ -179,7 +190,7 @@
                 
                 <div class="flex items-center mb-4">
                     <input class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" 
-                           type="checkbox" id="is_verified" name="is_verified" 
+                           type="checkbox" id="is_verified" name="is_verified" value="1"
                            {{ old('is_verified', $alumni->is_verified) ? 'checked' : '' }}>
                     <label class="text-sm text-gray-700" for="is_verified">Verified Alumni</label>
                 </div>

@@ -27,7 +27,7 @@
         </div>
     @endif
 
-    <form action="{{ route('instructor.alumni.update', $alumni->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('instructor.alumni.update', $alumni->id) }}" method="POST">
         @csrf
         @method('PUT')
         
@@ -146,15 +146,22 @@
                 </div>
                 
                 <div class="mb-4">
-                    <label for="profile_photo" class="form-label">Profile Photo</label>
-                    @if($alumni->profile_photo_path)
-                        <div class="mb-2 flex items-center">
-                            <img src="{{ Storage::url($alumni->profile_photo_path) }}" alt="{{ $alumni->name }}" class="w-16 h-16 rounded-full object-cover">
-                            <span class="ml-2 text-sm text-gray-600">Current profile photo</span>
-                        </div>
-                    @endif
-                    <input type="file" class="form-control" id="profile_photo" name="profile_photo">
-                    <p class="mt-1 text-sm text-gray-500">Max file size: 2MB. Allowed formats: JPEG, PNG, GIF</p>
+                    <label for="profile_photo_url" class="form-label">Profile Photo URL</label>
+                    <div class="mb-2">
+                        @if($alumni->profile_photo_path)
+                            <div class="mb-2 flex items-center">
+                                <img src="{{ Storage::url($alumni->profile_photo_path) }}" alt="{{ $alumni->name }}" class="w-16 h-16 rounded-full object-cover">
+                                <span class="ml-2 text-sm text-gray-600">Current profile photo (uploaded file)</span>
+                            </div>
+                        @elseif($alumni->profile_photo_url)
+                            <div class="mb-2 flex items-center">
+                                <img src="{{ $alumni->profile_photo_url }}" alt="{{ $alumni->name }}" class="w-16 h-16 rounded-full object-cover">
+                                <span class="ml-2 text-sm text-gray-600">Current profile photo (URL)</span>
+                            </div>
+                        @endif
+                    </div>
+                    <input type="url" class="form-control" id="profile_photo_url" name="profile_photo_url" value="{{ old('profile_photo_url', $alumni->profile_photo_url) }}" placeholder="https://example.com/photo.jpg">
+                    <p class="mt-1 text-sm text-gray-500">Enter a direct URL to an image</p>
                 </div>
                 
                 <div class="mb-4">
@@ -163,7 +170,7 @@
                 </div>
                 
                 <div class="flex items-center mb-4">
-                    <input class="mr-2 h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded" type="checkbox" id="is_verified" name="is_verified" 
+                    <input class="mr-2 h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded" type="checkbox" id="is_verified" name="is_verified" value="1"
                            {{ old('is_verified', $alumni->is_verified) ? 'checked' : '' }}>
                     <label class="form-label mb-0" for="is_verified">Verified Alumni</label>
                 </div>

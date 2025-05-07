@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <form action="{{ route('instructor.alumni.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('instructor.alumni.store') }}" method="POST">
         @csrf
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -156,9 +156,9 @@
                 </div>
                 
                 <div class="mb-5">
-                    <label for="profile_photo" class="form-label">Profile Photo</label>
-                    <input type="file" class="form-control" id="profile_photo" name="profile_photo">
-                    <p class="text-xs text-gray-500 mt-1">Max file size: 2MB. Allowed formats: JPEG, PNG, GIF</p>
+                    <label for="profile_photo_url" class="form-label">Profile Photo URL</label>
+                    <input type="url" class="form-control" id="profile_photo_url" name="profile_photo_url" value="{{ old('profile_photo_url') }}" placeholder="https://example.com/photo.jpg">
+                    <p class="text-xs text-gray-500 mt-1">Enter a direct URL to an image</p>
                 </div>
                 
                 <div class="mb-5">

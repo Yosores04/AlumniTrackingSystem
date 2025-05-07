@@ -282,7 +282,7 @@
                 @else
                     <a href="{{ route('login') }}" class="nav-link"><i class="fas fa-lock mr-1.5"></i> Log in</a>
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="nav-link"><i class="fas fa-user-graduate mr-1.5"></i> Register</a>
+                        <a href="{{ route('register') }}" class="nav-link"><i class="fas fa-user-graduate mr-1.5"></i> Alumni Register</a>
                     @endif
                 @endauth
             </nav>
@@ -307,7 +307,7 @@
                     @else
                         <a href="{{ route('login') }}" class="btn btn-primary">Log In</a>
                         @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="btn btn-secondary">Register</a>
+                            <a href="{{ route('register') }}" class="btn btn-secondary">Register as Alumni</a>
                         @endif
                     @endauth
                 </div>

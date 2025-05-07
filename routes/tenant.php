@@ -10,6 +10,7 @@ use App\Http\Middleware\InitializeTenancy;
 use App\Models\TenantSettings;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,21 @@ Route::middleware([
             ->middleware(\App\Http\Middleware\EnsureInstructor::class)
             ->name('instructor.dashboard');
         
+        // Alumni Portal routes
+        Route::prefix('alumni-portal')->name('alumni.')->group(function() {
+            Route::get('/dashboard', [App\Http\Controllers\AlumniDashboardController::class, 'index'])
+                ->name('dashboard');
+                
+            // Routes that should be protected
+            Route::middleware(\App\Http\Middleware\EnsureUserIsAlumni::class)->group(function() {
+                Route::get('/profile', [App\Http\Controllers\AlumniDashboardController::class, 'profile'])
+                    ->name('profile');
+                    
+                Route::put('/profile', [App\Http\Controllers\AlumniDashboardController::class, 'updateProfile'])
+                    ->name('profile.update');
+            });
+        });
+        
         // Instructor Alumni Management routes
         Route::prefix('instructor')->name('instructor.')->middleware(\App\Http\Middleware\EnsureInstructor::class)->group(function() {
             Route::get('/alumni', [App\Http\Controllers\InstructorAlumniController::class, 'index'])
@@ -70,11 +86,11 @@ Route::middleware([
             Route::delete('/alumni/{id}', [App\Http\Controllers\InstructorAlumniController::class, 'destroy'])
                 ->name('alumni.destroy');
                 
-            Route::get('/alumni-import', [App\Http\Controllers\InstructorAlumniController::class, 'importForm'])
-                ->name('alumni.import');
+            Route::get('/alumni-report-form', [App\Http\Controllers\InstructorAlumniController::class, 'reportForm'])
+                ->name('alumni.report-form');
                 
-            Route::post('/alumni-import', [App\Http\Controllers\InstructorAlumniController::class, 'import'])
-                ->name('alumni.import.process');
+            Route::get('/alumni-report', [App\Http\Controllers\InstructorAlumniController::class, 'generateReport'])
+                ->name('alumni.report');
                 
             Route::get('/alumni-reports', [App\Http\Controllers\InstructorAlumniController::class, 'reports'])
                 ->name('alumni.reports');
@@ -90,27 +106,33 @@ Route::middleware([
                 
             Route::post('/', [App\Http\Controllers\AlumniController::class, 'store'])
                 ->name('alumni.store');
-                
-            Route::get('/{id}', [App\Http\Controllers\AlumniController::class, 'show'])
-                ->name('alumni.show');
-                
-            Route::get('/{id}/edit', [App\Http\Controllers\AlumniController::class, 'edit'])
-                ->name('alumni.edit');
-                
-            Route::put('/{id}', [App\Http\Controllers\AlumniController::class, 'update'])
-                ->name('alumni.update');
-                
-            Route::delete('/{id}', [App\Http\Controllers\AlumniController::class, 'destroy'])
-                ->name('alumni.destroy');
-                
-            Route::get('/import', [App\Http\Controllers\AlumniController::class, 'importForm'])
-                ->name('alumni.import');
-                
-            Route::post('/import', [App\Http\Controllers\AlumniController::class, 'import'])
-                ->name('alumni.import.process');
+            
+            // Put these report routes before any parameterized routes
+            Route::get('/report-form', [App\Http\Controllers\AlumniController::class, 'reportForm'])
+                ->name('alumni.report-form');
+                  
+            Route::get('/report', [App\Http\Controllers\AlumniController::class, 'generateReport'])
+                ->name('alumni.report');
                 
             Route::get('/reports', [App\Http\Controllers\AlumniController::class, 'reports'])
                 ->name('alumni.reports');
+                
+            // Parameterized routes come after specific routes    
+            Route::get('/{id}', [App\Http\Controllers\AlumniController::class, 'show'])
+                ->where('id', '[0-9]+')
+                ->name('alumni.show');
+                
+            Route::get('/{id}/edit', [App\Http\Controllers\AlumniController::class, 'edit'])
+                ->where('id', '[0-9]+')
+                ->name('alumni.edit');
+                
+            Route::put('/{id}', [App\Http\Controllers\AlumniController::class, 'update'])
+                ->where('id', '[0-9]+')
+                ->name('alumni.update');
+                
+            Route::delete('/{id}', [App\Http\Controllers\AlumniController::class, 'destroy'])
+                ->where('id', '[0-9]+')
+                ->name('alumni.destroy');
         });
         
         // Debug route for subscription - REMOVE IN PRODUCTION
@@ -134,6 +156,10 @@ Route::middleware([
             // Settings routes
             Route::get('/settings', [TenantSettingsController::class, 'edit'])->name('settings.edit');
             Route::put('/settings', [TenantSettingsController::class, 'update'])->name('settings.update');
+            
+            // Plan upgrade request route
+            Route::get('/plan-upgrade/{planType}', [App\Http\Controllers\TenantPlanController::class, 'requestUpgrade'])
+                ->name('plan.upgrade.request');
             
             // Profile routes - these would typically use a ProfileController
             Route::get('/profile', function() {
@@ -210,4 +236,36 @@ Route::middleware([
             'subscription' => tenant()->subscription ?? ['plan' => 'free']
         ];
     });
+
+    Route::get('/debug-user', function() {
+        $user = Auth::user();
+        $alumni = $user->alumni;
+        
+        return response()->json([
+            'user_id' => $user->id,
+            'user_role' => $user->role,
+            'alumni' => $alumni ? [
+                'id' => $alumni->id,
+                'first_name' => $alumni->first_name,
+                'last_name' => $alumni->last_name,
+                'email' => $alumni->email,
+                'is_verified' => $alumni->is_verified,
+                'user_id' => $alumni->user_id
+            ] : null,
+            'is_role_alumni' => $user->role === \App\Models\User::ROLE_ALUMNI
+        ]);
+    });
+
+    // Support Ticket Routes
+    Route::resource('support', \App\Http\Controllers\SupportTicketController::class);
+    Route::post('support/{id}/response', [\App\Http\Controllers\SupportTicketController::class, 'addResponse'])->name('support.response');
+
+    // Debug Routes - remove in production
+    Route::get('/debug-routes', function () {
+        $routes = collect(Route::getRoutes())->map(function ($route) {
+            return $route;
+        });
+        
+        return view('debug-routes', ['routes' => $routes]);
+    })->middleware(['auth']);
 });

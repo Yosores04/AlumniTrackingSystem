@@ -40,8 +40,12 @@ class Alumni extends Model
         'job_title',
         'linkedin_url',
         'profile_photo_path',
+        'profile_photo_url',
         'is_verified',
         'notes',
+        'skills',
+        'achievements',
+        'certifications',
     ];
 
     /**
@@ -53,6 +57,14 @@ class Alumni extends Model
         'graduation_date' => 'date',
         'is_verified' => 'boolean',
     ];
+
+    /**
+     * Get the user that owns the alumni profile.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Get the user's full name.

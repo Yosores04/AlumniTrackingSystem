@@ -1,214 +1,8 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-white">
-            {{ __('Alumni Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <!-- Custom CSS for dashboard enhancements -->
-    <style>
-        .dashboard-container {
-            background-color: #f8fafc;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        .stat-card {
-            border-radius: 12px;
-            transition: all 0.3s;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            height: 100%;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stat-header {
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .stat-body {
-            padding: 20px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-        
-        .stat-label {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-        
-        .stat-icon {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            width: 56px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-        
-        .card-primary {
-            background: linear-gradient(135deg, #4F46E5, #7C3AED);
-            color: white;
-        }
-        
-        .card-secondary {
-            background: linear-gradient(135deg, #0EA5E9, #0284C7);
-            color: white;
-        }
-        
-        .card-accent {
-            background: linear-gradient(135deg, #10B981, #059669);
-            color: white;
-        }
-        
-        .card-neutral {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            color: white;
-        }
-        
-        .section-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #1F2937;
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-left: 1rem;
-        }
-        
-        .section-title:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(to bottom, #4F46E5, #7C3AED);
-            border-radius: 4px;
-        }
-        
-        .activity-card, .link-card, .event-card {
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            background-color: white;
-            transition: all 0.3s;
-        }
-        
-        .activity-card:hover, .link-card:hover, .event-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-        }
-        
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
-        
-        .quick-link {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            border-radius: 12px;
-            transition: all 0.3s;
-        }
-        
-        .quick-link:hover {
-            background-color: #F9FAFB;
-            transform: translateX(5px);
-        }
-        
-        .link-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            font-size: 1.25rem;
-            transition: all 0.3s;
-        }
-        
-        .quick-link:hover .link-icon {
-            transform: scale(1.1);
-        }
-        
-        .event-date {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            overflow: hidden;
-            width: 60px;
-            margin-right: 1rem;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .date-month {
-            background-color: #4F46E5;
-            color: white;
-            width: 100%;
-            padding: 4px 0;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .date-day {
-            background-color: white;
-            color: #1F2937;
-            width: 100%;
-            padding: 6px 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        
-        .chart-container {
-            padding: 1.5rem;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            height: 100%;
-        }
-        
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2.5rem;
-            color: #9CA3AF;
-        }
-        
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-    </style>
+@section('title', 'Alumni Management')
+
+@section('content')
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -233,209 +27,116 @@
             <div class="dashboard-container">
                 <h1 class="text-3xl font-bold mb-8 tracking-tight text-gray-900">Welcome to Your Alumni Portal</h1>
                 
-                <!-- Subscription Info -->
-                <div class="mb-6 p-4 rounded-lg border border-gray-200 bg-white">
-                    <div class="flex items-center">
-                        <div class="mr-2 text-lg font-semibold">
-                            @if (tenant()->plan)
-                            Subscription: <span class="font-bold text-accent">{{ tenant()->plan->name }}</span>
-                            @else
-                            Subscription: <span class="font-bold text-accent">{{ isset($subscriptionPlan['plan_name']) ? $subscriptionPlan['plan_name'] : (isset($subscriptionPlan['plan']) ? ucfirst($subscriptionPlan['plan']) : 'Free Plan') }}</span>
-                            @endif
+                <!-- Modern Quick Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Subscription Plan Card -->
+                    <div class="bg-white rounded-lg shadow p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Subscription Plan</p>
+                                <h3 class="text-2xl font-bold">{{ $subscriptionPlan['plan_name'] ?? (isset($subscriptionPlan['plan']) ? ucfirst($subscriptionPlan['plan']) : 'Free Plan') }}</h3>
+                            </div>
+                            <div class="bg-yellow-100 h-12 w-12 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-crown text-yellow-600 text-lg"></i>
+                            </div>
                         </div>
-                        <div class="text-sm text-gray-500">
-                            @if (tenant()->plan)
-                            · {{ ucfirst(tenant()->billing_cycle) }} billing · Renews on {{ tenant()->plan_expires_at ? (is_string(tenant()->plan_expires_at) ? date('M d, Y', strtotime(tenant()->plan_expires_at)) : tenant()->plan_expires_at->format('M d, Y')) : \Carbon\Carbon::now()->addMonth()->format('M d, Y') }}
-                            @else
-                            · Monthly billing · Renews on {{ \Carbon\Carbon::parse($subscriptionPlan['billing_period_end'] ?? \Carbon\Carbon::now()->addMonth())->format('M d, Y') }}
-                            @endif
+                        <div class="mt-4 text-sm text-gray-500">
+                            <span>Renews on {{ \Carbon\Carbon::parse($subscriptionPlan['billing_period_end'] ?? \Carbon\Carbon::now()->addMonth())->format('M d, Y') }}</span>
+                        </div>
+                    </div>
+                    <!-- Total Alumni Card -->
+                    <div class="bg-white rounded-lg shadow p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Total Alumni</p>
+                                <h3 class="text-2xl font-bold">{{ number_format($totalAlumni ?? 0) }}</h3>
+                            </div>
+                            <div class="bg-blue-100 h-12 w-12 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-graduate text-blue-600 text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Total Instructors Card -->
+                    <div class="bg-white rounded-lg shadow p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Total Instructors</p>
+                                <h3 class="text-2xl font-bold">{{ number_format($totalInstructors ?? 0) }}</h3>
+                            </div>
+                            <div class="bg-green-100 h-12 w-12 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chalkboard-teacher text-green-600 text-lg"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Quick Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <!-- Alumni Count -->
-                    <div class="p-4 bg-white rounded-lg shadow-sm border border-gray-200">
-                        <div class="flex items-center">
-                            <div class="rounded-full bg-primary-100 p-3 mr-4">
-                                <i class="fas fa-user-graduate text-primary text-xl"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Total Alumni</p>
-                                <p class="text-xl font-semibold">{{ $totalAlumni ?? 0 }}</p>
-                            </div>
+                <!-- Distribution Charts Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Employment Distribution Chart -->
+                    <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+                        <h3 class="text-lg font-semibold mb-4">Alumni Employment Distribution</h3>
+                        <div class="space-y-4">
+                            @php
+                                $employmentLabels = [
+                                    'employed' => ['label' => 'Employed', 'color' => 'bg-green-500', 'icon' => 'fa-briefcase'],
+                                    'unemployed' => ['label' => 'Unemployed', 'color' => 'bg-red-500', 'icon' => 'fa-search'],
+                                    'self_employed' => ['label' => 'Self-Employed', 'color' => 'bg-blue-500', 'icon' => 'fa-user-tie'],
+                                    'student' => ['label' => 'Student', 'color' => 'bg-purple-500', 'icon' => 'fa-graduation-cap'],
+                                    'other' => ['label' => 'Other', 'color' => 'bg-gray-500', 'icon' => 'fa-question-circle'],
+                                ];
+                                $totalAlumni = $totalAlumni ?? 0;
+                            @endphp
+                            @foreach($employmentLabels as $key => $info)
+                                @php
+                                    $count = $employmentDistribution[$key] ?? 0;
+                                    $percentage = ($totalAlumni > 0) ? ($count / $totalAlumni) * 100 : 0;
+                                @endphp
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <div class="flex items-center">
+                                            <i class="fas {{ $info['icon'] }} mr-2 text-gray-700"></i>
+                                            <span>{{ $info['label'] }}</span>
+                                        </div>
+                                        <div class="text-sm font-medium">{{ $count }} ({{ round($percentage) }}%)</div>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="{{ $info['color'] }} h-2.5 rounded-full" style="width: {{ $percentage }}%"></div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
-                    
-                    <div class="stat-card card-primary">
-                        <div class="stat-header">
-                            <h3 class="font-semibold text-xl">Alumni Network</h3>
-                            <div class="stat-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                        </div>
-                        <div class="stat-body">
-                            <div>
-                                <div class="stat-number">{{ $totalAlumni }}</div>
-                                <div class="stat-label">Registered Alumni</div>
-                            </div>
-                            <span class="px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-xs font-medium uppercase tracking-wider">Total</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card card-secondary">
-                        <div class="stat-header">
-                            <h3 class="font-semibold text-xl">Job Opportunities</h3>
-                            <div class="stat-icon">
-                                <i class="fas fa-briefcase"></i>
-                            </div>
-                        </div>
-                        <div class="stat-body">
-                            <div>
-                                <div class="stat-number">{{ $totalJobs }}</div>
-                                <div class="stat-label">Available Positions</div>
-                            </div>
-                            <span class="px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-xs font-medium uppercase tracking-wider">Careers</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card card-accent">
-                        <div class="stat-header">
-                            <h3 class="font-semibold text-xl">Upcoming Events</h3>
-                            <div class="stat-icon">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                        </div>
-                        <div class="stat-body">
-                            <div>
-                                <div class="stat-number">{{ $upcomingEvents }}</div>
-                                <div class="stat-label">Scheduled Activities</div>
-                            </div>
-                            <span class="px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-xs font-medium uppercase tracking-wider">Events</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card card-neutral">
-                        <div class="stat-header">
-                            <h3 class="font-semibold text-xl">News Articles</h3>
-                            <div class="stat-icon">
-                                <i class="fas fa-newspaper"></i>
-                            </div>
-                        </div>
-                        <div class="stat-body">
-                            <div>
-                                <div class="stat-number">{{ $totalNews }}</div>
-                                <div class="stat-label">Published Updates</div>
-                            </div>
-                            <span class="px-3 py-1 rounded-full bg-white bg-opacity-20 text-white text-xs font-medium uppercase tracking-wider">News</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-                    <!-- Recent Activity with Enhanced Design -->
-                    <div>
-                        <h2 class="section-title">Recent Activities</h2>
-                        <div class="activity-card p-6">
-                            @if(count($recentActivities) > 0)
-                                <div class="space-y-6">
-                                    @foreach($recentActivities as $activity)
-                                        <div class="flex items-start">
-                                            <div class="activity-icon mr-4
-                                                @if($activity->type == 'job')
-                                                    bg-blue-100 text-blue-600
-                                                @elseif($activity->type == 'event')
-                                                    bg-green-100 text-green-600
-                                                @elseif($activity->type == 'news')
-                                                    bg-yellow-100 text-yellow-600
-                                                @else
-                                                    bg-purple-100 text-purple-600
-                                                @endif
-                                            ">
-                                                @if($activity->type == 'job')
-                                                    <i class="fas fa-briefcase"></i>
-                                                @elseif($activity->type == 'event')
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                @elseif($activity->type == 'news')
-                                                    <i class="fas fa-newspaper"></i>
-                                                @else
-                                                    <i class="fas fa-bell"></i>
-                                                @endif
+                    <!-- Batch Year Distribution Chart -->
+                    <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+                        <h3 class="text-lg font-semibold mb-4">Batch Year Distribution</h3>
+                        <div>
+                            @php
+                                $colors = ['bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-red-500'];
+                                $i = 0;
+                            @endphp
+                            @if(count($batchYearDistribution) > 0)
+                                <div class="space-y-4">
+                                    @foreach($batchYearDistribution as $year => $count)
+                                        @php
+                                            $percentage = ($totalAlumni > 0) ? ($count / $totalAlumni) * 100 : 0;
+                                            $color = $colors[$i++ % count($colors)];
+                                        @endphp
+                                        <div>
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span>Batch {{ $year }}</span>
+                                                <div class="text-sm font-medium">{{ $count }} ({{ round($percentage) }}%)</div>
                                             </div>
-                                            <div class="flex-1">
-                                                <div class="text-gray-500 text-sm mb-1">{{ $activity->created_at->diffForHumans() }}</div>
-                                                <div class="font-medium text-gray-800">{{ $activity->description }}</div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div class="{{ $color }} h-2.5 rounded-full" style="width: {{ $percentage }}%"></div>
                                             </div>
                                         </div>
-                                        @if(!$loop->last)
-                                            <div class="border-b border-gray-100 my-4"></div>
-                                        @endif
                                     @endforeach
                                 </div>
                             @else
-                                <div class="empty-state">
-                                    <i class="fas fa-stream empty-icon"></i>
-                                    <p class="font-medium">No recent activity</p>
-                                    <p class="text-sm mt-2">Check back later for updates</p>
+                                <div class="text-center text-gray-500 py-6">
+                                    <i class="fas fa-chart-bar text-gray-300 text-4xl mb-3"></i>
+                                    <p>No batch year data available</p>
                                 </div>
                             @endif
-                        </div>
-                    </div>
-                    
-                    <!-- Upcoming Events Section -->
-                    <div>
-                        <h2 class="section-title">Upcoming Events</h2>
-                        <div class="event-card p-6">
-                            @if(count($nextEvents) > 0)
-                                <div class="space-y-6">
-                                    @foreach($nextEvents as $event)
-                                        <div class="flex items-start">
-                                            <div class="event-date">
-                                                <div class="date-month">{{ $event->start_date->format('M') }}</div>
-                                                <div class="date-day">{{ $event->start_date->format('d') }}</div>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-semibold text-gray-800">{{ $event->title }}</h4>
-                                                <p class="text-sm text-gray-500 mt-1">
-                                                    <i class="fas fa-clock mr-2 text-gray-400"></i>
-                                                    {{ $event->start_date->format('g:i A') }}
-                                                </p>
-                                                <p class="text-sm text-gray-500 mt-1">
-                                                    <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
-                                                    {{ $event->location }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        @if(!$loop->last)
-                                            <div class="border-b border-gray-100 my-4"></div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="empty-state">
-                                    <i class="fas fa-calendar-alt empty-icon"></i>
-                                    <p class="font-medium">No upcoming events</p>
-                                    <p class="text-sm mt-2">Check back later for scheduled events</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Charts and Stats with Enhanced Design -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-                    <div>
-                        <h2 class="section-title">Alumni Status</h2>
-                        <div class="chart-container" style="position: relative; height: 270px; max-height: 270px; overflow: hidden;">
-                            <canvas id="alumniStatusChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h2 class="section-title">Alumni by Year</h2>
-                        <div class="chart-container" style="position: relative; height: 270px; max-height: 270px; overflow: hidden;">
-                            <canvas id="alumniYearChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -467,13 +168,13 @@
                                 </div>
                             </a>
                             
-                            <a href="{{ route('alumni.import') }}" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
+                            <a href="{{ route('alumni.report') }}" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
                                 <div class="rounded-full bg-blue-100 p-3 mr-3">
-                                    <i class="fas fa-file-import text-blue-600"></i>
+                                    <i class="fas fa-file-pdf text-blue-600"></i>
                                 </div>
                                 <div>
-                                    <p class="font-medium">Import Data</p>
-                                    <p class="text-sm text-gray-500">Bulk import alumni records</p>
+                                    <p class="font-medium">Generate Report</p>
+                                    <p class="text-sm text-gray-500">Create PDF report of alumni data</p>
                                 </div>
                             </a>
                             
@@ -646,5 +347,4 @@
                 }
             });
         });
-    </script>
-</x-app-layout> 
+    </script> 

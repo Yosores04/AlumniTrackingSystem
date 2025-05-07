@@ -329,6 +329,17 @@
                                     Changing plans takes effect immediately but preserves the billing cycle.
                                 </p>
                             </div>
+                            
+                            <!-- Admin Message for Plan Update (Optional) -->
+                            <div class="mb-4">
+                                <label for="admin_message" class="block text-gray-700 text-sm font-bold mb-2">
+                                    Additional Message to Tenant <span class="text-gray-500 font-normal">(Optional)</span>
+                                </label>
+                                <textarea name="admin_message" id="admin_message" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Add any special instructions or notes (optional). The system will automatically include detailed information about the plan upgrade."></textarea>
+                                <p class="text-gray-600 text-xs mt-1">
+                                    Leave blank to use the automatic notification, or add a personalized message to include with the plan details.
+                                </p>
+                            </div>
 
                             <div class="flex justify-end">
                                 <button type="button" id="cancel-edit" class="mr-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">

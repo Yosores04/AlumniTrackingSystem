@@ -59,6 +59,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('instructor.dashboard', absolute: false));
         }
         
+        if ($user->role === \App\Models\User::ROLE_ALUMNI) {
+            return redirect()->route('alumni.dashboard');
+        }
+        
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

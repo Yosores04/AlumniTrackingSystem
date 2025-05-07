@@ -342,7 +342,8 @@ class TenantController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'plan' => 'required|in:free,basic,premium',
-            'billing_alignment' => 'nullable|in:immediate,end_of_period'
+            'billing_alignment' => 'nullable|in:immediate,end_of_period',
+            'admin_message' => 'nullable|string|max:500'
         ]);
 
         if ($validator->fails()) {
@@ -356,6 +357,7 @@ class TenantController extends Controller
             
             // Get existing subscription or initialize array
             $subscription = $tenant->subscription ?? [];
+            $previousPlan = $subscription['plan'] ?? 'Free';
             
             // Handle billing alignment
             $billingAlignment = $request->billing_alignment ?? 'end_of_period';
@@ -401,8 +403,57 @@ class TenantController extends Controller
                 'subscription' => $subscription
             ]);
             
+            // Send notification email to tenant admin users
+            try {
+                // Initialize tenant connection to access its database
+                tenancy()->initialize($tenant);
+                
+                // Get all tenant admin users
+                $adminUsers = \App\Models\User::where('role', \App\Models\User::ROLE_TENANT_ADMIN)->get();
+                
+                if ($adminUsers->count() > 0) {
+                    // Get the first domain for this tenant
+                    $domain = $tenant->domains->first()->domain ?? $tenant->id . '.localhost';
+                    
+                    // Prepare data for email
+                    $emailData = [
+                        'previous_plan' => ucfirst($previousPlan),
+                        'new_plan' => ucfirst($request->plan),
+                        'effective_date' => now()->format('Y-m-d H:i:s'),
+                        'admin_message' => $request->admin_message,
+                        'login_url' => 'http://' . $domain . '/settings'
+                    ];
+                    
+                    // Send emails to all admin users
+                    foreach ($adminUsers as $adminUser) {
+                        \Illuminate\Support\Facades\Mail::to($adminUser->email)
+                            ->send(new \App\Mail\PlanUpdateNotification($emailData));
+                        
+                        Log::info('Plan update notification sent', [
+                            'tenant_id' => $tenant->id,
+                            'admin_email' => $adminUser->email
+                        ]);
+                    }
+                } else {
+                    Log::warning('No tenant admin users found to notify about plan update', [
+                        'tenant_id' => $tenant->id
+                    ]);
+                }
+                
+                // End tenant connection
+                tenancy()->end();
+            } catch (\Exception $e) {
+                Log::error('Failed to send plan update notification', [
+                    'tenant_id' => $tenant->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                // Continue execution - don't fail the request just because notification failed
+            }
+            
             return redirect()->route('tenants.create', ['tab' => 'list'])
-                ->with('success', "Tenant subscription updated to {$request->plan} plan");
+                ->with('success', "Tenant subscription updated to {$request->plan} plan" . 
+                    ($adminUsers->count() > 0 ? " and notification emails sent to tenant admins" : ""));
                 
         } catch (\Exception $e) {
             Log::error('Failed to update tenant subscription', ['error' => $e->getMessage()]);

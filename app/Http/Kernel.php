@@ -67,6 +67,8 @@ class Kernel extends HttpKernel
         'central.admin' => \App\Http\Middleware\EnsureCentralAdmin::class,
         'subscription' => \App\Http\Middleware\CheckSubscription::class,
         'instructor' => \App\Http\Middleware\EnsureInstructor::class,
+        'alumni' => \App\Http\Middleware\EnsureUserIsAlumni::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 
     /**
