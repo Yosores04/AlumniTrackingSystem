@@ -71,7 +71,7 @@ npm run build
 This system was developed by:
 
 -   **Joshua James G. Yosores** - Lead Developer
--   **Margaret Zoe Neri** - Frontend Developer
+-   **Margaret Zoe A. Neri** - Frontend Developer
 -   **Nilo G. Garciano Jr.** - Backend Developer
 -   **Sern S. Ponce** - Database Engineer
 
