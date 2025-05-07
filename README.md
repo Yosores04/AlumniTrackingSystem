@@ -33,7 +33,7 @@ The Alumni Tracking System is a comprehensive web application designed to help e
 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-repo/WST-T83-ALUMNI-TRACKING-SYSTEM.git
+git clone https://github.com/GarcianoNilo/WST-T83-ALUMNI-TRACKING-SYSTEM.git
 ```
 
 2. Install dependencies
