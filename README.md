@@ -54,6 +54,7 @@ php artisan key:generate
 
 ```bash
 php artisan migrate
+php artisan tenants:migrate
 php artisan db:seed
 ```
 
