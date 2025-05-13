@@ -16,6 +16,12 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\CreateTenant::class,
+        Commands\MigrateTenantSafe::class,
+        Commands\ProcessEmailQueue::class,
+        Commands\CheckGitHubConnection::class,
+        Commands\CheckTenantSystemVersions::class,
+        Commands\SetTenantCurrentVersion::class,
+        Commands\FixVersionCommand::class,
     ];
 
     /**
@@ -26,6 +32,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        // Process email queue every minute
+        $schedule->command('emails:send')->everyMinute();
+        
         // Run tenant-specific commands
         $this->scheduleTenantCommands($schedule);
         

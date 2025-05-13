@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SystemVersion extends Model
 {
@@ -45,6 +47,88 @@ class SystemVersion extends Model
             ->where('is_current', false)
             ->orderBy('created_at', 'desc')
             ->get();
+    }
+
+    /**
+     * Check GitHub API connectivity and rate limits
+     *
+     * @return array Information about GitHub API status
+     */
+    public static function checkGitHubStatus()
+    {
+        $result = [
+            'success' => false,
+            'has_token' => false,
+            'rate_limit' => 0,
+            'rate_limit_remaining' => 0,
+            'rate_limit_reset' => null,
+            'reset_time_formatted' => null,
+            'message' => '',
+        ];
+        
+        try {
+            // Setup GitHub API headers
+            $headers = ['User-Agent' => 'Alumni-Tracking-System-Updater'];
+            
+            // Add token if available
+            $token = config('services.github.token');
+            if ($token) {
+                $headers['Authorization'] = 'token ' . $token;
+                $result['has_token'] = true;
+            }
+            
+            // Call GitHub API rate limit endpoint
+            $response = Http::withHeaders($headers)
+                ->timeout(10)
+                ->get('https://api.github.com/rate_limit');
+            
+            if ($response->successful()) {
+                $rateData = $response->json();
+                $coreLimit = $rateData['resources']['core'] ?? [];
+                
+                $result['success'] = true;
+                $result['rate_limit'] = $coreLimit['limit'] ?? 0;
+                $result['rate_limit_remaining'] = $coreLimit['remaining'] ?? 0;
+                $result['rate_limit_reset'] = $coreLimit['reset'] ?? null;
+                
+                if ($result['rate_limit_reset']) {
+                    $result['reset_time_formatted'] = date('Y-m-d H:i:s', $result['rate_limit_reset']);
+                }
+                
+                $result['message'] = "GitHub API is accessible. Rate limit: {$result['rate_limit_remaining']}/{$result['rate_limit']} remaining.";
+                
+                // Log the status
+                Log::info('GitHub API status check successful', $result);
+            } else {
+                $result['message'] = "Failed to access GitHub API. Status code: {$response->status()}";
+                Log::warning('GitHub API status check failed', [
+                    'status_code' => $response->status(),
+                    'response' => $response->body(),
+                ]);
+            }
+        } catch (\Exception $e) {
+            $result['message'] = "Error checking GitHub API status: {$e->getMessage()}";
+            Log::error('Error checking GitHub API status', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Compare semantic versions to determine if this version is newer than another
+     *
+     * @param string $version Version to compare with (e.g. v1.0.0)
+     * @return bool True if this version is newer
+     */
+    public function isNewerThan($version)
+    {
+        $v1 = ltrim($this->version, 'v');
+        $v2 = ltrim($version, 'v');
+        
+        return version_compare($v1, $v2, '>');
     }
 
     /**

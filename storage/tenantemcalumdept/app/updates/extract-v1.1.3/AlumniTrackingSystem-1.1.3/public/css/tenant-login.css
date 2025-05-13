@@ -1,0 +1,364 @@
+/* Base styles */
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    position: relative;
+    background: transparent;
+}
+
+/* Logo styling */
+.logo {
+    color: white;
+    width: 100%;
+    display: flex;
+    align-items: end;
+    justify-content: flex-start;
+    margin: 10px;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+.nstp_logo {
+    max-height: 80px;
+    margin-right: 10px;
+}
+
+/* Circle background */
+.circle {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vh;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    z-index: 0;
+}
+
+.circle::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 200vh;
+    height: 200vh;
+    background-color: rgba(19, 50, 91, 0.9);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+/* Form styling */
+.login-form {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 1;
+    margin-left: -30%;
+    background-color: transparent;
+}
+
+.card {
+    background-color: transparent;
+    border: none;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+h1 {
+    margin-left: 70px;
+    color: white;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.form-container {
+    margin-top: 1rem;
+}
+
+.form-floating {
+    width: 100%;
+    opacity: 1;
+}
+
+/* Input styling */
+.input-group-text {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-right: none;
+}
+
+.input-group .form-control {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-left: none;
+}
+
+.form-control {
+    height: 45px;
+}
+
+/* Button styling */
+.btn {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    border: none;
+    opacity: 0.9;
+}
+
+.btn-outline-dark {
+    background-color: #3498db;
+    opacity: 0.9;
+}
+
+/* Checkbox styling */
+.checkbox-container {
+    text-align: left;
+    margin: 1rem 0;
+}
+
+.checkbox {
+    color: white;
+    margin-left: 0.5rem;
+}
+
+/* Google logo */
+.google_logo {
+    width: 20px;
+    height: 20px;
+}
+
+/* Background image */
+.nstp_bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+}
+
+/* reCAPTCHA container */
+.recaptcha-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+/* Password toggle button */
+.password-toggle-btn {
+    width: auto !important;
+    margin-top: 0;
+    background: white;
+    border: 1px solid #ced4da;
+    border-left: none;
+    color: #666;
+}
+
+.password-toggle-btn:hover {
+    background: #f8f9fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .circle {
+        width: 100%;
+    }
+    
+    .login-form {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .form-floating {
+        width: 100%;
+    }
+}
+
+/* Loading screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+/* Layout */
+.container-fluid {
+    height: 100vh;
+    padding: 0;
+}
+
+.row {
+    height: 100%;
+    margin: 0;
+}
+
+/* Left side styling */
+.left-side {
+    background: #13325b;
+    padding: 2rem 4rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 4rem;
+}
+
+.logo-text h6 {
+    color: white;
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.welcome-text {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+}
+
+.form-check {
+    margin: 1rem 0;
+}
+
+.form-check-label {
+    color: white;
+    font-size: 0.9rem;
+}
+
+.form-check-input {
+    background-color: transparent;
+    border-color: white;
+}
+
+.login-btn {
+    width: 100%;
+    height: 45px;
+    background-color: #3498db;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 1rem 0;
+}
+
+.btn-google {
+    width: 100%;
+    height: 45px;
+    background-color: white;
+    border: none;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.btn-google:hover {
+    background-color: #f8f9fa;
+}
+
+/* Right side styling */
+.right-side {
+    background-image: url('../images/building.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.right-side::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(19, 50, 91, 0.8), rgba(19, 50, 91, 0.4));
+}
+
+/* Animations */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Ensure the columns take full height */
+.col-md-6 {
+    padding: 0;
+    height: 100%;
+} 

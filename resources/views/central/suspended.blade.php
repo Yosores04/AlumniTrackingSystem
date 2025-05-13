@@ -1,7 +1,7 @@
-<x-central-app-layout>
+<x-suspended-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-white">
-            {{ __('Account Suspended') }}
+            {{ __('Domain Suspended') }}
         </h2>
     </x-slot>
 
@@ -18,15 +18,15 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="font-bold text-xl">Account Suspended</p>
+                                    <p class="font-bold text-xl">Domain Suspended</p>
                                     <p class="text-md">{{ $reason }}</p>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="mb-6">
-                            <h3 class="text-lg font-medium text-gray-900">Account Details</h3>
-                            <p class="mt-1 text-sm text-gray-600">Your account is currently {{ $status }}.</p>
+                            <h3 class="text-lg font-medium text-gray-900">Domain Details</h3>
+                            <p class="mt-1 text-sm text-gray-600">Your Domain is currently {{ $status }}.</p>
                             @if($suspended_at)
                                 <p class="mt-1 text-sm text-gray-600">Suspended on: {{ $suspended_at }}</p>
                             @endif
@@ -34,7 +34,7 @@
                         
                         <div class="bg-gray-50 rounded-lg p-6 mb-6">
                             <h3 class="text-md font-medium text-gray-900 mb-2">What This Means</h3>
-                            <p class="text-sm text-gray-700 mb-4">Your account has been suspended and you cannot access your tenant site at this time. If you believe this is an error, please contact support.</p>
+                            <p class="text-sm text-gray-700 mb-4">Your Domain has been suspended and you cannot access your tenant site at this time. If you believe this is an error, please contact support.</p>
                             
                             <h3 class="text-md font-medium text-gray-900 mb-2">Your Current Plan</h3>
                             <p class="text-sm text-gray-700">
@@ -54,4 +54,4 @@
             </div>
         </div>
     </div>
-</x-central-app-layout>
+</x-suspended-app-layout>

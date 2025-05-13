@@ -38,7 +38,7 @@ class DomainRequestReceived extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Domain Request Received')
             ->greeting('Hello ' . $this->domainRequest->admin_name . '!')
-            ->line('We have received your request for the domain: ' . $this->domainRequest->domain_prefix . '.localhost')
+            ->line('We have received your request for the domain: ' . $this->domainRequest->domain_prefix . '.localhost:8000')
             ->line('Your request is now being reviewed by our administrators. You will be notified once it has been processed.')
             ->line('Thank you for your interest in our service!');
     }

@@ -38,7 +38,7 @@ class DomainRequestRejected extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Domain Request Status Update')
             ->greeting('Hello ' . $this->domainRequest->admin_name . '!')
-            ->line('We regret to inform you that your request for the domain ' . $this->domainRequest->domain_prefix . '.localhost has been declined.')
+            ->line('We regret to inform you that your request for the domain ' . $this->domainRequest->domain_prefix . '.localhost:8000 has been declined.')
             ->line('Reason for rejection:')
             ->line($this->domainRequest->rejection_reason)
             ->line('You are welcome to submit a new request with a different domain name if needed.')

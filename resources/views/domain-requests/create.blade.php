@@ -77,7 +77,7 @@
                                    required 
                                    placeholder="myschool"
                                    style="border-radius: 8px 0 0 8px;">
-                            <span class="domain-suffix">.localhost</span>
+                            <span class="domain-suffix">.localhost:8000</span>
                         </div>
                         <p class="form-hint">Only letters, numbers, and hyphens are allowed.</p>
                         @error('domain_prefix')

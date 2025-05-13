@@ -60,7 +60,7 @@ class TenantController extends Controller
         $tenantId = $request->domain_prefix;
         
         // Create FULL domain with .localhost
-        $domain = $request->domain_prefix . '.localhost';
+        $domain = $request->domain_prefix . '.localhost:8000';
 
         try {
             // Create the tenant
@@ -214,7 +214,7 @@ class TenantController extends Controller
 
         try {
             // Update domain if changed
-            $newDomain = $request->domain_prefix . '.localhost';
+            $newDomain = $request->domain_prefix . '.localhost:8000';
             $currentDomain = $tenant->domains->first()->domain ?? null;
             
             if ($currentDomain && $currentDomain !== $newDomain) {
@@ -413,7 +413,7 @@ class TenantController extends Controller
                 
                 if ($adminUsers->count() > 0) {
                     // Get the first domain for this tenant
-                    $domain = $tenant->domains->first()->domain ?? $tenant->id . '.localhost';
+                    $domain = $tenant->domains->first()->domain ?? $tenant->id . '.localhost:8000';
                     
                     // Prepare data for email
                     $emailData = [

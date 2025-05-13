@@ -39,7 +39,7 @@ class DomainRequestController extends Controller
                 'max:50',
                 'regex:/^[a-z0-9\-]+$/i',
                 Rule::unique('domains', 'domain')->where(function ($query) use ($request) {
-                    return $query->where('domain', $request->domain_prefix . '.localhost');
+                    return $query->where('domain', $request->domain_prefix . '.localhost:8000');
                 }),
                 Rule::unique('domain_requests', 'domain_prefix')->where(function ($query) use ($request) {
                     return $query->where('status', 'pending');
@@ -105,7 +105,7 @@ class DomainRequestController extends Controller
 
         try {
             // Create domain with .localhost
-            $domain = $domainRequest->domain_prefix . '.localhost';
+            $domain = $domainRequest->domain_prefix . '.localhost:8000';
             
             // Check if domain already exists
             if (Tenant::find($domainRequest->domain_prefix)) {
@@ -142,7 +142,7 @@ class DomainRequestController extends Controller
             ]);
 
             // Prepare domain information
-            $domain = $domainRequest->domain_prefix . '.localhost';
+            $domain = $domainRequest->domain_prefix . '.localhost:8000';
             
             // Create credentials array for email with the password
             $credentials = [

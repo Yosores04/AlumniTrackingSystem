@@ -5,11 +5,10 @@ namespace App\Notifications;
 use App\Models\SupportTicket;
 use App\Models\TicketResponse;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SupportTicketNotification extends Notification implements ShouldQueue
+class SupportTicketNotification extends Notification
 {
     use Queueable;
 
@@ -55,7 +54,7 @@ class SupportTicketNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail'];
     }
 
     /**

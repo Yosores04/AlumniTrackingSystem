@@ -1,10 +1,4 @@
 <x-central-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-white">
-            {{ __('Tenant Management') }}
-        </h2>
-    </x-slot>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Tab navigation -->
@@ -94,15 +88,11 @@
                         <div class="mb-4">
                             <label for="domain_prefix" class="block text-gray-700 text-sm font-bold mb-2">Subdomain Prefix</label>
                             <div class="flex items-center">
-                                <input type="text" name="domain_prefix" id="domain_prefix" 
-                                    class="shadow appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('domain_prefix') border-red-500 @enderror" 
-                                    value="{{ old('domain_prefix') }}" 
-                                    required 
-                                    placeholder="test1">
-                                <span class="bg-gray-200 py-2 px-3 rounded-r">.localhost</span>
+                                <input type="text" name="domain_prefix" id="domain_prefix" class="py-2 px-3 bg-white rounded-l border focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 leading-8 transition-colors duration-200 ease-in-out flex-1">
+                                <span class="bg-gray-200 py-2 px-3 rounded-r">.localhost:8000</span>
                             </div>
-                            <p class="text-gray-600 text-xs mt-1">
-                                Only enter the subdomain prefix (e.g., "test1" will create "test1.localhost").<br>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Only enter the subdomain prefix (e.g., "test1" will create "test1.localhost:8000").<br>
                                 Only letters, numbers, and hyphens are allowed.
                             </p>
                             @error('domain_prefix')
@@ -165,8 +155,8 @@
                                     <td class="px-6 py-4 whitespace-no-wrap">
                                         <div class="text-sm leading-5 font-medium text-gray-900">
                                             @if($tenant->domains && $tenant->domains->first())
-                                                <a href="http://{{ $tenant->domains->first()->domain }}" target="_blank" class="text-blue-600 hover:text-blue-900">
-                                                    {{ $tenant->domains->first()->domain }}
+                                                <a href="http://{{ $tenant->domains->first()->domain }}:8000" target="_blank" class="text-blue-600 hover:text-blue-900">
+                                                    {{ $tenant->domains->first()->domain }}:8000
                                                     <i class="fas fa-external-link-alt text-xs ml-1"></i>
                                                 </a>
                                             @else
@@ -294,7 +284,7 @@
                                     <input type="text" name="domain_prefix" id="edit-domain" 
                                         class="shadow appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
                                         required>
-                                    <span class="bg-gray-200 py-2 px-3 rounded-r">.localhost</span>
+                                    <span class="bg-gray-200 py-2 px-3 rounded-r">.localhost:8000</span>
                                 </div>
                             </div>
 

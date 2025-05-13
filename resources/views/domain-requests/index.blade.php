@@ -1,10 +1,4 @@
 <x-central-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-white">
-            {{ __('Manage Domain Requests') }}
-        </h2>
-    </x-slot>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if(session('success'))
@@ -71,7 +65,7 @@
                                             {{ $request->admin_email }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-blue-600">
-                                            {{ $request->domain_prefix }}.localhost
+                                            {{ $request->domain_prefix }}.localhost:8000
                                         </td>
                                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                             {{ $request->created_at->format('M d, Y H:i') }}
