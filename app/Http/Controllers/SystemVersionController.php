@@ -137,7 +137,7 @@ class SystemVersionController extends Controller
             }
             
             $response = Http::withHeaders($headers)
-                ->timeout(30)
+                ->timeout(120)
                 ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}/releases");
             
             // Log rate limit information
@@ -235,7 +235,7 @@ class SystemVersionController extends Controller
             
             // Use a longer timeout for potential network issues
             $tagsResponse = Http::withHeaders($headers)
-                ->timeout(30)
+                ->timeout(120)
                 ->get($tagsUrl);
                 
             Log::info("Tags response received", [
@@ -264,7 +264,7 @@ class SystemVersionController extends Controller
                 // Try to check if the repository exists at all
                 Log::info("Failed to get tags, checking if repository exists");
                 $repoResponse = Http::withHeaders($headers)
-                    ->timeout(30)
+                    ->timeout(120)
                     ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}");
                 
                 if (!$repoResponse->successful()) {
@@ -354,7 +354,7 @@ class SystemVersionController extends Controller
             Log::info("Requesting branch info from: {$branchUrl}");
             
             $branchResponse = Http::withHeaders($headers)
-                ->timeout(30)
+                ->timeout(120)
                 ->get($branchUrl);
             
             Log::info("Branch response status: {$branchResponse->status()}", [
@@ -391,7 +391,7 @@ class SystemVersionController extends Controller
                 
                 // Get commit date from GitHub
                 $commitResponse = Http::withHeaders($headers)
-                    ->timeout(30)
+                    ->timeout(120)
                     ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}/commits/{$commitSha}");
                 
                 if (!$commitResponse->successful()) {
@@ -530,7 +530,7 @@ class SystemVersionController extends Controller
             Log::info("Downloading from URL: {$downloadUrl}");
             
             $response = Http::withHeaders($headers)
-                ->timeout(60)  // Increased timeout for larger repositories
+                ->timeout(120)  // Increased timeout for larger repositories
                 ->get($downloadUrl);
             
             // If tag URL fails and we tried it first, fall back to branch URL
@@ -541,7 +541,7 @@ class SystemVersionController extends Controller
                 ]);
                 
                 $response = Http::withHeaders($headers)
-                    ->timeout(60)
+                    ->timeout(120)
                     ->get($branchUrl);
             }
             
@@ -755,7 +755,7 @@ class SystemVersionController extends Controller
             
             // Try downloading from the release URL first
             $response = Http::withHeaders($headers)
-                ->timeout(30)
+                ->timeout(120)
                 ->get($releaseUrl);
             
             // If that fails, try the branch URL
@@ -766,7 +766,7 @@ class SystemVersionController extends Controller
                 ]);
                 
                 $response = Http::withHeaders($headers)
-                    ->timeout(30)
+                    ->timeout(120)
                     ->get($branchUrl);
                 
                 if (!$response->successful()) {
