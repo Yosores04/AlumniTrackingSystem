@@ -141,7 +141,7 @@ class SystemVersion extends Model
         
         // Handle special versions like "dev" or custom formatting
         try {
-            return version_compare($v1, $v2, '>');
+        return version_compare($v1, $v2, '>');
         } catch (\Exception $e) {
             // If version_compare fails, use string comparison as fallback
             Log::warning("Failed to compare versions using version_compare: {$v1} vs {$v2}. Using string comparison instead.");

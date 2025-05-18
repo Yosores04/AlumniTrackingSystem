@@ -162,10 +162,10 @@ Route::middleware([
             Route::get('/plan-upgrade/{planType}', [App\Http\Controllers\TenantPlanController::class, 'requestUpgrade'])
                 ->name('plan.upgrade.request');
             
-            // Profile routes - these would typically use a ProfileController
-            Route::get('/profile', function() {
-                return view('tenant.profile.edit');
-            })->name('profile.edit');
+            // Profile routes
+            Route::get('/profile', [App\Http\Controllers\TenantProfileController::class, 'edit'])->name('profile.edit');
+            Route::put('/profile', [App\Http\Controllers\TenantProfileController::class, 'update'])->name('profile.update');
+            Route::get('/profile/show', [App\Http\Controllers\TenantProfileController::class, 'show'])->name('profile.show');
             
             // Job routes - these would typically use a JobController
             Route::get('/jobs', function() {
