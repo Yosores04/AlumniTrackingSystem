@@ -404,7 +404,9 @@ class SystemVersionController extends Controller
     public function updateToVersion($id)
     {
         try {
+            Log::info("=== Starting update process ===");
             $version = SystemVersion::findOrFail($id);
+            Log::info("Updating to version: {$version->version} (Tag: {$version->release_tag})");
             
             // Check if we should skip backup (only for development)
             $skipBackup = false;
@@ -585,6 +587,18 @@ class SystemVersionController extends Controller
                 $extractedDir = $extractedDirs[0];
                 Log::info("Found extracted directory: {$extractedDir}");
                 
+                // Copy the extracted files to the application root
+                Log::info("Copying files from {$extractedDir} to application root");
+                $copyResult = $this->copyDirectoryContents($extractedDir, base_path());
+                
+                if (!$copyResult) {
+                    Log::error("Failed to copy files from extracted directory to application root");
+                    return redirect()->route('system.versions')
+                        ->with('error', 'Failed to update files. Check logs for details.');
+                }
+                
+                Log::info("Files copied successfully");
+                
                 // Save the backup path in the version record
                 $version->backup_path = $backupPath;
                 $version->save();
@@ -615,6 +629,7 @@ class SystemVersionController extends Controller
                 // Mark this version as current
                 $version->markAsCurrent();
                 
+                Log::info("=== Update process completed successfully ===");
                 return redirect()->route('system.versions')
                     ->with('success', "Successfully updated to version {$version->version}.");
             } else {
@@ -744,15 +759,28 @@ class SystemVersionController extends Controller
                 $zip->close();
                 
                 // Move the extracted files to the correct location
-                $extractedDir = glob($extractPath . '/*', GLOB_ONLYDIR)[0] ?? null;
+                $extractedDirs = glob($extractPath . '/*', GLOB_ONLYDIR);
                 
-                if (!$extractedDir) {
+                if (empty($extractedDirs)) {
+                    Log::error("No directories found after extraction for rollback");
                     return redirect()->route('system.versions')
-                        ->with('error', 'Failed to extract version files for rollback.');
+                        ->with('error', 'Failed to extract rollback files - no directories found in archive.');
                 }
                 
+                $extractedDir = $extractedDirs[0];
+                Log::info("Found extracted directory for rollback: {$extractedDir}");
+                
                 // Copy files from the extracted directory to the application root
-                File::copyDirectory($extractedDir, base_path());
+                Log::info("Copying files from {$extractedDir} to application root for rollback");
+                $copyResult = $this->copyDirectoryContents($extractedDir, base_path());
+                
+                if (!$copyResult) {
+                    Log::error("Failed to copy files from extracted directory to application root during rollback");
+                    return redirect()->route('system.versions')
+                        ->with('error', 'Failed to rollback files. Check logs for details.');
+                }
+                
+                Log::info("Files copied successfully for rollback");
                 
                 // Run migration with our safer migration command for multi-tenant systems
                 try {
@@ -1121,6 +1149,57 @@ class SystemVersionController extends Controller
             
             return redirect()->route('system.versions')
                 ->with('error', 'Failed to refresh versions: ' . $e->getMessage());
+        }
+    }
+
+    private function copyDirectoryContents($source, $destination)
+    {
+        try {
+            if (is_dir($source)) {
+                if (!is_dir($destination)) {
+                    mkdir($destination, 0755, true);
+                    Log::debug("Created directory: {$destination}");
+                }
+
+                $files = scandir($source);
+                foreach ($files as $file) {
+                    if ($file === '.' || $file === '..') {
+                        continue;
+                    }
+
+                    $sourceFile = $source . '/' . $file;
+                    $destinationFile = $destination . '/' . $file;
+
+                    if (is_dir($sourceFile)) {
+                        $this->copyDirectoryContents($sourceFile, $destinationFile);
+                    } else {
+                        // Skip dot files and certain configuration files for safety
+                        if (strpos($file, '.') === 0 || in_array($file, ['config.php', '.env'])) {
+                            Log::info("Skipping file for safety: {$sourceFile}");
+                            continue;
+                        }
+                        
+                        // Copy the file and set permissions
+                        if (copy($sourceFile, $destinationFile)) {
+                            chmod($destinationFile, 0644); // Set proper file permissions
+                            Log::debug("Copied file: {$sourceFile} -> {$destinationFile}");
+                        } else {
+                            Log::warning("Failed to copy file: {$sourceFile} -> {$destinationFile}");
+                        }
+                    }
+                }
+                return true;
+            } else {
+                Log::warning("Source is not a directory: {$source}");
+                return false;
+            }
+        } catch (\Exception $e) {
+            Log::error("Error copying directory contents: " . $e->getMessage(), [
+                'source' => $source,
+                'destination' => $destination,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return false;
         }
     }
 }
