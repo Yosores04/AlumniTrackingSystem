@@ -73,7 +73,15 @@ class SystemVersion extends Model
             // Add token if available
             $token = config('services.github.token');
             if ($token) {
-                $headers['Authorization'] = 'token ' . $token;
+                // GitHub API now requires 'Bearer' prefix for token authentication
+                // Support both formats (with or without 'Bearer') to ensure compatibility
+                if (stripos($token, 'Bearer') === 0) {
+                    $headers['Authorization'] = $token;
+                } else if (stripos($token, 'token') === 0) {
+                    $headers['Authorization'] = $token;
+                } else {
+                    $headers['Authorization'] = 'Bearer ' . $token;
+                }
                 $result['has_token'] = true;
             }
             
@@ -81,6 +89,9 @@ class SystemVersion extends Model
             $response = Http::withHeaders($headers)
                 ->timeout(10)
                 ->get('https://api.github.com/rate_limit');
+            
+            // Log the response for debugging
+            \Log::debug('GitHub Rate Limit Response: ' . $response->status() . ' - ' . substr($response->body(), 0, 500));
             
             if ($response->successful()) {
                 $rateData = $response->json();
@@ -98,17 +109,24 @@ class SystemVersion extends Model
                 $result['message'] = "GitHub API is accessible. Rate limit: {$result['rate_limit_remaining']}/{$result['rate_limit']} remaining.";
                 
                 // Log the status
-                Log::info('GitHub API status check successful', $result);
+                \Log::info('GitHub API status check successful', $result);
             } else {
                 $result['message'] = "Failed to access GitHub API. Status code: {$response->status()}";
-                Log::warning('GitHub API status check failed', [
+                \Log::warning('GitHub API status check failed', [
                     'status_code' => $response->status(),
                     'response' => $response->body(),
                 ]);
+                
+                // Check for specific error codes
+                if ($response->status() == 401) {
+                    $result['message'] = "GitHub API authentication failed. Please check your token.";
+                } else if ($response->status() == 403) {
+                    $result['message'] = "GitHub API access forbidden. This might be due to rate limiting or permissions issues.";
+                }
             }
         } catch (\Exception $e) {
             $result['message'] = "Error checking GitHub API status: {$e->getMessage()}";
-            Log::error('Error checking GitHub API status', [
+            \Log::error('Error checking GitHub API status', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

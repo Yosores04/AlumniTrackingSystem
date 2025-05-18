@@ -93,20 +93,25 @@ class SystemVersionController extends Controller
             }
             
             // Setup GitHub API headers
-            $headers = [];
+            $headers = ['User-Agent' => 'Alumni-Tracking-System-Updater'];
             
-            // Add token if available, but make it optional
+            // Add token if available - improved token handling
             $token = config('services.github.token');
             if ($token) {
-                $headers['Authorization'] = 'token ' . $token;
+                // GitHub API now requires 'Bearer' prefix for token authentication
+                // Support both formats (with or without 'Bearer') to ensure compatibility
+                if (stripos($token, 'Bearer') === 0) {
+                    $headers['Authorization'] = $token;
+                } else if (stripos($token, 'token') === 0) {
+                    $headers['Authorization'] = $token;
+                } else {
+                    $headers['Authorization'] = 'Bearer ' . $token;
+                }
                 Log::info('Using GitHub API token for authentication');
             } else {
                 Log::info('No GitHub API token provided, using unauthenticated requests (lower rate limits apply)');
             }
             
-            // Add user agent to avoid GitHub API issues
-            $headers['User-Agent'] = 'Alumni-Tracking-System-Updater';
-        
             // First try to get all releases
             Log::info("Checking for releases from GitHub repository: {$this->githubOwner}/{$this->githubRepo}");
             
@@ -131,11 +136,21 @@ class SystemVersionController extends Controller
             
             $newVersionsCount = 0;
             
+            // Debug response status and body
+            Log::info("GitHub API Response Status: " . $response->status());
+            Log::debug("GitHub API Response Body: " . substr($response->body(), 0, 1000) . "...");
+            
             // Check for rate limit issues
-            if ($response->status() == 403 && $rateLimitRemaining == 0) {
-                Log::error('GitHub API rate limit exceeded. Please wait or add a GitHub token to your .env file.');
-                return redirect()->route('system.versions')
-                    ->with('error', 'GitHub API rate limit exceeded. Please try again later or contact your administrator to add a GitHub token.');
+            if ($response->status() == 403) {
+                if ($rateLimitRemaining == 0) {
+                    Log::error('GitHub API rate limit exceeded. Please wait or add a GitHub token to your .env file.');
+                    return redirect()->route('system.versions')
+                        ->with('error', 'GitHub API rate limit exceeded. Please try again later or contact your administrator to add a GitHub token.');
+                } else {
+                    Log::error('GitHub API access forbidden. This might be due to authentication issues or repository permissions.');
+                    return redirect()->route('system.versions')
+                        ->with('error', 'GitHub API access forbidden. Please check your GitHub token permissions.');
+                }
             }
             
             // If releases exist, process them
@@ -218,6 +233,10 @@ class SystemVersionController extends Controller
             Log::info("GitHub API rate limit: {$rateLimitRemaining}/{$rateLimitLimit} remaining. Reset at: " . 
                      date('Y-m-d H:i:s', $rateLimitReset ?? time()));
             
+            // Debug response status and body
+            Log::info("GitHub Tags API Response Status: " . $tagsResponse->status());
+            Log::debug("GitHub Tags API Response Body: " . substr($tagsResponse->body(), 0, 1000) . "...");
+            
             // Check for rate limit issues
             if ($tagsResponse->status() == 403 && $rateLimitRemaining == 0) {
                 Log::error('GitHub API rate limit exceeded. Please wait or add a GitHub token to your .env file.');
@@ -231,6 +250,9 @@ class SystemVersionController extends Controller
                 $repoResponse = Http::withHeaders($headers)
                     ->timeout(30)
                     ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}");
+                
+                Log::debug("GitHub Repository API Response Status: " . $repoResponse->status());
+                Log::debug("GitHub Repository API Response Body: " . substr($repoResponse->body(), 0, 1000) . "...");
                 
                 if (!$repoResponse->successful()) {
                     Log::error("Repository not found: {$this->githubOwner}/{$this->githubRepo}");
@@ -247,6 +269,13 @@ class SystemVersionController extends Controller
             
             if (empty($tags)) {
                 Log::info("No tags found in the repository");
+                // Since the repository exists but has no tags, let's create an initial version from the integration branch
+                $initialVersion = $this->createInitialVersionFromBranch($headers);
+                if ($initialVersion) {
+                    return redirect()->route('system.versions')
+                        ->with('success', "Created initial version from '{$this->githubBranch}' branch.");
+                }
+                
                 return redirect()->route('system.versions')
                     ->with('error', 'No tags found in the repository. Please create a tag or release on GitHub first.');
             }
@@ -300,6 +329,51 @@ class SystemVersionController extends Controller
             
             return redirect()->route('system.versions')
                 ->with('error', 'An error occurred while checking for tags: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Create an initial version from the branch when no tags exist
+     */
+    private function createInitialVersionFromBranch($headers)
+    {
+        try {
+            // Check if the branch exists
+            $branchResponse = Http::withHeaders($headers)
+                ->timeout(30)
+                ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}/branches/{$this->githubBranch}");
+            
+            if (!$branchResponse->successful()) {
+                Log::error("Branch {$this->githubBranch} not found in repository");
+                return false;
+            }
+            
+            $branchData = $branchResponse->json();
+            $commitSha = $branchData['commit']['sha'] ?? null;
+            
+            if (!$commitSha) {
+                Log::error("Could not find commit SHA for branch {$this->githubBranch}");
+                return false;
+            }
+            
+            // Create a version based on the latest commit
+            $version = new SystemVersion([
+                'version' => "v0.1.0-{$this->githubBranch}",
+                'release_tag' => $this->githubBranch,
+                'github_url' => "https://github.com/{$this->githubOwner}/{$this->githubRepo}/tree/{$this->githubBranch}",
+                'description' => "Initial version from {$this->githubBranch} branch (commit {$commitSha})",
+                'changelog' => "Initial version from {$this->githubBranch} branch (commit {$commitSha})",
+                'is_active' => true,
+                'is_current' => false,
+            ]);
+            
+            $version->save();
+            Log::info("Created initial version from branch {$this->githubBranch}");
+            return $version;
+            
+        } catch (Exception $e) {
+            Log::error('Error creating initial version from branch: ' . $e->getMessage());
+            return false;
         }
     }
     
