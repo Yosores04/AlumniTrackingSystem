@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         'subscription' => \App\Http\Middleware\CheckSubscription::class,
         'instructor' => \App\Http\Middleware\EnsureInstructor::class,
         'alumni' => \App\Http\Middleware\EnsureUserIsAlumni::class,
+        'alumni.verified' => \App\Http\Middleware\CheckAlumniVerification::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 

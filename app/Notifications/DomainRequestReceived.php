@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DomainRequestReceived extends Notification implements ShouldQueue
+class DomainRequestReceived extends Notification
 {
     use Queueable;
 

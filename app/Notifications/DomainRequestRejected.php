@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DomainRequestRejected extends Notification implements ShouldQueue
+class DomainRequestRejected extends Notification
 {
     use Queueable;
 
@@ -36,13 +36,12 @@ class DomainRequestRejected extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Domain Request Status Update')
+            ->subject('Domain Request Rejected')
             ->greeting('Hello ' . $this->domainRequest->admin_name . '!')
-            ->line('We regret to inform you that your request for the domain ' . $this->domainRequest->domain_prefix . '.localhost:8000 has been declined.')
-            ->line('Reason for rejection:')
-            ->line($this->domainRequest->rejection_reason)
-            ->line('You are welcome to submit a new request with a different domain name if needed.')
-            ->line('If you have any questions, please contact our support team.')
+            ->line('We regret to inform you that your domain request for: ' . $this->domainRequest->domain_prefix . '.localhost:8000 has been rejected.')
+            ->line('Reason: ' . $this->domainRequest->rejection_reason)
+            ->line('If you believe this was in error or would like to submit a new request with different details, please feel free to do so.')
+            ->action('Submit New Request', url('/request-domain'))
             ->line('Thank you for your understanding.');
     }
 }

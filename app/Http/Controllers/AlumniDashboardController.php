@@ -29,7 +29,10 @@ class AlumniDashboardController extends Controller
         $alumni = $user->alumni;
         $settings = \App\Models\TenantSettings::getSettings();
         
-        return view('alumni.dashboard', compact('alumni', 'settings'));
+        // Check if alumni is verified
+        $isVerified = $alumni ? $alumni->is_verified : false;
+        
+        return view('alumni.dashboard', compact('alumni', 'settings', 'isVerified'));
     }
     
     /**
@@ -43,7 +46,10 @@ class AlumniDashboardController extends Controller
         $alumni = $user->alumni;
         $settings = \App\Models\TenantSettings::getSettings();
         
-        return view('alumni.profile', compact('alumni', 'settings'));
+        // Pass readonly flag to view if alumni is not verified
+        $readonly = $alumni ? !$alumni->is_verified : true;
+        
+        return view('alumni.profile', compact('alumni', 'settings', 'readonly'));
     }
     
     /**
@@ -56,6 +62,12 @@ class AlumniDashboardController extends Controller
     {
         $user = Auth::user();
         $alumni = $user->alumni;
+        
+        // Check if alumni is verified
+        if (!$alumni || !$alumni->is_verified) {
+            return redirect()->route('alumni.profile')
+                ->with('error', 'Your account is pending verification. You cannot update your profile at this time. Please contact support for assistance.');
+        }
         
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',

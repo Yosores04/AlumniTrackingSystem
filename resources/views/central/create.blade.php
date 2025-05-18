@@ -284,7 +284,7 @@
                                     <input type="text" name="domain_prefix" id="edit-domain" 
                                         class="shadow appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
                                         required>
-                                    <span class="bg-gray-200 py-2 px-3 rounded-r">.localhost:8000</span>
+                                    <span class="bg-gray-200 py-2 px-3 rounded-r">.localhost</span>
                                 </div>
                             </div>
 
@@ -456,65 +456,51 @@
             editButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const tenantId = this.getAttribute('data-tenant-id');
-                    const tenantRow = this.closest('tr');
                     
-                    // Get domain from the row
-                    const domainElement = tenantRow.querySelector('td:nth-child(2) a');
+                    // Find the tenant row
+                    const row = this.closest('tr');
+                    
+                    // Get domain from link text (remove port)
+                    const domainLink = row.querySelector('td:nth-child(2) a');
                     let domain = '';
-                    if (domainElement) {
-                        domain = domainElement.textContent.trim();
-                        // Extract subdomain from domain.localhost
-                        if (domain.endsWith('.localhost')) {
-                            domain = domain.replace('.localhost', '');
-                        }
+                    
+                    if (domainLink) {
+                        // Extract domain without port
+                        const domainWithPort = domainLink.textContent.trim();
+                        domain = domainWithPort.replace(':8000', '');
+                        
+                        // Extract domain prefix (remove .localhost)
+                        const domainPrefix = domain.replace('.localhost', '');
+                        document.getElementById('edit-domain').value = domainPrefix;
                     }
                     
-                    // Get current status from the row
-                    const statusElement = tenantRow.querySelector('td:nth-child(4) span');
-                    let status = 'active';
+                    // Get status from cell
+                    const statusElement = row.querySelector('td:nth-child(4) span');
                     if (statusElement) {
-                        status = statusElement.textContent.trim();
-                    }
-                    
-                    // Set form values
-                    document.getElementById('edit-tenant-id').value = tenantId;
-                    document.getElementById('edit-domain').value = domain;
-                    document.getElementById('edit-status').value = status;
-                    
-                    // Get current subscription plan from the table
-                    const planCell = tenantRow.querySelector('td:nth-child(5) span');
-                    if (planCell) {
-                        const planSlug = planCell.getAttribute('data-plan-slug');
-                        if (planSlug) {
-                            // Set the subscription dropdown to the current plan
-                            const subscriptionSelect = document.getElementById('edit-subscription');
-                            const options = subscriptionSelect.options;
-                            
-                            // Default to first option if not found
-                            subscriptionSelect.selectedIndex = 0;
-                            
-                            // Find matching option by slug value
-                            for (let i = 0; i < options.length; i++) {
-                                if (options[i].value === planSlug) {
-                                    subscriptionSelect.selectedIndex = i;
-                                    break;
-                                }
-                            }
+                        const status = statusElement.textContent.trim();
+                        document.getElementById('edit-status').value = status;
+                        
+                        // Show/hide suspension reason field
+                        if (status === 'suspended') {
+                            document.getElementById('suspension-reason-container').classList.remove('hidden');
+                        } else {
+                            document.getElementById('suspension-reason-container').classList.add('hidden');
                         }
                     }
                     
-                    // Show/hide suspension reason field based on selected status
-                    if (status === 'suspended') {
-                        suspensionReasonContainer.classList.remove('hidden');
-                    } else {
-                        suspensionReasonContainer.classList.add('hidden');
+                    // Get plan from cell
+                    const planElement = row.querySelector('td:nth-child(5) span');
+                    if (planElement) {
+                        const planSlug = planElement.getAttribute('data-plan-slug');
+                        document.getElementById('edit-subscription').value = planSlug;
                     }
                     
-                    // Set form action with the correct URL
+                    // Update form action URL and tenant ID
                     document.getElementById('edit-tenant-form').action = `/tenants/${tenantId}`;
+                    document.getElementById('edit-tenant-id').value = tenantId;
                     
-                    // Show modal
-                    editModal.classList.remove('hidden');
+                    // Show edit modal
+                    document.getElementById('edit-modal').classList.remove('hidden');
                 });
             });
             

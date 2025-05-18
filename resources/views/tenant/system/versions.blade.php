@@ -156,8 +156,9 @@
             </div>
             <div class="ml-3">
                 <p class="text-sm">
-                    <strong>Warning:</strong> Always back up your database before updating or rolling back versions. 
-                    While the system creates backups automatically, it's recommended to have your own backup as well.
+                    <strong>Note:</strong> Both updates and rollbacks pull directly from GitHub tags. 
+                    While the system creates backups automatically as a safety measure, all versions are pulled directly from your GitHub repository.
+                    Make sure your GitHub repository is accessible and all version tags exist.
                 </p>
             </div>
         </div>

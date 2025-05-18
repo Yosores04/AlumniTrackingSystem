@@ -59,8 +59,10 @@ class TenantController extends Controller
         // Generate tenant ID from domain prefix
         $tenantId = $request->domain_prefix;
         
-        // Create FULL domain with .localhost
-        $domain = $request->domain_prefix . '.localhost:8000';
+        // Create domain with .localhost (without port)
+        $domain = $request->domain_prefix . '.localhost';
+        // Domain with port for display and URLs
+        $domainWithPort = $domain . ':8000';
 
         try {
             // Create the tenant
@@ -114,7 +116,7 @@ class TenantController extends Controller
             // Prepare tenant info for notification
             $tenantInfo = [
                 'id' => $tenantId,
-                'domain' => $domain,
+                'domain' => $domainWithPort,
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => $password
@@ -214,7 +216,7 @@ class TenantController extends Controller
 
         try {
             // Update domain if changed
-            $newDomain = $request->domain_prefix . '.localhost:8000';
+            $newDomain = $request->domain_prefix . '.localhost';
             $currentDomain = $tenant->domains->first()->domain ?? null;
             
             if ($currentDomain && $currentDomain !== $newDomain) {

@@ -36,7 +36,7 @@ class TenantCreated extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $url = 'http://' . $this->tenantInfo['domain'] . ':8000';
+        $url = 'http://' . $this->tenantInfo['domain'];
         
         return (new MailMessage)
             ->subject('Your New Tenant Has Been Created')

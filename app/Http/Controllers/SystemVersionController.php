@@ -499,43 +499,132 @@ class SystemVersionController extends Controller
                     ->with('error', 'Cannot roll back to the current version.');
             }
             
-            if (!$version->backup_path || !Storage::disk('local')->exists($version->backup_path)) {
-                return redirect()->route('system.versions')
-                    ->with('error', 'Backup files for this version are not available.');
+            // Create a backup of the current system before rolling back (optional but recommended)
+            $skipBackup = false;
+            if (session('skip_backup_for_update') && (app()->environment('local') || app()->environment('development'))) {
+                $skipBackup = true;
+                session()->forget('skip_backup_for_update'); // Clear the flag
+                Log::warning('Skipping backup for rollback as requested');
             }
             
-            // Create a backup of the current system before rolling back
-            $backupPath = $this->backupSystem();
-            
-            if (!$backupPath) {
-                return redirect()->route('system.versions')
-                    ->with('error', 'Failed to create system backup before rollback.');
+            if (!$skipBackup) {
+                $backupPath = $this->backupSystem();
+                if (!$backupPath && !app()->environment('local') && !app()->environment('development')) {
+                    Log::error('Failed to create backup during rollback');
+                    return redirect()->route('system.versions')
+                        ->with('error', 'Failed to create system backup before rollback.');
+                }
+                Log::info('Created backup before rollback: ' . ($backupPath ?? 'backup failed but proceeding in development'));
             }
             
-            // Restore from the backup
-            $backupZipPath = storage_path('app/' . $version->backup_path);
-            $extractPath = storage_path('app/rollback-temp');
+            // Download the release from GitHub - similar to the update process
+            $releaseUrl = "https://github.com/{$this->githubOwner}/{$this->githubRepo}/archive/refs/tags/{$version->release_tag}.zip";
+            $branchUrl = "https://github.com/{$this->githubOwner}/{$this->githubRepo}/archive/refs/heads/{$this->githubBranch}.zip";
+            
+            $zipPath = storage_path("app/rollbacks/{$version->release_tag}.zip");
             
             // Ensure directory exists
+            if (!File::exists(storage_path('app/rollbacks'))) {
+                File::makeDirectory(storage_path('app/rollbacks'), 0755, true);
+            }
+            
+            // Setup GitHub API auth headers
+            $headers = [];
+            if (config('services.github.token')) {
+                $headers = [
+                    'Authorization' => 'token ' . config('services.github.token'),
+                    'User-Agent' => 'Alumni-Tracking-System-Updater'
+                ];
+            } else {
+                $headers = [
+                    'User-Agent' => 'Alumni-Tracking-System-Updater'
+                ];
+            }
+            
+            // Try downloading from the release URL first
+            $response = Http::withHeaders($headers)
+                ->timeout(30)
+                ->get($releaseUrl);
+            
+            // If that fails, try the branch URL
+            if (!$response->successful()) {
+                Log::warning("Failed to download from tag URL for rollback, trying branch URL instead", [
+                    'tag' => $version->release_tag,
+                    'status' => $response->status()
+                ]);
+                
+                $response = Http::withHeaders($headers)
+                    ->timeout(30)
+                    ->get($branchUrl);
+                
+                if (!$response->successful()) {
+                    return redirect()->route('system.versions')
+                        ->with('error', "Failed to download version from GitHub. Please check if the repository and tag '{$version->release_tag}' exist and are accessible.");
+                }
+            }
+            
+            // Save the downloaded content
+            File::put($zipPath, $response->body());
+            
+            // Make sure the downloaded file is not empty
+            if (filesize($zipPath) < 1000) { // Less than 1KB is suspicious
+                $fileContent = File::get($zipPath);
+                Log::error("Downloaded file for rollback seems too small", [
+                    'size' => filesize($zipPath),
+                    'content_preview' => substr($fileContent, 0, 500)
+                ]);
+                
+                return redirect()->route('system.versions')
+                    ->with('error', 'Downloaded file appears to be empty or invalid. Please check GitHub repository permissions.');
+            }
+            
+            // Extract and apply the rollback
+            $extractPath = storage_path("app/rollbacks/extract-{$version->release_tag}");
             if (!File::exists($extractPath)) {
                 File::makeDirectory($extractPath, 0755, true);
             } else {
-                // Clean directory
+                // Clean directory if it exists
                 File::cleanDirectory($extractPath);
             }
             
-            // Extract the backup
+            // Extract the downloaded version
             $zip = new ZipArchive;
-            if ($zip->open($backupZipPath) === true) {
+            if ($zip->open($zipPath) === true) {
                 $zip->extractTo($extractPath);
                 $zip->close();
                 
-                // Restore files
-                // This is a simplified version, you may need a more complex file copying logic
-                File::copyDirectory($extractPath, base_path());
+                // Move the extracted files to the correct location
+                $extractedDir = glob($extractPath . '/*', GLOB_ONLYDIR)[0] ?? null;
                 
-                // Run migration and other rollback tasks
-                Artisan::call('migrate');
+                if (!$extractedDir) {
+                    return redirect()->route('system.versions')
+                        ->with('error', 'Failed to extract version files for rollback.');
+                }
+                
+                // Copy files from the extracted directory to the application root
+                File::copyDirectory($extractedDir, base_path());
+                
+                // Run migration with our safer migration command for multi-tenant systems
+                try {
+                    Log::info("Running tenant-safe migrations during rollback to {$version->version}");
+                    
+                    // Use our custom command that handles "table already exists" errors
+                    Artisan::call('migrate:tenant-safe', ['--force' => true]);
+                    
+                    Log::info("Migration result: " . Artisan::output());
+                } catch (Exception $e) {
+                    // Log migration error but continue with the rollback if it's about tables already existing
+                    Log::warning("Migration error during rollback: " . $e->getMessage());
+                    
+                    // For 'table already exists' errors, continue the rollback process
+                    if (strpos($e->getMessage(), 'already exists') !== false) {
+                        Log::info("Continuing rollback despite 'table already exists' error");
+                    } else {
+                        return redirect()->route('system.versions')
+                            ->with('error', 'Database migration failed during rollback: ' . $e->getMessage());
+                    }
+                }
+                
                 Artisan::call('optimize:clear');
                 
                 // Mark this version as current
@@ -545,7 +634,7 @@ class SystemVersionController extends Controller
                     ->with('success', "Successfully rolled back to version {$version->version}.");
             } else {
                 return redirect()->route('system.versions')
-                    ->with('error', 'Failed to extract backup archive.');
+                    ->with('error', 'Failed to extract version archive for rollback.');
             }
             
         } catch (Exception $e) {

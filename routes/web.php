@@ -230,3 +230,56 @@ Route::get('/debug-skip-backup', function () {
     }
 });
 
+// Add this test mail route near your other debug routes
+Route::get('/debug-test-mail', function() {
+    try {
+        // Display mail configuration
+        $config = [
+            "MAIL_MAILER" => config('mail.default'),
+            "MAIL_HOST" => config('mail.mailers.smtp.host'),
+            "MAIL_PORT" => config('mail.mailers.smtp.port'),
+            "MAIL_USERNAME" => config('mail.mailers.smtp.username'),
+            "MAIL_ENCRYPTION" => config('mail.mailers.smtp.encryption'),
+            "MAIL_FROM_ADDRESS" => config('mail.from.address'),
+            "MAIL_FROM_NAME" => config('mail.from.name'),
+            "QUEUE_CONNECTION" => config('queue.default')
+        ];
+        
+        // Send test email
+        \Illuminate\Support\Facades\Mail::raw(
+            'This is a test email from the Alumni Tracking System to verify email functionality.', 
+            function($message) {
+                $message->to('rvaxrevo@gmail.com')
+                    ->subject('Test Email from Alumni Tracking System');
+            }
+        );
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Test email sent successfully!',
+            'config' => $config
+        ]);
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error("Failed to send test email", [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to send test email: ' . $e->getMessage(),
+            'config' => $config ?? []
+        ], 500);
+    }
+});
+
+// Add this route to test the queue system
+Route::get('/debug-queue-health', function() {
+    return response()->json([
+        'queue_connection' => config('queue.default'),
+        'queue_connections' => config('queue.connections'),
+        'database_jobs_count' => \DB::table('jobs')->count(),
+        'database_failed_jobs_count' => \DB::table('failed_jobs')->count(),
+    ]);
+});
+

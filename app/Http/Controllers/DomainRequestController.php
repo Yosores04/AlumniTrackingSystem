@@ -65,9 +65,24 @@ class DomainRequestController extends Controller
                 'status' => 'pending',
             ]);
 
-            // Uncomment this to send confirmation email
-            Notification::route('mail', $request->admin_email)
-                ->notify(new DomainRequestReceived($domainRequest));
+            // Send confirmation email with better error handling
+            try {
+                Log::info('Attempting to send domain request notification', [
+                    'email' => $request->admin_email,
+                    'domain_prefix' => $request->domain_prefix
+                ]);
+                
+                Notification::route('mail', $request->admin_email)
+                    ->notify(new DomainRequestReceived($domainRequest));
+                    
+                Log::info('Domain request notification sent successfully');
+            } catch (\Exception $emailEx) {
+                Log::error('Failed to send domain request email notification', [
+                    'error' => $emailEx->getMessage(),
+                    'trace' => $emailEx->getTraceAsString()
+                ]);
+                // Continue execution even if email fails
+            }
 
             return redirect()->route('request-domain')
                 ->with('success', 'Your domain request has been submitted successfully. We will notify you once it has been reviewed.');
@@ -105,7 +120,7 @@ class DomainRequestController extends Controller
 
         try {
             // Create domain with .localhost
-            $domain = $domainRequest->domain_prefix . '.localhost:8000';
+            $domain = $domainRequest->domain_prefix . '.localhost';
             
             // Check if domain already exists
             if (Tenant::find($domainRequest->domain_prefix)) {
@@ -141,8 +156,8 @@ class DomainRequestController extends Controller
                 'approved_by' => Auth::user()->name ?? 'System',
             ]);
 
-            // Prepare domain information
-            $domain = $domainRequest->domain_prefix . '.localhost:8000';
+            // Prepare domain information for display and email (include port for URLs)
+            $domainWithPort = $domain . ':8000';
             
             // Create credentials array for email with the password
             $credentials = [
@@ -150,15 +165,30 @@ class DomainRequestController extends Controller
                 'name' => $domainRequest->admin_name,
                 'email' => $domainRequest->admin_email,
                 'password' => $password,
-                'login_url' => 'http://' . $domain . ':8000',
+                'login_url' => 'http://' . $domainWithPort,
             ];
 
-            // Uncomment this to send approval email
-            Notification::route('mail', $domainRequest->admin_email)
-                ->notify(new DomainRequestApproved($credentials));
+            // Send approval email with better error handling
+            try {
+                Log::info('Attempting to send domain approval notification', [
+                    'email' => $domainRequest->admin_email,
+                    'domain' => $domain
+                ]);
+                
+                Notification::route('mail', $domainRequest->admin_email)
+                    ->notify(new DomainRequestApproved($credentials));
+                    
+                Log::info('Domain approval notification sent successfully');
+            } catch (\Exception $emailEx) {
+                Log::error('Failed to send domain approval email notification', [
+                    'error' => $emailEx->getMessage(),
+                    'trace' => $emailEx->getTraceAsString()
+                ]);
+                // Continue execution even if email fails
+            }
 
             return redirect()->route('domain-requests.index')
-                ->with('success', "Domain request for '{$domainRequest->domain_prefix}' has been approved. The domain is now accessible at http://{$domain}");
+                ->with('success', "Domain request for '{$domainRequest->domain_prefix}' has been approved. The domain is now accessible at http://{$domainWithPort}");
                 
         } catch (\Exception $e) {
             Log::error('Failed to approve domain request', ['error' => $e->getMessage()]);
@@ -198,9 +228,24 @@ class DomainRequestController extends Controller
                 'rejection_reason' => $request->rejection_reason,
             ]);
 
-            // Uncomment this to send rejection email
-            Notification::route('mail', $domainRequest->admin_email)
-                ->notify(new DomainRequestRejected($domainRequest));
+            // Send rejection email with better error handling
+            try {
+                Log::info('Attempting to send domain rejection notification', [
+                    'email' => $domainRequest->admin_email,
+                    'domain_prefix' => $domainRequest->domain_prefix
+                ]);
+                
+                Notification::route('mail', $domainRequest->admin_email)
+                    ->notify(new DomainRequestRejected($domainRequest));
+                    
+                Log::info('Domain rejection notification sent successfully');
+            } catch (\Exception $emailEx) {
+                Log::error('Failed to send domain rejection email notification', [
+                    'error' => $emailEx->getMessage(),
+                    'trace' => $emailEx->getTraceAsString()
+                ]);
+                // Continue execution even if email fails
+            }
 
             return redirect()->route('domain-requests.index')
                 ->with('success', "Domain request for '{$domainRequest->domain_prefix}' has been rejected.");
