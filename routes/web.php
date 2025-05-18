@@ -7,6 +7,7 @@ use App\Http\Controllers\DomainRequestController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 
 // Define central domain routes - fixed format for domain constraints
 foreach (config('tenancy.central_domains') as $domain) {
@@ -281,5 +282,83 @@ Route::get('/debug-queue-health', function() {
         'database_jobs_count' => \DB::table('jobs')->count(),
         'database_failed_jobs_count' => \DB::table('failed_jobs')->count(),
     ]);
+});
+
+// Debug route to test GitHub API connectivity
+Route::get('/debug-github', function () {
+    $results = [];
+    
+    try {
+        // Get settings from config
+        $results['config'] = [
+            'github_token' => config('services.github.token') ? 'Set (hidden)' : 'Not set',
+            'owner' => 'Yosores04',
+            'repo' => 'AlumniTrackingSystem',
+            'branch' => 'integration'
+        ];
+        
+        // Setup GitHub API headers
+        $headers = ['User-Agent' => 'Alumni-Tracking-System-Updater'];
+        
+        // Add token if available
+        $token = config('services.github.token');
+        if ($token) {
+            $headers['Authorization'] = 'token ' . $token;
+        }
+        
+        // Test GitHub API rate limit (basic connectivity)
+        $response = Http::withHeaders($headers)
+            ->timeout(10)
+            ->get('https://api.github.com/rate_limit');
+            
+        $results['rate_limit'] = [
+            'status' => $response->status(),
+            'success' => $response->successful(),
+            'data' => $response->json(),
+        ];
+        
+        // Test repo existence
+        $repoResponse = Http::withHeaders($headers)
+            ->timeout(10)
+            ->get("https://api.github.com/repos/Yosores04/AlumniTrackingSystem");
+            
+        $results['repo_check'] = [
+            'status' => $repoResponse->status(),
+            'success' => $repoResponse->successful(),
+            'data' => $repoResponse->json(),
+        ];
+        
+        // Test branch existence
+        $branchResponse = Http::withHeaders($headers)
+            ->timeout(10)
+            ->get("https://api.github.com/repos/Yosores04/AlumniTrackingSystem/branches/integration");
+            
+        $results['branch_check'] = [
+            'status' => $branchResponse->status(),
+            'success' => $branchResponse->successful(),
+            'data' => $branchResponse->json(),
+        ];
+        
+        // Test tags
+        $tagsResponse = Http::withHeaders($headers)
+            ->timeout(10)
+            ->get("https://api.github.com/repos/Yosores04/AlumniTrackingSystem/tags");
+            
+        $results['tags_check'] = [
+            'status' => $tagsResponse->status(),
+            'success' => $tagsResponse->successful(),
+            'count' => count($tagsResponse->json()),
+            'first_few' => array_slice($tagsResponse->json(), 0, 3),
+        ];
+        
+    } catch (\Exception $e) {
+        $results['error'] = [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ];
+    }
+    
+    return response()->json($results);
 });
 

@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
-use GuzzleHttp\Client;
 
 class SystemVersionController extends Controller
 {
@@ -37,12 +36,19 @@ class SystemVersionController extends Controller
      */
     public function index()
     {
-        // Force clear the version cache to ensure we're showing updated information
-        // This helps when there are issues with version detection
-        $this->clearVersionCache();
-        
         // Get current version
         $currentVersion = SystemVersion::getCurrentVersion();
+        
+        // If no current version exists but there are versions in the database,
+        // automatically set the latest version as current
+        if (!$currentVersion) {
+            $latestVersion = SystemVersion::orderBy('version', 'desc')->first();
+            if ($latestVersion) {
+                Log::info("No current version set. Automatically setting {$latestVersion->version} as current.");
+                $latestVersion->markAsCurrent();
+                $currentVersion = $latestVersion;
+            }
+        }
         
         // Get all available versions
         $availableVersions = SystemVersion::where('is_active', true)
@@ -76,29 +82,21 @@ class SystemVersionController extends Controller
     }
     
     /**
-     * Clear the cached version information
-     */
-    protected function clearVersionCache()
-    {
-        // Clear artisan cache
-        try {
-            \Illuminate\Support\Facades\Artisan::call('cache:clear');
-        } catch (\Exception $e) {
-            Log::warning('Failed to clear cache: ' . $e->getMessage());
-        }
-    }
-    
-    /**
      * Check for new GitHub releases or tags
      */
     public function checkForUpdates()
     {
         try {
-            // Clear version cache first
-            $this->clearVersionCache();
+            // Debug logging for troubleshooting
+            Log::info('Check for Updates method called', [
+                'time' => now()->toDateTimeString(),
+                'user_id' => Auth::id(),
+                'ip' => request()->ip()
+            ]);
             
             // First check GitHub connectivity
             $githubStatus = SystemVersion::checkGitHubStatus();
+            Log::info('GitHub Status Check Result', $githubStatus);
             
             if (!$githubStatus['success']) {
                 Log::error('Failed to access GitHub API before checking for updates: ' . $githubStatus['message']);
@@ -114,25 +112,20 @@ class SystemVersionController extends Controller
             }
             
             // Setup GitHub API headers
-            $headers = ['User-Agent' => 'Alumni-Tracking-System-Updater'];
+            $headers = [];
             
-            // Add token if available - improved token handling
+            // Add token if available, but make it optional
             $token = config('services.github.token');
             if ($token) {
-                // GitHub API now requires 'Bearer' prefix for token authentication
-                // Support both formats (with or without 'Bearer') to ensure compatibility
-                if (stripos($token, 'Bearer') === 0) {
-                    $headers['Authorization'] = $token;
-                } else if (stripos($token, 'token') === 0) {
-                    $headers['Authorization'] = $token;
-                } else {
-                    $headers['Authorization'] = 'Bearer ' . $token;
-                }
+                $headers['Authorization'] = 'token ' . $token;
                 Log::info('Using GitHub API token for authentication');
             } else {
                 Log::info('No GitHub API token provided, using unauthenticated requests (lower rate limits apply)');
             }
             
+            // Add user agent to avoid GitHub API issues
+            $headers['User-Agent'] = 'Alumni-Tracking-System-Updater';
+        
             // First try to get all releases
             Log::info("Checking for releases from GitHub repository: {$this->githubOwner}/{$this->githubRepo}");
             
@@ -157,21 +150,11 @@ class SystemVersionController extends Controller
             
             $newVersionsCount = 0;
             
-            // Debug response status and body
-            Log::info("GitHub API Response Status: " . $response->status());
-            Log::debug("GitHub API Response Body: " . substr($response->body(), 0, 1000) . "...");
-            
             // Check for rate limit issues
-            if ($response->status() == 403) {
-                if ($rateLimitRemaining == 0) {
-                    Log::error('GitHub API rate limit exceeded. Please wait or add a GitHub token to your .env file.');
-                    return redirect()->route('system.versions')
-                        ->with('error', 'GitHub API rate limit exceeded. Please try again later or contact your administrator to add a GitHub token.');
-                } else {
-                    Log::error('GitHub API access forbidden. This might be due to authentication issues or repository permissions.');
-                    return redirect()->route('system.versions')
-                        ->with('error', 'GitHub API access forbidden. Please check your GitHub token permissions.');
-                }
+            if ($response->status() == 403 && $rateLimitRemaining == 0) {
+                Log::error('GitHub API rate limit exceeded. Please wait or add a GitHub token to your .env file.');
+                return redirect()->route('system.versions')
+                    ->with('error', 'GitHub API rate limit exceeded. Please try again later or contact your administrator to add a GitHub token.');
             }
             
             // If releases exist, process them
@@ -240,11 +223,27 @@ class SystemVersionController extends Controller
     private function checkForTags($headers)
     {
         try {
-            // Try to get all tags
-            Log::info("Checking for tags from GitHub repository: {$this->githubOwner}/{$this->githubRepo}");
+            // Try to get all tags with more detailed logging
+            Log::info("Checking for tags from GitHub repository: {$this->githubOwner}/{$this->githubRepo}", [
+                'headers_used' => array_keys($headers),
+                'has_auth_header' => isset($headers['Authorization']),
+                'time' => now()->toDateTimeString()
+            ]);
+            
+            $tagsUrl = "https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}/tags";
+            Log::info("Requesting tags from: {$tagsUrl}");
+            
+            // Use a longer timeout for potential network issues
             $tagsResponse = Http::withHeaders($headers)
                 ->timeout(30)
-                ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}/tags");
+                ->get($tagsUrl);
+                
+            Log::info("Tags response received", [
+                'status' => $tagsResponse->status(),
+                'successful' => $tagsResponse->successful(),
+                'body_length' => strlen($tagsResponse->body()),
+                'body_excerpt' => substr($tagsResponse->body(), 0, 200)
+            ]);
             
             // Log rate limit information
             $rateLimitLimit = $tagsResponse->header('X-RateLimit-Limit');
@@ -253,10 +252,6 @@ class SystemVersionController extends Controller
             
             Log::info("GitHub API rate limit: {$rateLimitRemaining}/{$rateLimitLimit} remaining. Reset at: " . 
                      date('Y-m-d H:i:s', $rateLimitReset ?? time()));
-            
-            // Debug response status and body
-            Log::info("GitHub Tags API Response Status: " . $tagsResponse->status());
-            Log::debug("GitHub Tags API Response Body: " . substr($tagsResponse->body(), 0, 1000) . "...");
             
             // Check for rate limit issues
             if ($tagsResponse->status() == 403 && $rateLimitRemaining == 0) {
@@ -272,33 +267,21 @@ class SystemVersionController extends Controller
                     ->timeout(30)
                     ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}");
                 
-                Log::debug("GitHub Repository API Response Status: " . $repoResponse->status());
-                Log::debug("GitHub Repository API Response Body: " . substr($repoResponse->body(), 0, 1000) . "...");
-                
                 if (!$repoResponse->successful()) {
                     Log::error("Repository not found: {$this->githubOwner}/{$this->githubRepo}");
                     return redirect()->route('system.versions')
                         ->with('error', "Repository not found. Please check if '{$this->githubOwner}/{$this->githubRepo}' exists and is accessible.");
                 }
                 
-                Log::info("Repository exists but no tags found or could not access tags");
-                return redirect()->route('system.versions')
-                    ->with('error', 'Repository exists but no tags or releases found. Please create a release or tag on GitHub first.');
+                // If the repository exists but no tags were found, try using the integration branch
+                return $this->useIntegrationBranch($headers);
             }
             
             $tags = $tagsResponse->json();
             
             if (empty($tags)) {
-                Log::info("No tags found in the repository");
-                // Since the repository exists but has no tags, let's create an initial version from the integration branch
-                $initialVersion = $this->createInitialVersionFromBranch($headers);
-                if ($initialVersion) {
-                    return redirect()->route('system.versions')
-                        ->with('success', "Created initial version from '{$this->githubBranch}' branch.");
-                }
-                
-                return redirect()->route('system.versions')
-                    ->with('error', 'No tags found in the repository. Please create a tag or release on GitHub first.');
+                Log::info("No tags found in the repository, using integration branch");
+                return $this->useIntegrationBranch($headers);
             }
             
             Log::info("Found " . count($tags) . " tags in the repository");
@@ -341,9 +324,8 @@ class SystemVersionController extends Controller
                 return redirect()->route('system.versions')
                     ->with('success', "Found {$newVersionsCount} new version(s) from tags and added to available updates.");
             } else {
-                Log::info("No new tags found");
-                return redirect()->route('system.versions')
-                    ->with('info', "No new versions found. System is already aware of all available versions.");
+                Log::info("No new tags found, checking integration branch");
+                return $this->useIntegrationBranch($headers);
             }
         } catch (Exception $e) {
             Log::error('Error checking for tags: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
@@ -354,47 +336,112 @@ class SystemVersionController extends Controller
     }
     
     /**
-     * Create an initial version from the branch when no tags exist
+     * Use the integration branch as a fallback when no tags are found
      */
-    private function createInitialVersionFromBranch($headers)
+    private function useIntegrationBranch($headers)
     {
         try {
-            // Check if the branch exists
+            // Add more detailed debug logging
+            Log::info("Attempting to use integration branch", [
+                'owner' => $this->githubOwner,
+                'repo' => $this->githubRepo,
+                'branch' => $this->githubBranch,
+                'headers' => array_keys($headers)
+            ]);
+        
+            // Check if the integration branch exists
+            $branchUrl = "https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}/branches/{$this->githubBranch}";
+            Log::info("Requesting branch info from: {$branchUrl}");
+            
             $branchResponse = Http::withHeaders($headers)
                 ->timeout(30)
-                ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}/branches/{$this->githubBranch}");
+                ->get($branchUrl);
+            
+            Log::info("Branch response status: {$branchResponse->status()}", [
+                'successful' => $branchResponse->successful(),
+                'body_excerpt' => substr($branchResponse->body(), 0, 200)
+            ]);
             
             if (!$branchResponse->successful()) {
-                Log::error("Branch {$this->githubBranch} not found in repository");
-                return false;
+                Log::error("Integration branch not found: {$this->githubBranch}", [
+                    'status' => $branchResponse->status(),
+                    'response' => substr($branchResponse->body(), 0, 500)
+                ]);
+                return redirect()->route('system.versions')
+                    ->with('error', "Integration branch '{$this->githubBranch}' not found. Please check if it exists.");
             }
             
-            $branchData = $branchResponse->json();
-            $commitSha = $branchData['commit']['sha'] ?? null;
+            // Get the latest commit on the integration branch
+            $commitSha = $branchResponse->json()['commit']['sha'] ?? null;
             
             if (!$commitSha) {
-                Log::error("Could not find commit SHA for branch {$this->githubBranch}");
-                return false;
+                Log::error("Could not get commit SHA from branch response");
+                return redirect()->route('system.versions')
+                    ->with('error', "Failed to get latest commit information from integration branch.");
             }
             
-            // Create a version based on the latest commit
+            // Generate a version tag based on the date and commit SHA
+            $versionTag = 'integration-' . date('Ymd') . '-' . substr($commitSha, 0, 7);
+            
+            // Check if this version already exists
+            $existingVersion = SystemVersion::where('release_tag', $versionTag)->first();
+            
+            if ($existingVersion) {
+                Log::info("Integration version {$versionTag} already exists, checking for newer commits");
+                
+                // Get commit date from GitHub
+                $commitResponse = Http::withHeaders($headers)
+                    ->timeout(30)
+                    ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}/commits/{$commitSha}");
+                
+                if (!$commitResponse->successful()) {
+                    return redirect()->route('system.versions')
+                        ->with('info', "No new versions found. System is already up to date with integration branch.");
+                }
+                
+                $commitDate = $commitResponse->json()['commit']['committer']['date'] ?? null;
+                
+                if (!$commitDate) {
+                    return redirect()->route('system.versions')
+                        ->with('info', "No new versions found. System is already up to date with integration branch.");
+                }
+                
+                $commitDateTime = new \DateTime($commitDate);
+                $existingDateTime = $existingVersion->created_at;
+                
+                // If the commit is newer than our existing record, create a new version
+                if ($commitDateTime > $existingDateTime) {
+                    $versionTag = 'integration-' . date('Ymd-His') . '-' . substr($commitSha, 0, 7);
+                    Log::info("Found newer commit, creating new version: {$versionTag}");
+                } else {
+                    return redirect()->route('system.versions')
+                        ->with('info', "No new versions found. System is already up to date with integration branch.");
+                }
+            }
+            
+            Log::info("Adding new version from integration branch: {$versionTag}");
+            
+            // Create a new version record based on the integration branch
             $version = new SystemVersion([
-                'version' => "v0.1.0-{$this->githubBranch}",
-                'release_tag' => $this->githubBranch,
+                'version' => $versionTag,
+                'release_tag' => $this->githubBranch,  // Use branch name as release tag
                 'github_url' => "https://github.com/{$this->githubOwner}/{$this->githubRepo}/tree/{$this->githubBranch}",
-                'description' => "Initial version from {$this->githubBranch} branch (commit {$commitSha})",
-                'changelog' => "Initial version from {$this->githubBranch} branch (commit {$commitSha})",
+                'description' => "Latest code from integration branch (as of " . date('Y-m-d H:i:s') . ")",
+                'changelog' => "Latest code from integration branch\nCommit: {$commitSha}",
                 'is_active' => true,
                 'is_current' => false,
             ]);
             
             $version->save();
-            Log::info("Created initial version from branch {$this->githubBranch}");
-            return $version;
+            
+            return redirect()->route('system.versions')
+                ->with('success', "Added latest version from integration branch.");
             
         } catch (Exception $e) {
-            Log::error('Error creating initial version from branch: ' . $e->getMessage());
-            return false;
+            Log::error('Error using integration branch: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            
+            return redirect()->route('system.versions')
+                ->with('error', 'An error occurred while checking integration branch: ' . $e->getMessage());
         }
     }
     
@@ -404,9 +451,7 @@ class SystemVersionController extends Controller
     public function updateToVersion($id)
     {
         try {
-            Log::info("=== Starting update process ===");
             $version = SystemVersion::findOrFail($id);
-            Log::info("Updating to version: {$version->version} (Tag: {$version->release_tag})");
             
             // Check if we should skip backup (only for development)
             $skipBackup = false;
@@ -457,11 +502,15 @@ class SystemVersionController extends Controller
                 $backupPath = 'backup-skipped';
             }
             
-            // Download the release from GitHub - try different URLs based on if it's a release or tag
-            $releaseUrl = "https://github.com/{$this->githubOwner}/{$this->githubRepo}/archive/refs/tags/{$version->release_tag}.zip";
+            // Determine which URL to use for downloading
+            // For versions from integration branch, always use the branch URL
+            $useTagUrl = !str_starts_with($version->version, 'integration-');
+            
+            // Download the release from GitHub
+            $tagUrl = "https://github.com/{$this->githubOwner}/{$this->githubRepo}/archive/refs/tags/{$version->release_tag}.zip";
             $branchUrl = "https://github.com/{$this->githubOwner}/{$this->githubRepo}/archive/refs/heads/{$this->githubBranch}.zip";
             
-            $zipPath = storage_path("app/updates/{$version->release_tag}.zip");
+            $zipPath = storage_path("app/updates/{$version->version}.zip");
             
             // Ensure directory exists
             if (!File::exists(storage_path('app/updates'))) {
@@ -469,81 +518,50 @@ class SystemVersionController extends Controller
             }
             
             // Setup GitHub API auth headers
-            $headers = ['User-Agent' => 'Alumni-Tracking-System-Updater'];
-            
-            // Add token if available - improved token handling
-            $token = config('services.github.token');
-            if ($token) {
-                // GitHub API now requires 'Bearer' prefix for token authentication
-                // Support both formats (with or without 'Bearer') to ensure compatibility
-                if (stripos($token, 'Bearer') === 0) {
-                    $headers['Authorization'] = $token;
-                } else if (stripos($token, 'token') === 0) {
-                    $headers['Authorization'] = $token;
-                } else {
-                    $headers['Authorization'] = 'Bearer ' . $token;
-                }
-                Log::info('Using GitHub API token for downloading release');
+            $headers = [];
+            if (config('services.github.token')) {
+                $headers = [
+                    'Authorization' => 'token ' . config('services.github.token'),
+                ];
             }
             
-            // Try downloading directly from GitHub raw zip file URLs without API
-            // These don't require authentication but still benefit from it for private repos
-            Log::info("Attempting to download release from URL: {$releaseUrl}");
+            // Try downloading from the appropriate URL
+            $downloadUrl = $useTagUrl ? $tagUrl : $branchUrl;
+            Log::info("Downloading from URL: {$downloadUrl}");
             
-            // First try with direct HTTP client
-            $client = new Client();
-            try {
-                $response = $client->get($releaseUrl, [
-                    'headers' => $headers,
-                    'timeout' => 60,
-                    'sink' => $zipPath
+            $response = Http::withHeaders($headers)
+                ->timeout(60)  // Increased timeout for larger repositories
+                ->get($downloadUrl);
+            
+            // If tag URL fails and we tried it first, fall back to branch URL
+            if (!$response->successful() && $useTagUrl) {
+                Log::warning("Failed to download from tag URL, trying branch URL instead", [
+                    'tag' => $version->release_tag,
+                    'status' => $response->status()
                 ]);
                 
-                Log::info("Downloaded release directly with status: " . $response->getStatusCode());
-                
-                if (filesize($zipPath) < 1000) { // Less than 1KB is suspicious
-                    Log::warning("Downloaded file seems too small, trying alternative method");
-                    throw new Exception("Downloaded file too small");
-                }
-            } catch (Exception $e) {
-                Log::warning("Direct download failed: " . $e->getMessage() . ". Trying alternative method.");
-                
-                // Try with Laravel's HTTP client as backup
-                try {
-                    $response = Http::withHeaders($headers)
-                        ->timeout(60)
-                        ->get($releaseUrl);
-                    
-                    // If that fails, try the branch URL
-                    if (!$response->successful()) {
-                        Log::warning("Failed to download from tag URL, trying branch URL instead", [
-                            'tag' => $version->release_tag,
-                            'status' => $response->status()
-                        ]);
-                        
-                        $response = Http::withHeaders($headers)
-                            ->timeout(60)
-                            ->get($branchUrl);
-                        
-                        if (!$response->successful()) {
-                            Log::error("Failed to download from both tag and branch URLs", [
-                                'tag_status' => $response->status(),
-                                'branch_url' => $branchUrl
-                            ]);
-                            
-                            return redirect()->route('system.versions')
-                                ->with('error', "Failed to download release from GitHub. Please check if the repository and branch/tag '{$version->release_tag}' exist and are accessible.");
-                        }
-                    }
-                    
-                    // Save the downloaded content
-                    File::put($zipPath, $response->body());
-                } catch (Exception $e) {
-                    Log::error("All download methods failed: " . $e->getMessage());
-                    return redirect()->route('system.versions')
-                        ->with('error', "Failed to download release: " . $e->getMessage());
-                }
+                $response = Http::withHeaders($headers)
+                    ->timeout(60)
+                    ->get($branchUrl);
             }
+            
+            // If still not successful, return error
+            if (!$response->successful()) {
+                $statusCode = $response->status();
+                $responseBody = substr($response->body(), 0, 500); // Only log part of the response
+                
+                Log::error("Failed to download from GitHub", [
+                    'status' => $statusCode,
+                    'url' => $downloadUrl,
+                    'response_preview' => $responseBody
+                ]);
+                
+                return redirect()->route('system.versions')
+                    ->with('error', "Failed to download release from GitHub (HTTP {$statusCode}). Please check if the repository, branch, or tag exists and is accessible.");
+            }
+            
+            // Save the downloaded content
+            File::put($zipPath, $response->body());
             
             // Make sure the downloaded file is not empty
             if (filesize($zipPath) < 1000) { // Less than 1KB is suspicious
@@ -559,45 +577,23 @@ class SystemVersionController extends Controller
             
             // Extract and apply the update
             $extractPath = storage_path("app/updates/extract-{$version->release_tag}");
-            if (File::exists($extractPath)) {
-                // Clear previous extraction
-                File::deleteDirectory($extractPath);
+            if (!File::exists($extractPath)) {
+                File::makeDirectory($extractPath, 0755, true);
             }
             
-            File::makeDirectory($extractPath, 0755, true);
-            
             $zip = new ZipArchive;
-            $openResult = $zip->open($zipPath);
-            
-            if ($openResult === true) {
-                Log::info("Successfully opened zip file, extracting to: {$extractPath}");
+            if ($zip->open($zipPath) === true) {
                 $zip->extractTo($extractPath);
                 $zip->close();
                 
                 // Move the extracted files to the correct location
                 // This is a simplified version, you may need a more complex file copying logic
-                $extractedDirs = glob($extractPath . '/*', GLOB_ONLYDIR);
+                $extractedDir = glob($extractPath . '/*', GLOB_ONLYDIR)[0] ?? null;
                 
-                if (empty($extractedDirs)) {
-                    Log::error("No directories found after extraction");
+                if (!$extractedDir) {
                     return redirect()->route('system.versions')
-                        ->with('error', 'Failed to extract update files - no directories found in archive.');
+                        ->with('error', 'Failed to extract update files.');
                 }
-                
-                $extractedDir = $extractedDirs[0];
-                Log::info("Found extracted directory: {$extractedDir}");
-                
-                // Copy the extracted files to the application root
-                Log::info("Copying files from {$extractedDir} to application root");
-                $copyResult = $this->copyDirectoryContents($extractedDir, base_path());
-                
-                if (!$copyResult) {
-                    Log::error("Failed to copy files from extracted directory to application root");
-                    return redirect()->route('system.versions')
-                        ->with('error', 'Failed to update files. Check logs for details.');
-                }
-                
-                Log::info("Files copied successfully");
                 
                 // Save the backup path in the version record
                 $version->backup_path = $backupPath;
@@ -629,13 +625,11 @@ class SystemVersionController extends Controller
                 // Mark this version as current
                 $version->markAsCurrent();
                 
-                Log::info("=== Update process completed successfully ===");
                 return redirect()->route('system.versions')
                     ->with('success', "Successfully updated to version {$version->version}.");
             } else {
-                Log::error("Failed to open zip file with error code: {$openResult}");
                 return redirect()->route('system.versions')
-                    ->with('error', "Failed to extract update archive. Error code: {$openResult}");
+                    ->with('error', 'Failed to extract update archive.');
             }
             
         } catch (Exception $e) {
@@ -759,28 +753,15 @@ class SystemVersionController extends Controller
                 $zip->close();
                 
                 // Move the extracted files to the correct location
-                $extractedDirs = glob($extractPath . '/*', GLOB_ONLYDIR);
+                $extractedDir = glob($extractPath . '/*', GLOB_ONLYDIR)[0] ?? null;
                 
-                if (empty($extractedDirs)) {
-                    Log::error("No directories found after extraction for rollback");
+                if (!$extractedDir) {
                     return redirect()->route('system.versions')
-                        ->with('error', 'Failed to extract rollback files - no directories found in archive.');
+                        ->with('error', 'Failed to extract version files for rollback.');
                 }
-                
-                $extractedDir = $extractedDirs[0];
-                Log::info("Found extracted directory for rollback: {$extractedDir}");
                 
                 // Copy files from the extracted directory to the application root
-                Log::info("Copying files from {$extractedDir} to application root for rollback");
-                $copyResult = $this->copyDirectoryContents($extractedDir, base_path());
-                
-                if (!$copyResult) {
-                    Log::error("Failed to copy files from extracted directory to application root during rollback");
-                    return redirect()->route('system.versions')
-                        ->with('error', 'Failed to rollback files. Check logs for details.');
-                }
-                
-                Log::info("Files copied successfully for rollback");
+                File::copyDirectory($extractedDir, base_path());
                 
                 // Run migration with our safer migration command for multi-tenant systems
                 try {
@@ -1037,167 +1018,6 @@ class SystemVersionController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine()
-            ]);
-            return false;
-        }
-    }
-    
-    /**
-     * Force refresh versions from GitHub
-     * This will delete all non-current versions and fetch them again
-     */
-    public function forceRefreshVersions()
-    {
-        try {
-            // Get current version to preserve it
-            $currentVersion = SystemVersion::getCurrentVersion();
-            $currentVersionId = $currentVersion ? $currentVersion->id : null;
-            
-            // Delete all non-current versions
-            if ($currentVersionId) {
-                SystemVersion::where('id', '!=', $currentVersionId)->delete();
-                Log::info("Deleted all non-current versions, keeping version ID: {$currentVersionId}");
-            } else {
-                SystemVersion::query()->delete();
-                Log::info("No current version found, deleted all versions");
-            }
-            
-            // Clear cached data
-            $this->clearVersionCache();
-            
-            // Check for updates to rebuild the version database
-            Log::info("Forcing version refresh from GitHub repository: {$this->githubOwner}/{$this->githubRepo}");
-            
-            // Setup GitHub API headers with improved auth handling
-            $headers = ['User-Agent' => 'Alumni-Tracking-System-Updater'];
-            
-            $token = config('services.github.token');
-            if ($token) {
-                if (stripos($token, 'Bearer') === 0) {
-                    $headers['Authorization'] = $token;
-                } else if (stripos($token, 'token') === 0) {
-                    $headers['Authorization'] = $token;
-                } else {
-                    $headers['Authorization'] = 'Bearer ' . $token;
-                }
-                Log::info('Using GitHub API token for force refresh');
-            }
-            
-            // Try to get all tags (since most repos use tags instead of releases)
-            $tagsResponse = Http::withHeaders($headers)
-                ->timeout(30)
-                ->get("https://api.github.com/repos/{$this->githubOwner}/{$this->githubRepo}/tags");
-            
-            // Log rate limit information
-            $rateLimitLimit = $tagsResponse->header('X-RateLimit-Limit');
-            $rateLimitRemaining = $tagsResponse->header('X-RateLimit-Remaining');
-            
-            Log::info("GitHub API rate limit: {$rateLimitRemaining}/{$rateLimitLimit} remaining");
-            Log::debug("GitHub Tags API Response Body: " . substr($tagsResponse->body(), 0, 1000) . "...");
-            
-            if (!$tagsResponse->successful()) {
-                Log::error("Failed to get tags, status: " . $tagsResponse->status());
-                return redirect()->route('system.versions')
-                    ->with('error', "Failed to access GitHub API. Status: " . $tagsResponse->status());
-            }
-            
-            $tags = $tagsResponse->json();
-            
-            if (empty($tags)) {
-                Log::warning("No tags found in the repository");
-                return redirect()->route('system.versions')
-                    ->with('warning', 'No tags found in the repository. Please create a tag (like v1.2.2) on GitHub.');
-            }
-            
-            Log::info("Found " . count($tags) . " tags in the repository");
-            $addedVersionsCount = 0;
-            
-            foreach ($tags as $tag) {
-                $tagName = $tag['name'] ?? null;
-                
-                if (!$tagName) {
-                    continue;
-                }
-                
-                // Skip if this is the current version
-                if ($currentVersion && $currentVersion->release_tag === $tagName) {
-                    Log::info("Skipping current version tag: {$tagName}");
-                    continue;
-                }
-                
-                Log::info("Adding tag: {$tagName}");
-                
-                // Create a new version record
-                $version = new SystemVersion([
-                    'version' => $tagName,
-                    'release_tag' => $tagName,
-                    'github_url' => "https://github.com/{$this->githubOwner}/{$this->githubRepo}/tree/{$tagName}",
-                    'description' => "Version {$tagName}",
-                    'changelog' => "Tag: {$tagName}",
-                    'is_active' => true,
-                    'is_current' => false,
-                ]);
-                
-                $version->save();
-                $addedVersionsCount++;
-            }
-            
-            return redirect()->route('system.versions')
-                ->with('success', "Successfully refreshed version database. Found {$addedVersionsCount} versions from GitHub.");
-        } catch (Exception $e) {
-            Log::error('Force refresh error: ' . $e->getMessage());
-            
-            return redirect()->route('system.versions')
-                ->with('error', 'Failed to refresh versions: ' . $e->getMessage());
-        }
-    }
-
-    private function copyDirectoryContents($source, $destination)
-    {
-        try {
-            if (is_dir($source)) {
-                if (!is_dir($destination)) {
-                    mkdir($destination, 0755, true);
-                    Log::debug("Created directory: {$destination}");
-                }
-
-                $files = scandir($source);
-                foreach ($files as $file) {
-                    if ($file === '.' || $file === '..') {
-                        continue;
-                    }
-
-                    $sourceFile = $source . '/' . $file;
-                    $destinationFile = $destination . '/' . $file;
-
-                    if (is_dir($sourceFile)) {
-                        $this->copyDirectoryContents($sourceFile, $destinationFile);
-                    } else {
-                        // Skip dot files and certain configuration files for safety
-                        if (strpos($file, '.') === 0 || in_array($file, ['config.php', '.env'])) {
-                            Log::info("Skipping file for safety: {$sourceFile}");
-                            continue;
-                        }
-                        
-                        // Copy the file and set permissions
-                        if (copy($sourceFile, $destinationFile)) {
-                            chmod($destinationFile, 0644); // Set proper file permissions
-                            Log::debug("Copied file: {$sourceFile} -> {$destinationFile}");
-                        } else {
-                            Log::warning("Failed to copy file: {$sourceFile} -> {$destinationFile}");
-                        }
-                    }
-                }
-                return true;
-            } else {
-                Log::warning("Source is not a directory: {$source}");
-                return false;
-            }
-        } catch (\Exception $e) {
-            Log::error("Error copying directory contents: " . $e->getMessage(), [
-                'source' => $source,
-                'destination' => $destination,
-                'trace' => $e->getTraceAsString()
             ]);
             return false;
         }

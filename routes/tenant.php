@@ -162,10 +162,10 @@ Route::middleware([
             Route::get('/plan-upgrade/{planType}', [App\Http\Controllers\TenantPlanController::class, 'requestUpgrade'])
                 ->name('plan.upgrade.request');
             
-            // Profile routes
-            Route::get('/profile', [App\Http\Controllers\TenantProfileController::class, 'edit'])->name('profile.edit');
-            Route::patch('/profile', [App\Http\Controllers\TenantProfileController::class, 'update'])->name('profile.update');
-            Route::put('/profile/password', [App\Http\Controllers\TenantProfileController::class, 'updatePassword'])->name('profile.update-password');
+            // Profile routes - these would typically use a ProfileController
+            Route::get('/profile', function() {
+                return view('tenant.profile.edit');
+            })->name('profile.edit');
             
             // Job routes - these would typically use a JobController
             Route::get('/jobs', function() {
@@ -263,7 +263,6 @@ Route::middleware([
         Route::get('check-updates', [App\Http\Controllers\SystemVersionController::class, 'checkForUpdates'])->name('check-updates');
         Route::post('update/{id}', [App\Http\Controllers\SystemVersionController::class, 'updateToVersion'])->name('update');
         Route::post('rollback/{id}', [App\Http\Controllers\SystemVersionController::class, 'rollback'])->name('rollback');
-        Route::get('force-refresh', [App\Http\Controllers\SystemVersionController::class, 'forceRefreshVersions'])->name('force-refresh');
     });
 
     // Support Ticket Routes

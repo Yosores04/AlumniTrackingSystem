@@ -6,14 +6,9 @@
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">System Version Management</h1>
-        <div class="flex space-x-2">
-            <a href="{{ route('system.force-refresh') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                Force Refresh
-            </a>
-            <a href="{{ route('system.check-updates') }}" class="bg-secondary hover:bg-primary text-white font-bold py-2 px-4 rounded">
-                Check for Updates
-            </a>
-        </div>
+        <a href="{{ route('system.check-updates') }}" class="bg-secondary hover:bg-primary text-white font-bold py-2 px-4 rounded">
+            Check for Updates
+        </a>
     </div>
 
     @if(session('success'))

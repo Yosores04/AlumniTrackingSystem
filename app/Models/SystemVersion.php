@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Artisan;
 
 class SystemVersion extends Model
 {
@@ -74,15 +73,7 @@ class SystemVersion extends Model
             // Add token if available
             $token = config('services.github.token');
             if ($token) {
-                // GitHub API now requires 'Bearer' prefix for token authentication
-                // Support both formats (with or without 'Bearer') to ensure compatibility
-                if (stripos($token, 'Bearer') === 0) {
-                    $headers['Authorization'] = $token;
-                } else if (stripos($token, 'token') === 0) {
-                    $headers['Authorization'] = $token;
-                } else {
-                    $headers['Authorization'] = 'Bearer ' . $token;
-                }
+                $headers['Authorization'] = 'token ' . $token;
                 $result['has_token'] = true;
             }
             
@@ -90,9 +81,6 @@ class SystemVersion extends Model
             $response = Http::withHeaders($headers)
                 ->timeout(10)
                 ->get('https://api.github.com/rate_limit');
-            
-            // Log the response for debugging
-            \Log::debug('GitHub Rate Limit Response: ' . $response->status() . ' - ' . substr($response->body(), 0, 500));
             
             if ($response->successful()) {
                 $rateData = $response->json();
@@ -110,24 +98,17 @@ class SystemVersion extends Model
                 $result['message'] = "GitHub API is accessible. Rate limit: {$result['rate_limit_remaining']}/{$result['rate_limit']} remaining.";
                 
                 // Log the status
-                \Log::info('GitHub API status check successful', $result);
+                Log::info('GitHub API status check successful', $result);
             } else {
                 $result['message'] = "Failed to access GitHub API. Status code: {$response->status()}";
-                \Log::warning('GitHub API status check failed', [
+                Log::warning('GitHub API status check failed', [
                     'status_code' => $response->status(),
                     'response' => $response->body(),
                 ]);
-                
-                // Check for specific error codes
-                if ($response->status() == 401) {
-                    $result['message'] = "GitHub API authentication failed. Please check your token.";
-                } else if ($response->status() == 403) {
-                    $result['message'] = "GitHub API access forbidden. This might be due to rate limiting or permissions issues.";
-                }
             }
         } catch (\Exception $e) {
             $result['message'] = "Error checking GitHub API status: {$e->getMessage()}";
-            \Log::error('Error checking GitHub API status', [
+            Log::error('Error checking GitHub API status', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -144,30 +125,28 @@ class SystemVersion extends Model
      */
     public function isNewerThan($version)
     {
-        // Remove 'v' prefix for proper comparison
+        // Special case for integration branch - always considered newer
+        if (stripos($this->version, 'integration') !== false) {
+            return true;
+        }
+        
+        // Special case for comparing with integration branch
+        if (stripos($version, 'integration') !== false) {
+            return false;
+        }
+        
+        // Handle dev/beta/alpha versions
         $v1 = ltrim($this->version, 'v');
         $v2 = ltrim($version, 'v');
         
-        // Handle non-standard version formats
-        if (!preg_match('/^\d+\.\d+\.\d+/', $v1)) {
-            $v1 = '0.0.0'; // Default for non-standard formats
+        // Handle special versions like "dev" or custom formatting
+        try {
+            return version_compare($v1, $v2, '>');
+        } catch (\Exception $e) {
+            // If version_compare fails, use string comparison as fallback
+            Log::warning("Failed to compare versions using version_compare: {$v1} vs {$v2}. Using string comparison instead.");
+            return strcmp($v1, $v2) > 0;
         }
-        
-        if (!preg_match('/^\d+\.\d+\.\d+/', $v2)) {
-            $v2 = '0.0.0'; // Default for non-standard formats
-        }
-        
-        // Extract only the version numbers for comparison (ignore -beta, -rc, etc.)
-        preg_match('/^(\d+\.\d+\.\d+)/', $v1, $matches1);
-        $v1Clean = $matches1[0] ?? $v1;
-        
-        preg_match('/^(\d+\.\d+\.\d+)/', $v2, $matches2);
-        $v2Clean = $matches2[0] ?? $v2;
-        
-        // Log comparison for debugging
-        \Log::debug("Comparing versions: {$this->version} [{$v1Clean}] > {$version} [{$v2Clean}]");
-        
-        return version_compare($v1Clean, $v2Clean, '>');
     }
 
     /**
@@ -185,16 +164,7 @@ class SystemVersion extends Model
         $this->is_active = true;
         $this->installed_at = now();
         
-        $success = $this->save();
-        
-        // Clear cache after changing the current version
-        try {
-            Artisan::call('cache:clear');
-        } catch (\Exception $e) {
-            \Log::warning('Failed to clear cache after marking current version: ' . $e->getMessage());
-        }
-        
-        return $success;
+        return $this->save();
     }
 
     /**

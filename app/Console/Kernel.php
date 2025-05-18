@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
         Commands\CheckGitHubConnection::class,
         Commands\CheckTenantSystemVersions::class,
         Commands\SetTenantCurrentVersion::class,
+        Commands\SetCurrentVersion::class,
         Commands\FixVersionCommand::class,
         Commands\TestMailCommand::class,
         Commands\FixDomainPorts::class,
