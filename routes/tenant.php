@@ -59,7 +59,7 @@ Route::middleware([
                     ->name('profile');
                     
                 Route::put('/profile', [App\Http\Controllers\AlumniDashboardController::class, 'updateProfile'])
-                    ->middleware('alumni.verified')
+                    ->middleware(['auth', 'alumni.verified'])
                     ->name('profile.update');
             });
         });

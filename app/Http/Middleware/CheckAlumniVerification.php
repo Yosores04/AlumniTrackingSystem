@@ -5,16 +5,18 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
+use App\Models\User;
 
 class CheckAlumniVerification
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
         // Skip verification check for support/ticket routes
         if ($request->routeIs('support.*')) {
@@ -24,7 +26,18 @@ class CheckAlumniVerification
         // Get the authenticated user and check if they are a verified alumni
         $user = Auth::user();
         
-        if ($user && $user->alumni && !$user->alumni->is_verified) {
+        if (!$user) {
+            return redirect('/login');
+        }
+
+        // Ensure user has alumni relationship
+        if (!$user->alumni) {
+            return redirect()->route('dashboard')
+                ->with('error', 'You do not have an alumni profile. Please contact support for assistance.');
+        }
+        
+        // Check if alumni is verified
+        if (!$user->alumni->is_verified) {
             // If the request is for profile update, prevent it with a message
             if ($request->isMethod('post') || $request->isMethod('put') || $request->isMethod('patch')) {
                 return redirect()->route('alumni.profile')
