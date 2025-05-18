@@ -362,3 +362,65 @@ Route::get('/debug-github', function () {
     return response()->json($results);
 });
 
+// Debug route to check file permissions
+Route::get('/debug-file-permissions', function () {
+    $results = [];
+    
+    // Check base directory
+    $basePath = base_path();
+    $results['base_path'] = [
+        'path' => $basePath,
+        'exists' => file_exists($basePath),
+        'writable' => is_writable($basePath),
+        'permissions' => substr(sprintf('%o', fileperms($basePath)), -4),
+    ];
+    
+    // Check key directories
+    $directories = [
+        'app', 'config', 'database', 'public', 'resources', 'routes', 'storage'
+    ];
+    
+    foreach ($directories as $dir) {
+        $dirPath = base_path($dir);
+        $results['directories'][$dir] = [
+            'path' => $dirPath,
+            'exists' => file_exists($dirPath),
+            'writable' => is_writable($dirPath),
+            'permissions' => file_exists($dirPath) ? substr(sprintf('%o', fileperms($dirPath)), -4) : 'N/A',
+        ];
+    }
+    
+    // Check storage directories
+    $storageDir = storage_path();
+    $results['storage'] = [
+        'path' => $storageDir,
+        'exists' => file_exists($storageDir),
+        'writable' => is_writable($storageDir),
+        'permissions' => substr(sprintf('%o', fileperms($storageDir)), -4),
+    ];
+    
+    // Check updates and extract directories
+    $updatesDir = storage_path('app/updates');
+    $results['updates_dir'] = [
+        'path' => $updatesDir,
+        'exists' => file_exists($updatesDir),
+        'writable' => file_exists($updatesDir) ? is_writable($updatesDir) : false,
+        'permissions' => file_exists($updatesDir) ? substr(sprintf('%o', fileperms($updatesDir)), -4) : 'N/A',
+    ];
+    
+    // Try to create updates directory if it doesn't exist
+    if (!file_exists($updatesDir)) {
+        try {
+            mkdir($updatesDir, 0755, true);
+            $results['updates_dir_created'] = true;
+            $results['updates_dir']['exists'] = file_exists($updatesDir);
+            $results['updates_dir']['writable'] = is_writable($updatesDir);
+            $results['updates_dir']['permissions'] = substr(sprintf('%o', fileperms($updatesDir)), -4);
+        } catch (\Exception $e) {
+            $results['updates_dir_creation_error'] = $e->getMessage();
+        }
+    }
+    
+    return response()->json($results);
+});
+

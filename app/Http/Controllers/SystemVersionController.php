@@ -591,8 +591,61 @@ class SystemVersionController extends Controller
                 $extractedDir = glob($extractPath . '/*', GLOB_ONLYDIR)[0] ?? null;
                 
                 if (!$extractedDir) {
+                    Log::error('Extraction failed - no directory found in: ' . $extractPath);
                     return redirect()->route('system.versions')
                         ->with('error', 'Failed to extract update files.');
+                }
+                
+                Log::info('Extracted directory found: ' . $extractedDir);
+                Log::info('Files in extracted directory: ' . implode(', ', array_map('basename', glob($extractedDir . '/*'))));
+                
+                // Copy files from the extracted directory to the application root
+                try {
+                    Log::info('Starting to copy files from ' . $extractedDir . ' to ' . base_path());
+                    
+                    // Check base path permissions
+                    if (!is_writable(base_path())) {
+                        Log::error('Base directory is not writable: ' . base_path());
+                        // Try to fix permissions
+                        @chmod(base_path(), 0755);
+                        if (!is_writable(base_path())) {
+                            return redirect()->route('system.versions')
+                                ->with('error', 'Application root directory is not writable. Please check permissions.');
+                        }
+                    }
+                    
+                    // Copy each important directory separately
+                    $keyDirectories = ['app', 'config', 'resources', 'routes', 'public'];
+                    foreach ($keyDirectories as $dir) {
+                        $sourceDir = $extractedDir . '/' . $dir;
+                        $destDir = base_path($dir);
+                        
+                        if (File::exists($sourceDir)) {
+                            Log::info("Copying directory: {$dir} from {$sourceDir} to {$destDir}");
+                            
+                            // Try to ensure the destination is writable
+                            if (File::exists($destDir) && !is_writable($destDir)) {
+                                @chmod($destDir, 0755); // Try to fix permissions
+                            }
+                            
+                            if (File::exists($destDir) && !is_writable($destDir)) {
+                                Log::error("Destination directory not writable: {$destDir}");
+                                continue; // Skip this directory but continue with others
+                            }
+                            
+                            // Copy directory
+                            File::copyDirectory($sourceDir, $destDir);
+                            Log::info("Successfully copied {$dir} directory");
+                        } else {
+                            Log::info("Source directory does not exist: {$sourceDir}");
+                        }
+                    }
+                    
+                    Log::info('File copy completed successfully');
+                } catch (Exception $e) {
+                    Log::error('Error copying files: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+                    return redirect()->route('system.versions')
+                        ->with('error', 'Failed to copy update files: ' . $e->getMessage());
                 }
                 
                 // Save the backup path in the version record
@@ -756,12 +809,24 @@ class SystemVersionController extends Controller
                 $extractedDir = glob($extractPath . '/*', GLOB_ONLYDIR)[0] ?? null;
                 
                 if (!$extractedDir) {
+                    Log::error('Extraction failed during rollback - no directory found in: ' . $extractPath);
                     return redirect()->route('system.versions')
                         ->with('error', 'Failed to extract version files for rollback.');
                 }
                 
+                Log::info('Rollback: Extracted directory found: ' . $extractedDir);
+                Log::info('Rollback: Files in extracted directory: ' . implode(', ', array_map('basename', glob($extractedDir . '/*'))));
+                
                 // Copy files from the extracted directory to the application root
-                File::copyDirectory($extractedDir, base_path());
+                try {
+                    Log::info('Rollback: Starting to copy files from ' . $extractedDir . ' to ' . base_path());
+                    File::copyDirectory($extractedDir, base_path());
+                    Log::info('Rollback: File copy completed successfully');
+                } catch (Exception $e) {
+                    Log::error('Rollback: Error copying files: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+                    return redirect()->route('system.versions')
+                        ->with('error', 'Failed to copy rollback files: ' . $e->getMessage());
+                }
                 
                 // Run migration with our safer migration command for multi-tenant systems
                 try {
