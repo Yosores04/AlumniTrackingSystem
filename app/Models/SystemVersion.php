@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
 
 class SystemVersion extends Model
 {
@@ -143,10 +144,30 @@ class SystemVersion extends Model
      */
     public function isNewerThan($version)
     {
+        // Remove 'v' prefix for proper comparison
         $v1 = ltrim($this->version, 'v');
         $v2 = ltrim($version, 'v');
         
-        return version_compare($v1, $v2, '>');
+        // Handle non-standard version formats
+        if (!preg_match('/^\d+\.\d+\.\d+/', $v1)) {
+            $v1 = '0.0.0'; // Default for non-standard formats
+        }
+        
+        if (!preg_match('/^\d+\.\d+\.\d+/', $v2)) {
+            $v2 = '0.0.0'; // Default for non-standard formats
+        }
+        
+        // Extract only the version numbers for comparison (ignore -beta, -rc, etc.)
+        preg_match('/^(\d+\.\d+\.\d+)/', $v1, $matches1);
+        $v1Clean = $matches1[0] ?? $v1;
+        
+        preg_match('/^(\d+\.\d+\.\d+)/', $v2, $matches2);
+        $v2Clean = $matches2[0] ?? $v2;
+        
+        // Log comparison for debugging
+        \Log::debug("Comparing versions: {$this->version} [{$v1Clean}] > {$version} [{$v2Clean}]");
+        
+        return version_compare($v1Clean, $v2Clean, '>');
     }
 
     /**
@@ -164,7 +185,16 @@ class SystemVersion extends Model
         $this->is_active = true;
         $this->installed_at = now();
         
-        return $this->save();
+        $success = $this->save();
+        
+        // Clear cache after changing the current version
+        try {
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {
+            \Log::warning('Failed to clear cache after marking current version: ' . $e->getMessage());
+        }
+        
+        return $success;
     }
 
     /**

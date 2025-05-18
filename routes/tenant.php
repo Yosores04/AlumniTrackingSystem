@@ -263,6 +263,7 @@ Route::middleware([
         Route::get('check-updates', [App\Http\Controllers\SystemVersionController::class, 'checkForUpdates'])->name('check-updates');
         Route::post('update/{id}', [App\Http\Controllers\SystemVersionController::class, 'updateToVersion'])->name('update');
         Route::post('rollback/{id}', [App\Http\Controllers\SystemVersionController::class, 'rollback'])->name('rollback');
+        Route::get('force-refresh', [App\Http\Controllers\SystemVersionController::class, 'forceRefreshVersions'])->name('force-refresh');
     });
 
     // Support Ticket Routes
