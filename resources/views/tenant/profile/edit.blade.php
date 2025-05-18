@@ -16,7 +16,7 @@
 
     @if (session('status') === 'password-updated')
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded" role="alert">
-            <p>Password updated successfully!</p>
+            <p>Password updated successfully THIS IS ON VERSION 1.4.2!</p>
         </div>
     @endif
 
