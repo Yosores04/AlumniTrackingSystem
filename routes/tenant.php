@@ -5,12 +5,14 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TenantSettingsController;
 use App\Http\Controllers\TenantDashboardController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Middleware\InitializeTenancy;
 use App\Models\TenantSettings;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -63,7 +65,9 @@ Route::middleware([
                     ->name('profile.update');
             });
         });
-        
+
+        Route::get('/test', [App\Http\Controllers\TestController::class, 'index']);
+
         // Instructor Alumni Management routes
         Route::prefix('instructor')->name('instructor.')->middleware(\App\Http\Middleware\EnsureInstructor::class)->group(function() {
             Route::get('/alumni', [App\Http\Controllers\InstructorAlumniController::class, 'index'])
