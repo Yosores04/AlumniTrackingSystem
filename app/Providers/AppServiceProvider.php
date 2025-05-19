@@ -45,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
         // Register custom Blade components
         Blade::component('central-app-layout', \App\View\Components\CentralAppLayout::class);
         Blade::component('instructor-layout', \App\View\Components\InstructorLayout::class);
+        Blade::component('register-layout', \App\View\Components\RegisterLayout::class);
 
         // Pass tenant settings to all tenant views
         View::composer('tenant.*', function ($view) {
