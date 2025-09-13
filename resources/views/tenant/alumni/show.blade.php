@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(auth()->user()->role === 'instructor' ? 'layouts.instructor' : 'layouts.app')
 
 @section('title', 'Alumni Details')
 
@@ -10,9 +10,16 @@
             <a href="{{ route('alumni.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left mr-2"></i> Back to List
             </a>
-            <a href="{{ route('alumni.edit', $alumni->id) }}" class="btn btn-primary">
-                <i class="fas fa-edit mr-2"></i> Edit
-            </a>
+            
+            @if(auth()->user()->role === 'instructor')
+                <a href="{{ route('alumni.instructor-notes.create', ['alumni' => $alumni->id]) }}" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i> Add Note
+                </a>
+            @else
+                <a href="{{ route('alumni.edit', $alumni->id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit mr-2"></i> Edit
+                </a>
+            @endif
         </div>
     </div>
 
@@ -234,6 +241,184 @@
                     </div>
                 </div>
             @endif
+            
+            <!-- Employment History -->
+            <div x-data="{ open: false }" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <button @click="open = !open" class="w-full flex justify-between items-center p-4 focus:outline-none">
+                    <div class="flex items-center">
+                        <i class="fas fa-briefcase text-blue-600 mr-3"></i>
+                        <h3 class="text-base font-semibold">Employment History</h3>
+                        @if($alumni->employmentHistories && $alumni->employmentHistories->count() > 0)
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ $alumni->employmentHistories->count() }} {{ $alumni->employmentHistories->count() === 1 ? 'job' : 'jobs' }}
+                            </span>
+                        @endif
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <a href="{{ route('alumni.employment-history.index', $alumni) }}" 
+                           class="text-blue-600 hover:text-blue-800 text-sm font-medium px-3 py-1 rounded border border-blue-200 hover:border-blue-300"
+                           onclick="event.stopPropagation();">
+                            <i class="fas fa-external-link-alt mr-1"></i> Manage
+                        </a>
+                        <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                    </div>
+                </button>
+                    
+                <div x-show="open" class="border-t border-gray-200 p-4">
+                    @if($alumni->employmentHistories && $alumni->employmentHistories->count() > 0)
+                        <div class="space-y-3">
+                            @foreach($alumni->employmentHistories->take(3) as $employment)
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900">{{ $employment->position }}</h4>
+                                        <p class="text-sm text-blue-600">{{ $employment->company_name }}</p>
+                                        <p class="text-xs text-gray-500">
+                                            {{ $employment->start_date->format('M Y') }} - 
+                                            {{ $employment->end_date ? $employment->end_date->format('M Y') : 'Present' }}
+                                            @if($employment->is_current)
+                                                <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Current</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                    @if($employment->location)
+                                        <div class="text-right">
+                                            <p class="text-xs text-gray-500">
+                                                <i class="fas fa-map-marker-alt mr-1"></i>{{ $employment->location }}
+                                            </p>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                            @if($alumni->employmentHistories->count() > 3)
+                                <div class="text-center pt-2">
+                                    <a href="{{ route('alumni.employment-history.index', $alumni) }}" 
+                                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                        View all {{ $alumni->employmentHistories->count() }} employment records <i class="fas fa-arrow-right ml-1"></i>
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    @else
+                        <div class="text-center py-6">
+                            <div class="text-gray-400 mb-2">
+                                <i class="fas fa-briefcase text-2xl"></i>
+                            </div>
+                            <p class="text-gray-500 text-sm mb-3">No employment history recorded yet.</p>
+                            @canany(['update'], $alumni)
+                                <a href="{{ route('alumni.employment-history.create', $alumni) }}" 
+                                   class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100">
+                                    <i class="fas fa-plus mr-1"></i> Add Employment History
+                                </a>
+                            @endcanany
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Instructor Notes -->
+            <div x-data="{ open: false }" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <button @click="open = !open" class="w-full flex justify-between items-center p-4 focus:outline-none">
+                    <div class="flex items-center">
+                        <i class="fas fa-clipboard-list text-purple-600 mr-3"></i>
+                        <h3 class="text-base font-semibold">Instructor Notes</h3>
+                        @if($alumni->instructorNotes)
+                            @php
+                                $visibleNotes = Auth::user() && in_array(Auth::user()->role, ['instructor', 'tenant_admin', 'central_admin']) 
+                                    ? $alumni->instructorNotes 
+                                    : $alumni->publicInstructorNotes;
+                            @endphp
+                            @if($visibleNotes->count() > 0)
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    {{ $visibleNotes->count() }} {{ $visibleNotes->count() === 1 ? 'note' : 'notes' }}
+                                </span>
+                            @endif
+                        @endif
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <a href="{{ route('alumni.instructor-notes.index', $alumni) }}" 
+                           class="text-purple-600 hover:text-purple-800 text-sm font-medium px-3 py-1 rounded border border-purple-200 hover:border-purple-300"
+                           onclick="event.stopPropagation();">
+                            <i class="fas fa-external-link-alt mr-1"></i> View All
+                        </a>
+                        <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                    </div>
+                </button>
+                    
+                <div x-show="open" class="border-t border-gray-200 p-4">
+                    @if($alumni->instructorNotes)
+                        @php
+                            $visibleNotes = Auth::user() && in_array(Auth::user()->role, ['instructor', 'tenant_admin', 'central_admin']) 
+                                ? $alumni->instructorNotes->take(3) 
+                                : $alumni->publicInstructorNotes->take(3);
+                        @endphp
+                        @if($visibleNotes->count() > 0)
+                            <div class="space-y-3">
+                                @foreach($visibleNotes as $note)
+                                    <div class="p-3 {{ $note->priority == 'high' ? 'bg-red-50 border-l-4 border-red-400' : ($note->priority == 'medium' ? 'bg-yellow-50 border-l-4 border-yellow-400' : 'bg-gray-50 border-l-4 border-gray-400') }} rounded-r-lg">
+                                        <div class="flex items-start justify-between mb-2">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-xs font-medium text-gray-500 uppercase">{{ str_replace('_', ' ', $note->note_type) }}</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium {{ $note->priority == 'high' ? 'bg-red-100 text-red-800' : ($note->priority == 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
+                                                    {{ ucfirst($note->priority) }}
+                                                </span>
+                                                @if($note->is_private)
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        <i class="fas fa-lock mr-1"></i> Private
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <span class="text-xs text-gray-500">{{ $note->created_at->format('M j, Y') }}</span>
+                                        </div>
+                                        <p class="text-sm text-gray-700 line-clamp-2">{{ Str::limit($note->note, 150) }}</p>
+                                        <div class="mt-2 text-xs text-gray-500">
+                                            by {{ $note->instructor->name }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @php
+                                    $totalVisible = Auth::user() && in_array(Auth::user()->role, ['instructor', 'tenant_admin', 'central_admin']) 
+                                        ? $alumni->instructorNotes->count() 
+                                        : $alumni->publicInstructorNotes->count();
+                                @endphp
+                                @if($totalVisible > 3)
+                                    <div class="text-center pt-2">
+                                        <a href="{{ route('alumni.instructor-notes.index', $alumni) }}" 
+                                           class="text-purple-600 hover:text-purple-800 text-sm font-medium">
+                                            View all {{ $totalVisible }} notes <i class="fas fa-arrow-right ml-1"></i>
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="text-center py-6">
+                                <div class="text-gray-400 mb-2">
+                                    <i class="fas fa-clipboard-list text-2xl"></i>
+                                </div>
+                                <p class="text-gray-500 text-sm mb-3">No instructor notes available.</p>
+                                @can('create', App\Models\InstructorNote::class)
+                                    <a href="{{ route('alumni.instructor-notes.create', $alumni) }}" 
+                                       class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-md hover:bg-purple-100">
+                                        <i class="fas fa-plus mr-1"></i> Add Instructor Note
+                                    </a>
+                                @endcan
+                            </div>
+                        @endif
+                    @else
+                        <div class="text-center py-6">
+                            <div class="text-gray-400 mb-2">
+                                <i class="fas fa-clipboard-list text-2xl"></i>
+                            </div>
+                            <p class="text-gray-500 text-sm mb-3">No instructor notes available.</p>
+                            @can('create', App\Models\InstructorNote::class)
+                                <a href="{{ route('alumni.instructor-notes.create', $alumni) }}" 
+                                   class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-md hover:bg-purple-100">
+                                    <i class="fas fa-plus mr-1"></i> Add Instructor Note
+                                </a>
+                            @endcan
+                        </div>
+                    @endif
+                </div>
+            </div>
             
             <!-- Skills & Achievements -->
             <div x-data="{ open: true }" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

@@ -83,20 +83,28 @@ return [
         // Array of connections to bypass tenant-specific database connection switching
         'excluded_connections' => [],
         
-        // Specify which migrations should be run when creating a new tenant
+        // Use blacklist approach instead - exclude central-only tables from tenant databases
         'migration_whitelist' => [
-            // Include all migrations except plans table migrations
-            '0001_01_01_000000_create_users_table.php',
-            '0001_01_01_000001_create_cache_table.php',
-            // Exclude the following migrations for tenant databases
-            // '2023_10_05_000000_create_plans_table.php',
-            // '2023_10_05_000001_add_plan_id_to_tenants_table.php',
+            // Leave empty to allow all migrations by default
         ],
         
-        // Alternatively, you can use a blacklist approach
+        // Blacklist central-only migrations that shouldn't run in tenant databases
         'migration_blacklist' => [
+            '2019_09_15_000010_create_tenants_table.php',
+            '2019_09_15_000020_create_domains_table.php',
+            '2023_05_20_000001_create_domain_requests_table.php',
+            '2023_05_25_000000_ensure_tenant_data_column.php',
+            '2023_05_25_000000_ensure_tenant_status_columns.php',
+            '2023_05_25_000001_add_subscription_fields_to_tenants.php',
+            '2023_05_26_000000_fix_tenant_data_column.php',
+            '2023_05_28_000000_add_status_column_to_tenants.php',
+            '2023_05_29_000000_sync_tenant_status_column.php',
             '2023_10_05_000000_create_plans_table.php',
             '2023_10_05_000001_add_plan_id_to_tenants_table.php',
+            '2025_04_06_create_email_logs_table.php',
+            '2025_05_07_143529_create_notifications_table.php',
+            '2025_05_18_032104_fix_domains_with_double_port.php',
+            '2025_05_19_fix_domain_ports.php',
         ],
     ],
 

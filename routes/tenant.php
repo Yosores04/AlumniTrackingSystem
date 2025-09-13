@@ -68,40 +68,60 @@ Route::middleware([
 
         Route::get('/test', [App\Http\Controllers\TestController::class, 'index']);
 
-        // Instructor Alumni Management routes
+        // Instructor Alumni Management routes (redirected to unified system)
         Route::prefix('instructor')->name('instructor.')->middleware(\App\Http\Middleware\EnsureInstructor::class)->group(function() {
-            Route::get('/alumni', [App\Http\Controllers\InstructorAlumniController::class, 'index'])
-                ->name('alumni.index');
+            // Redirect instructor routes to unified alumni routes
+            Route::get('/alumni', function() {
+                return redirect()->route('alumni.index');
+            })->name('alumni.index');
                 
-            Route::get('/alumni/create', [App\Http\Controllers\InstructorAlumniController::class, 'create'])
-                ->name('alumni.create');
+            Route::get('/alumni/create', function() {
+                return redirect()->route('alumni.create');
+            })->name('alumni.create');
                 
-            Route::post('/alumni', [App\Http\Controllers\InstructorAlumniController::class, 'store'])
-                ->name('alumni.store');
+            Route::post('/alumni', function() {
+                return redirect()->route('alumni.store');
+            })->name('alumni.store');
                 
-            Route::get('/alumni/{id}', [App\Http\Controllers\InstructorAlumniController::class, 'show'])
-                ->name('alumni.show');
+            Route::get('/alumni/{id}', function($id) {
+                return redirect()->route('alumni.show', $id);
+            })->name('alumni.show');
                 
-            Route::get('/alumni/{id}/edit', [App\Http\Controllers\InstructorAlumniController::class, 'edit'])
-                ->name('alumni.edit');
+            Route::get('/alumni/{id}/edit', function($id) {
+                return redirect()->route('alumni.edit', $id);
+            })->name('alumni.edit');
                 
-            Route::put('/alumni/{id}', [App\Http\Controllers\InstructorAlumniController::class, 'update'])
-                ->name('alumni.update');
+            Route::put('/alumni/{id}', function($id) {
+                return redirect()->route('alumni.update', $id);
+            })->name('alumni.update');
                 
-            Route::delete('/alumni/{id}', [App\Http\Controllers\InstructorAlumniController::class, 'destroy'])
-                ->name('alumni.destroy');
+            Route::delete('/alumni/{id}', function($id) {
+                return redirect()->route('alumni.destroy', $id);
+            })->name('alumni.destroy');
                 
-            Route::get('/alumni-report-form', [App\Http\Controllers\InstructorAlumniController::class, 'reportForm'])
-                ->name('alumni.report-form');
+            Route::get('/alumni-report-form', function() {
+                return redirect()->route('alumni.report-form');
+            })->name('alumni.report-form');
                 
-            Route::get('/alumni-report', [App\Http\Controllers\InstructorAlumniController::class, 'generateReport'])
-                ->name('alumni.report');
+            Route::get('/alumni-report', function() {
+                return redirect()->route('alumni.report');
+            })->name('alumni.report');
                 
-            Route::get('/alumni-reports', [App\Http\Controllers\InstructorAlumniController::class, 'reports'])
-                ->name('alumni.reports');
+            Route::get('/alumni-reports', function() {
+                return redirect()->route('alumni.reports');
+            })->name('alumni.reports');
+
+            // Employment History redirects
+            Route::get('/alumni/{alumni}/employment-history', function($alumni) {
+                return redirect()->route('alumni.employment-history.index', $alumni);
+            })->name('alumni.employment-history.index');
+            
+            Route::get('/alumni/{alumni}/employment-history/create', function($alumni) {
+                return redirect()->route('alumni.employment-history.create', $alumni);
+            })->name('alumni.employment-history.create');
         });
         
-        // Tenant Admin Alumni Management routes
+        // Unified Alumni Management routes (for both tenant admin and instructors)
         Route::prefix('alumni')->group(function() {
             Route::get('/', [App\Http\Controllers\AlumniController::class, 'index'])
                 ->name('alumni.index');
@@ -138,6 +158,69 @@ Route::middleware([
             Route::delete('/{id}', [App\Http\Controllers\AlumniController::class, 'destroy'])
                 ->where('id', '[0-9]+')
                 ->name('alumni.destroy');
+                
+            // Employment History nested routes
+            Route::get('/{alumni}/employment-history', [App\Http\Controllers\EmploymentHistoryController::class, 'index'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.employment-history.index');
+                
+            Route::get('/{alumni}/employment-history/create', [App\Http\Controllers\EmploymentHistoryController::class, 'create'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.employment-history.create');
+                
+            Route::post('/{alumni}/employment-history', [App\Http\Controllers\EmploymentHistoryController::class, 'store'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.employment-history.store');
+                
+            Route::get('/{alumni}/employment-history/{employmentHistory}', [App\Http\Controllers\EmploymentHistoryController::class, 'show'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.employment-history.show');
+                
+            Route::get('/{alumni}/employment-history/{employmentHistory}/edit', [App\Http\Controllers\EmploymentHistoryController::class, 'edit'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.employment-history.edit');
+                
+            Route::put('/{alumni}/employment-history/{employmentHistory}', [App\Http\Controllers\EmploymentHistoryController::class, 'update'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.employment-history.update');
+                
+            Route::delete('/{alumni}/employment-history/{employmentHistory}', [App\Http\Controllers\EmploymentHistoryController::class, 'destroy'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.employment-history.destroy');
+                
+            // Instructor Notes nested routes
+            Route::get('/{alumni}/instructor-notes', [App\Http\Controllers\InstructorNoteController::class, 'index'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.instructor-notes.index');
+                
+            Route::get('/{alumni}/instructor-notes/create', [App\Http\Controllers\InstructorNoteController::class, 'create'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.instructor-notes.create')
+                ->middleware(\App\Http\Middleware\EnsureInstructor::class);
+                
+            Route::post('/{alumni}/instructor-notes', [App\Http\Controllers\InstructorNoteController::class, 'store'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.instructor-notes.store')
+                ->middleware(\App\Http\Middleware\EnsureInstructor::class);
+                
+            Route::get('/{alumni}/instructor-notes/{instructorNote}', [App\Http\Controllers\InstructorNoteController::class, 'show'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.instructor-notes.show');
+                
+            Route::get('/{alumni}/instructor-notes/{instructorNote}/edit', [App\Http\Controllers\InstructorNoteController::class, 'edit'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.instructor-notes.edit')
+                ->middleware(\App\Http\Middleware\EnsureInstructor::class);
+                
+            Route::put('/{alumni}/instructor-notes/{instructorNote}', [App\Http\Controllers\InstructorNoteController::class, 'update'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.instructor-notes.update')
+                ->middleware(\App\Http\Middleware\EnsureInstructor::class);
+                
+            Route::delete('/{alumni}/instructor-notes/{instructorNote}', [App\Http\Controllers\InstructorNoteController::class, 'destroy'])
+                ->where('alumni', '[0-9]+')
+                ->name('alumni.instructor-notes.destroy')
+                ->middleware(\App\Http\Middleware\EnsureInstructor::class);
         });
         
         // Debug route for subscription - REMOVE IN PRODUCTION

@@ -1,18 +1,27 @@
-@extends('layouts.app')
+@extends(auth()->user()->role === 'instructor' ? 'layouts.instructor' : 'layouts.app')
 
 @section('title', 'Alumni Management')
 
 @section('content')
 <div>
     <div class="flex justify-between items-center mb-4">
-        <h1 class="text-2xl font-bold">Alumni Management</h1>
+        <div>
+            <h1 class="text-2xl font-bold">Alumni Management</h1>
+            @if(auth()->user()->role === 'instructor')
+                <p class="text-sm text-gray-600">Instructor Portal</p>
+            @elseif(in_array(auth()->user()->role, ['tenant_admin', 'central_admin']))
+                <p class="text-sm text-gray-600">Administrative Portal</p>
+            @endif
+        </div>
         <div class="flex space-x-2">
             <a href="{{ route('alumni.report-form') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 <i class="fas fa-file-pdf mr-2"></i> Generate Report
             </a>
-            <a href="{{ route('alumni.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-                <i class="fas fa-plus mr-2"></i> Add New
-            </a>
+            @if(in_array(auth()->user()->role, ['tenant_admin', 'central_admin']))
+                <a href="{{ route('alumni.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i> Add New
+                </a>
+            @endif
         </div>
     </div>
 
@@ -75,6 +84,11 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                         Verified
                     </th>
+                    @if(auth()->user()->role === 'instructor')
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                            Notes
+                        </th>
+                    @endif
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                         Actions
                     </th>
@@ -170,30 +184,59 @@
                             </span>
                         @endif
                     </td>
+                    @if(auth()->user()->role === 'instructor')
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                @php
+                                    $noteCount = $alumnus->instructorNotes()->where('instructor_id', auth()->id())->count();
+                                @endphp
+                                @if($noteCount > 0)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-sticky-note mr-1"></i> {{ $noteCount }} note{{ $noteCount > 1 ? 's' : '' }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400 text-xs">No notes</span>
+                                @endif
+                            </div>
+                        </td>
+                    @endif
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end items-center space-x-2">
                             <a href="{{ route('alumni.show', $alumnus->id) }}" class="text-gray-500 hover:text-gray-700 p-1" title="View">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('alumni.edit', $alumnus->id) }}" class="text-gray-500 hover:text-gray-700 p-1" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form id="delete-form-{{ $alumnus->id }}" action="{{ route('alumni.destroy', $alumnus->id) }}" method="POST" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="text-red-500 hover:text-red-700 p-1" title="Delete" 
-                                        onclick="window.dispatchEvent(new CustomEvent('open-confirm', {
-                                            detail: {
-                                                title: 'Delete Alumni Record',
-                                                message: 'Are you sure you want to delete this alumni record? This action cannot be undone.',
-                                                type: 'danger',
-                                                confirmButtonText: 'Delete',
-                                                onConfirm: () => document.getElementById('delete-form-{{ $alumnus->id }}').submit()
-                                            }
-                                        }))">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                            
+                            @if(auth()->user()->role === 'instructor')
+                                <a href="{{ route('alumni.instructor-notes.create', ['alumni' => $alumnus->id]) }}" class="text-blue-500 hover:text-blue-700 p-1" title="Add Note">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                            @endif
+                            
+                            @if(in_array(auth()->user()->role, ['tenant_admin', 'central_admin']))
+                                <a href="{{ route('alumni.edit', $alumnus->id) }}" class="text-gray-500 hover:text-gray-700 p-1" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form id="delete-form-{{ $alumnus->id }}" action="{{ route('alumni.destroy', $alumnus->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="text-red-500 hover:text-red-700 p-1" title="Delete" 
+                                            onclick="window.dispatchEvent(new CustomEvent('open-confirm', {
+                                                detail: {
+                                                    title: 'Delete Alumni Record',
+                                                    message: 'Are you sure you want to delete this alumni record? This action cannot be undone.',
+                                                    type: 'danger',
+                                                    confirmButtonText: 'Delete',
+                                                    onConfirm: () => document.getElementById('delete-form-{{ $alumnus->id }}').submit()
+                                                }
+                                            }))">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            @else
+                                <a href="{{ route('alumni.edit', $alumnus->id) }}" class="text-gray-500 hover:text-gray-700 p-1" title="Edit Profile">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            @endif
                         </div>
                     </td>
                 </tr>

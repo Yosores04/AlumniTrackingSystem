@@ -25,46 +25,72 @@
             @endif
 
             <div class="dashboard-container">
-                <h1 class="text-3xl font-bold mb-8 tracking-tight text-gray-900">Welcome to Your Alumni Portal</h1>
+                <div class="mb-8">
+                    <h1 class="heading-primary mb-3">Welcome to Your Alumni Portal</h1>
+                    <p class="text-lg text-gray-600">Manage your alumni network and track engagement across your institution.</p>
+                </div>
                 
                 <!-- Modern Quick Stats Row -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <!-- Subscription Plan Card -->
-                    <div class="bg-white rounded-lg shadow p-6 border border-gray-100 hover:shadow-md transition-shadow">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Subscription Plan</p>
-                                <h3 class="text-2xl font-bold">{{ $subscriptionPlan['plan_name'] ?? (isset($subscriptionPlan['plan']) ? ucfirst($subscriptionPlan['plan']) : 'Free Plan') }}</h3>
+                    <div class="card hover:shadow-xl">
+                        <div class="card-body">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1 font-medium">Subscription Plan</p>
+                                    <h3 class="text-2xl font-bold text-primary-800">{{ $subscriptionPlan['plan_name'] ?? (isset($subscriptionPlan['plan']) ? ucfirst($subscriptionPlan['plan']) : 'Free Plan') }}</h3>
+                                </div>
+                                <div class="bg-gradient-to-br from-academic-gold to-yellow-500 h-14 w-14 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-crown text-white text-xl"></i>
+                                </div>
                             </div>
-                            <div class="bg-yellow-100 h-12 w-12 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-crown text-yellow-600 text-lg"></i>
+                            <div class="mt-4 text-sm text-gray-600">
+                                <span class="flex items-center">
+                                    <i class="fas fa-calendar-alt mr-2 text-primary-500"></i>
+                                    Renews on {{ \Carbon\Carbon::parse($subscriptionPlan['billing_period_end'] ?? \Carbon\Carbon::now()->addMonth())->format('M d, Y') }}
+                                </span>
                             </div>
-                        </div>
-                        <div class="mt-4 text-sm text-gray-500">
-                            <span>Renews on {{ \Carbon\Carbon::parse($subscriptionPlan['billing_period_end'] ?? \Carbon\Carbon::now()->addMonth())->format('M d, Y') }}</span>
                         </div>
                     </div>
+                    
                     <!-- Total Alumni Card -->
-                    <div class="bg-white rounded-lg shadow p-6 border border-gray-100 hover:shadow-md transition-shadow">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Total Alumni</p>
-                                <h3 class="text-2xl font-bold">{{ number_format($totalAlumni ?? 0) }}</h3>
+                    <div class="card hover:shadow-xl">
+                        <div class="card-body">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1 font-medium">Total Alumni</p>
+                                    <h3 class="text-2xl font-bold text-primary-800">{{ number_format($totalAlumni ?? 0) }}</h3>
+                                </div>
+                                <div class="bg-gradient-to-br from-primary-500 to-primary-600 h-14 w-14 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-graduation-cap text-white text-xl"></i>
+                                </div>
                             </div>
-                            <div class="bg-blue-100 h-12 w-12 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-user-graduate text-blue-600 text-lg"></i>
+                            <div class="mt-4">
+                                <a href="{{ route('alumni.index') }}" class="inline-flex items-center text-sm text-primary-600 hover:text-primary-800 font-medium transition-colors">
+                                    <i class="fas fa-arrow-right mr-2"></i>
+                                    View All Alumni
+                                </a>
                             </div>
                         </div>
                     </div>
+                    
                     <!-- Total Instructors Card -->
-                    <div class="bg-white rounded-lg shadow p-6 border border-gray-100 hover:shadow-md transition-shadow">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Total Instructors</p>
-                                <h3 class="text-2xl font-bold">{{ number_format($totalInstructors ?? 0) }}</h3>
+                    <div class="card hover:shadow-xl">
+                        <div class="card-body">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1 font-medium">Total Instructors</p>
+                                    <h3 class="text-2xl font-bold text-primary-800">{{ number_format($totalInstructors ?? 0) }}</h3>
+                                </div>
+                                <div class="bg-gradient-to-br from-academic-green to-emerald-600 h-14 w-14 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-chalkboard-user text-white text-xl"></i>
+                                </div>
                             </div>
-                            <div class="bg-green-100 h-12 w-12 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-chalkboard-teacher text-green-600 text-lg"></i>
+                            <div class="mt-4">
+                                <a href="{{ route('tenant.instructors.index') }}" class="inline-flex items-center text-sm text-academic-green hover:text-emerald-700 font-medium transition-colors">
+                                    <i class="fas fa-arrow-right mr-2"></i>
+                                    Manage Instructors
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -72,9 +98,12 @@
                 <!-- Distribution Charts Row -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <!-- Employment Distribution Chart -->
-                    <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
-                        <h3 class="text-lg font-semibold mb-4">Alumni Employment Distribution</h3>
-                        <div class="space-y-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="heading-tertiary mb-0">Alumni Employment Distribution</h3>
+                            <p class="text-sm text-gray-500 mt-1">Current employment status breakdown</p>
+                        </div>
+                        <div class="card-body space-y-4">
                             @php
                                 $employmentLabels = [
                                     'employed' => ['label' => 'Employed', 'color' => 'bg-green-500', 'icon' => 'fa-briefcase'],

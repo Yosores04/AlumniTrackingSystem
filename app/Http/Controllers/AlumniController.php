@@ -21,6 +21,13 @@ class AlumniController extends Controller
     public function __construct()
     {
         $this->middleware(['auth']);
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+            if (!in_array($user->role, ['tenant_admin', 'central_admin', 'instructor'])) {
+                abort(403, 'Unauthorized access to alumni management.');
+            }
+            return $next($request);
+        });
     }
 
     /**
@@ -248,7 +255,15 @@ class AlumniController extends Controller
      */
     public function show(string $id)
     {
-        $alumni = Alumni::findOrFail($id);
+        $alumni = Alumni::with([
+            'employmentHistories' => function($query) {
+                $query->orderBy('start_date', 'desc');
+            },
+            'instructorNotes' => function($query) {
+                $query->with('instructor')->orderBy('created_at', 'desc');
+            }
+        ])->findOrFail($id);
+        
         $settings = TenantSettings::getSettings();
         
         return view('tenant.alumni.show', [

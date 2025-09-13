@@ -33,7 +33,7 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-6 sm:-my-px sm:ms-8 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="nav-link flex items-center">
-                        <i class="fas fa-tachometer-alt mr-1.5"></i>
+                        <i class="fas fa-chart-pie mr-1.5"></i>
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     
@@ -43,28 +43,28 @@
                     </x-nav-link>
                     
                     <x-nav-link :href="route('tenant.settings.edit')" :active="request()->routeIs('tenant.settings.edit')" class="nav-link flex items-center">
-                        <i class="fas fa-cog mr-1.5"></i>
+                        <i class="fas fa-sliders-h mr-1.5"></i>
                         {{ __('Site Settings') }}
                     </x-nav-link>
                     
                     <x-nav-link :href="route('tenant.instructors.index')" :active="request()->routeIs('tenant.instructors.*')" class="nav-link flex items-center">
-                        <i class="fas fa-chalkboard-teacher mr-1.5"></i>
+                        <i class="fas fa-chalkboard-user mr-1.5"></i>
                         {{ __('Instructors') }}
                     </x-nav-link>
                     
                     <x-nav-link :href="route('alumni.index')" :active="request()->routeIs('alumni.*')" class="nav-link flex items-center">
-                        <i class="fas fa-user-graduate mr-1.5"></i>
+                        <i class="fas fa-graduation-cap mr-1.5"></i>
                         {{ __('Alumni') }}
                     </x-nav-link>
                     
                     <x-nav-link :href="url('/support')" :active="request()->is('support*')" class="nav-link flex items-center">
-                        <i class="fas fa-headset mr-1.5"></i>
+                        <i class="fas fa-life-ring mr-1.5"></i>
                         {{ __('Support') }}
                     </x-nav-link>
                     
                     @if(Auth::user()->isAdmin())
                     <x-nav-link :href="route('system.versions')" :active="request()->routeIs('system.*')" class="nav-link flex items-center">
-                        <i class="fas fa-code-branch mr-1.5"></i>
+                        <i class="fas fa-server mr-1.5"></i>
                         {{ __('System') }}
                     </x-nav-link>
                     @endif
@@ -88,12 +88,12 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('tenant.profile.edit')" class="flex items-center">
-                            <i class="fas fa-user-circle mr-2 text-primary"></i>
+                            <i class="fas fa-user mr-2 text-primary"></i>
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
                         <x-dropdown-link :href="route('tenant.settings.edit')" class="flex items-center">
-                            <i class="fas fa-cog mr-2 text-primary"></i>
+                            <i class="fas fa-sliders-h mr-2 text-primary"></i>
                             {{ __('Site Settings') }}
                         </x-dropdown-link>
 
@@ -129,7 +129,7 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="flex items-center">
-                <i class="fas fa-tachometer-alt mr-2 text-primary"></i>
+                <i class="fas fa-chart-pie mr-2 text-primary"></i>
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             
@@ -139,28 +139,28 @@
             </x-responsive-nav-link>
             
             <x-responsive-nav-link :href="route('tenant.settings.edit')" :active="request()->routeIs('tenant.settings.edit')" class="flex items-center">
-                <i class="fas fa-cog mr-2 text-primary"></i>
+                <i class="fas fa-sliders-h mr-2 text-primary"></i>
                 {{ __('Site Settings') }}
             </x-responsive-nav-link>
             
             <x-responsive-nav-link :href="route('tenant.instructors.index')" :active="request()->routeIs('tenant.instructors.*')" class="flex items-center">
-                <i class="fas fa-chalkboard-teacher mr-2 text-primary"></i>
+                <i class="fas fa-chalkboard-user mr-2 text-primary"></i>
                 {{ __('Instructors') }}
             </x-responsive-nav-link>
             
             <x-responsive-nav-link :href="route('alumni.index')" :active="request()->routeIs('alumni.*')" class="flex items-center">
-                <i class="fas fa-user-graduate mr-2 text-primary"></i>
+                <i class="fas fa-graduation-cap mr-2 text-primary"></i>
                 {{ __('Alumni') }}
             </x-responsive-nav-link>
             
             <x-responsive-nav-link :href="url('/support')" :active="request()->is('support*')" class="flex items-center">
-                <i class="fas fa-headset mr-2 text-primary"></i>
+                <i class="fas fa-life-ring mr-2 text-primary"></i>
                 {{ __('Support') }}
             </x-responsive-nav-link>
             
             @if(Auth::user()->isAdmin())
             <x-responsive-nav-link :href="route('system.versions')" :active="request()->routeIs('system.*')" class="flex items-center">
-                <i class="fas fa-code-branch mr-2 text-primary"></i>
+                <i class="fas fa-server mr-2 text-primary"></i>
                 {{ __('System') }}
             </x-responsive-nav-link>
             @endif
@@ -175,7 +175,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('tenant.profile.edit')" class="flex items-center">
-                    <i class="fas fa-user-circle mr-2 text-primary"></i>
+                    <i class="fas fa-user mr-2 text-primary"></i>
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 

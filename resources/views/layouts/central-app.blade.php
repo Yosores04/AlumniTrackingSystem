@@ -10,32 +10,42 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
         
         <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         
         <!-- Styles -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/css/buksu-design-system.css', 'resources/js/app.js'])
         
         <style>
             :root {
-                --primary: #4F46E5;
-                --primary-hover: #4338CA;
-                --primary-light: #EEF2FF;
-                --secondary: #0F172A;
-                --secondary-hover: #1E293B;
-                --accent: #F59E0B;
-                --accent-hover: #D97706;
-                --danger: #DC2626;
-                --success: #10B981;
-                --warning: #FBBF24;
-                --info: #0EA5E9;
+                --primary: #2563eb;
+                --primary-hover: #1d4ed8;
+                --primary-light: #dbeafe;
+                --secondary: #1e40af;
+                --secondary-hover: #1e3a8a;
+                --accent: #f59e0b;
+                --accent-hover: #d97706;
+                --danger: #dc2626;
+                --success: #059669;
+                --warning: #f59e0b;
+                --info: #2563eb;
             }
             
             body {
-                font-family: 'Inter', sans-serif;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
                 background-color: #F9FAFB;
+                font-weight: 400;
+                line-height: 1.6;
+                letter-spacing: -0.01em;
+            }
+            
+            h1, h2, h3, h4, h5, h6 {
+                font-family: 'Crimson Text', Georgia, serif;
+                font-weight: 600;
+                line-height: 1.2;
+                letter-spacing: -0.025em;
             }
             
             .nav-link {

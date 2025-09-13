@@ -8,45 +8,54 @@
         <title>@yield('title') - Alumni Portal</title>
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=outfit:300,400,500,600,700|plus-jakarta-sans:400,500,600,700&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
         <!-- Alpine JS via CDN to ensure it's available -->
         <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/css/buksu-design-system.css', 'resources/js/app.js'])
         
         <style>
             [x-cloak] { display: none !important; }
             
             :root {
-                /* Brand Colors with RGB variables */
-                --primary-color: {{ $settings->primary_color ?? '#4338ca' }};
-                --primary-rgb: {{ hex2rgbString($settings->primary_color ?? '#4338ca') }};
-                --secondary-color: {{ $settings->secondary_color ?? '#1e293b' }};
-                --secondary-rgb: {{ hex2rgbString($settings->secondary_color ?? '#1e293b') }};
-                --accent-color: {{ $settings->accent_color ?? '#3b82f6' }};
-                --accent-rgb: {{ hex2rgbString($settings->accent_color ?? '#3b82f6') }};
-                --background-color: {{ $settings->background_color ?? '#f3f4f6' }};
-                --background-rgb: {{ hex2rgbString($settings->background_color ?? '#f3f4f6') }};
+                /* Buksu-inspired Brand Colors with RGB variables */
+                --primary-color: {{ $settings->primary_color ?? '#2563eb' }};
+                --primary-rgb: {{ hex2rgbString($settings->primary_color ?? '#2563eb') }};
+                --secondary-color: {{ $settings->secondary_color ?? '#1e40af' }};
+                --secondary-rgb: {{ hex2rgbString($settings->secondary_color ?? '#1e40af') }};
+                --accent-color: {{ $settings->accent_color ?? '#f59e0b' }};
+                --accent-rgb: {{ hex2rgbString($settings->accent_color ?? '#f59e0b') }};
+                --background-color: {{ $settings->background_color ?? '#f9fafb' }};
+                --background-rgb: {{ hex2rgbString($settings->background_color ?? '#f9fafb') }};
                 --text-color: {{ $settings->text_color ?? '#1f2937' }};
                 --text-rgb: {{ hex2rgbString($settings->text_color ?? '#1f2937') }};
+                
+                /* Success, Warning, Danger states */
+                --success-color: #059669;
+                --warning-color: #f59e0b;
+                --danger-color: #dc2626;
             }
             
             /* Typography */
             body {
-                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
                 letter-spacing: -0.01em;
                 background-color: var(--background-color);
                 color: var(--text-color);
+                font-weight: 400;
+                line-height: 1.6;
             }
             
             h1, h2, h3, h4, h5, h6 {
-                font-family: 'Outfit', sans-serif;
+                font-family: 'Crimson Text', Georgia, serif;
                 letter-spacing: -0.025em;
                 line-height: 1.2;
+                font-weight: 600;
             }
             
             /* Navigation styles */
@@ -106,17 +115,17 @@
                         <!-- Navigation Links -->
                         <div class="hidden space-x-6 sm:-my-px sm:ms-8 sm:flex">
                             <a href="{{ route('alumni.dashboard') }}" class="nav-link flex items-center {{ request()->routeIs('alumni.dashboard') ? 'active' : '' }}">
-                                <i class="fas fa-tachometer-alt mr-1.5"></i>
+                                <i class="fas fa-chart-pie mr-1.5"></i>
                                 {{ __('Dashboard') }}
                             </a>
                             
                             <a href="{{ route('alumni.profile') }}" class="nav-link flex items-center {{ request()->routeIs('alumni.profile') ? 'active' : '' }}">
-                                <i class="fas fa-user-circle mr-1.5"></i>
+                                <i class="fas fa-user mr-1.5"></i>
                                 {{ __('My Profile') }}
                             </a>
                             
                             <a href="{{ url('/support') }}" class="nav-link flex items-center {{ request()->is('support*') ? 'active' : '' }}">
-                                <i class="fas fa-headset mr-1.5"></i>
+                                <i class="fas fa-life-ring mr-1.5"></i>
                                 {{ __('Support') }}
                             </a>
                         </div>
@@ -137,7 +146,7 @@
 
                             <div x-show="open" @click.away="open = false" class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" x-cloak>
                                 <a href="{{ route('alumni.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-user-circle mr-2 text-primary"></i>
+                                    <i class="fas fa-user mr-2 text-primary"></i>
                                     {{ __('Profile') }}
                                 </a>
 
@@ -169,22 +178,22 @@
             <div :class="{'block': open, 'hidden': !open}" class="hidden sm:hidden">
                 <div class="pt-2 pb-3 space-y-1">
                     <a href="{{ route('alumni.dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('alumni.dashboard') ? 'border-primary text-primary bg-primary-5' : 'border-transparent text-white hover:bg-primary-30' }} text-base font-medium focus:outline-none focus:text-primary focus:bg-primary-5 focus:border-primary transition duration-150 ease-in-out flex items-center">
-                        <i class="fas fa-tachometer-alt mr-2"></i>
+                        <i class="fas fa-chart-pie mr-2"></i>
                         {{ __('Dashboard') }}
                     </a>
                     
                     <a href="{{ route('alumni.profile') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('alumni.profile') ? 'border-primary text-primary bg-primary-5' : 'border-transparent text-white hover:bg-primary-30' }} text-base font-medium focus:outline-none focus:text-primary focus:bg-primary-5 focus:border-primary transition duration-150 ease-in-out flex items-center">
-                        <i class="fas fa-user-circle mr-2"></i>
+                        <i class="fas fa-user mr-2"></i>
                         {{ __('My Profile') }}
                     </a>
                     
                     <a href="{{ url('/support') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->is('support*') ? 'border-primary text-primary bg-primary-5' : 'border-transparent text-white hover:bg-primary-30' }} text-base font-medium focus:outline-none focus:text-primary focus:bg-primary-5 focus:border-primary transition duration-150 ease-in-out flex items-center">
-                        <i class="fas fa-headset mr-2"></i>
+                        <i class="fas fa-life-ring mr-2"></i>
                         {{ __('Support') }}
                     </a>
                     
                     <a href="#" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-white hover:bg-primary-30 text-base font-medium focus:outline-none focus:text-primary focus:bg-primary-5 focus:border-primary transition duration-150 ease-in-out flex items-center">
-                        <i class="fas fa-users mr-2"></i>
+                        <i class="fas fa-address-book mr-2"></i>
                         {{ __('Alumni Directory') }}
                     </a>
                     

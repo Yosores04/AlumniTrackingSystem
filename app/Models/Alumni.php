@@ -67,6 +67,30 @@ class Alumni extends Model
     }
 
     /**
+     * Get the employment histories for the alumni.
+     */
+    public function employmentHistories()
+    {
+        return $this->hasMany(EmploymentHistory::class)->orderBy('start_date', 'desc');
+    }
+
+    /**
+     * Get the instructor notes for the alumni.
+     */
+    public function instructorNotes()
+    {
+        return $this->hasMany(InstructorNote::class)->with('instructor')->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get only public instructor notes for the alumni.
+     */
+    public function publicInstructorNotes()
+    {
+        return $this->hasMany(InstructorNote::class)->where('is_private', false)->with('instructor')->orderBy('created_at', 'desc');
+    }
+
+    /**
      * Get the user's full name.
      *
      * @return string
@@ -108,5 +132,13 @@ class Alumni extends Model
     public function scopeUnemployed($query)
     {
         return $query->where('employment_status', 'unemployed');
+    }
+
+    /**
+     * Get the current employment history.
+     */
+    public function currentEmployment()
+    {
+        return $this->hasOne(EmploymentHistory::class)->where('is_current', true);
     }
 } 

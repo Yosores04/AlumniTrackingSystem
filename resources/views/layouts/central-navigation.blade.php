@@ -14,22 +14,22 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-6 sm:-my-px sm:ms-8 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="nav-link flex items-center">
-                        <i class="fas fa-tachometer-alt mr-1.5"></i>
+                        <i class="fas fa-chart-pie mr-1.5"></i>
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     
                     <x-nav-link :href="route('tenants.create')" :active="request()->routeIs('tenants.*')" class="nav-link flex items-center">
-                        <i class="fas fa-building mr-1.5"></i>
+                        <i class="fas fa-university mr-1.5"></i>
                         {{ __('Tenants') }}
                     </x-nav-link>
                     
                     <x-nav-link :href="route('admin.plans.index')" :active="request()->routeIs('admin.plans.*')" class="nav-link flex items-center">
-                        <i class="fas fa-tags mr-1.5"></i>
+                        <i class="fas fa-layer-group mr-1.5"></i>
                         {{ __('Plans') }}
                     </x-nav-link>
                     
                     <x-nav-link :href="route('domain-requests.index')" :active="request()->routeIs('domain-requests.*')" class="nav-link flex items-center">
-                        <i class="fas fa-globe mr-1.5"></i>
+                        <i class="fas fa-network-wired mr-1.5"></i>
                         {{ __('Domain Requests') }}
                     </x-nav-link>
                 </div>
@@ -53,7 +53,7 @@
                     <x-slot name="content">
                         @if(Auth::check())
                             <x-dropdown-link :href="route('central.profile.edit')" class="flex items-center">
-                                <i class="fas fa-user-circle mr-2 text-primary"></i>
+                                <i class="fas fa-user mr-2 text-primary"></i>
                                 {{ __('Profile') }}
                             </x-dropdown-link>
 
