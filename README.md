@@ -73,7 +73,7 @@ This system was developed by:
 -   **Joshua James G. Yosores** - Lead Developer
 -   **Margaret Zoe A. Neri** - Frontend Developer
 -   **Nilo G. Garciano Jr.** - Backend Developer
--   **Sern S. Ponce** - Database Engineer
+-   **Sern S. Ponce** - Project Manager
 
 ## License
 
