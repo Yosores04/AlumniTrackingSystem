@@ -45,6 +45,10 @@ Route::middleware([
         // Dashboard route
         Route::get('/dashboard', [TenantDashboardController::class, 'index'])->name('dashboard');
         
+        // Password change routes - available to all authenticated users
+        Route::get('/change-password', [App\Http\Controllers\PasswordController::class, 'show'])->name('password.show');
+        Route::post('/change-password', [App\Http\Controllers\PasswordController::class, 'update'])->name('password.update');
+        
         // Instructor Dashboard route
         Route::get('/instructor-dashboard', [App\Http\Controllers\InstructorDashboardController::class, 'index'])
             ->middleware(\App\Http\Middleware\EnsureInstructor::class)
@@ -355,6 +359,26 @@ Route::middleware([
     // Support Ticket Routes
     Route::resource('support', \App\Http\Controllers\SupportTicketController::class);
     Route::post('support/{id}/response', [\App\Http\Controllers\SupportTicketController::class, 'addResponse'])->name('support.response');
+
+    // Alumni Related Resource Routes
+    Route::resource('alumni.social-accounts', \App\Http\Controllers\SocialAccountController::class);
+    Route::resource('alumni.attachments', \App\Http\Controllers\AttachmentController::class);
+    Route::resource('alumni.tracking-statuses', \App\Http\Controllers\TrackingStatusController::class);
+    
+    // Additional Social Account Routes
+    Route::post('alumni/{alumni}/social-accounts/{socialAccount}/verify', [\App\Http\Controllers\SocialAccountController::class, 'toggleVerification'])->name('alumni.social-accounts.verify');
+    Route::post('alumni/{alumni}/social-accounts/{socialAccount}/visibility', [\App\Http\Controllers\SocialAccountController::class, 'toggleVisibility'])->name('alumni.social-accounts.visibility');
+    
+    // Additional Attachment Routes
+    Route::get('alumni/{alumni}/attachments/{attachment}/download', [\App\Http\Controllers\AttachmentController::class, 'download'])->name('alumni.attachments.download');
+    Route::post('alumni/{alumni}/attachments/{attachment}/verify', [\App\Http\Controllers\AttachmentController::class, 'toggleVerification'])->name('alumni.attachments.verify');
+    Route::post('alumni/{alumni}/attachments/{attachment}/visibility', [\App\Http\Controllers\AttachmentController::class, 'toggleVisibility'])->name('alumni.attachments.visibility');
+    
+    // Additional Tracking Status Routes
+    Route::post('alumni/{alumni}/tracking-statuses/{trackingStatus}/set-current', [\App\Http\Controllers\TrackingStatusController::class, 'setCurrent'])->name('alumni.tracking-statuses.set-current');
+    Route::get('tracking-statuses/by-status', [\App\Http\Controllers\TrackingStatusController::class, 'byStatusType'])->name('tracking-statuses.by-status');
+    Route::get('tracking-statuses/statistics', [\App\Http\Controllers\TrackingStatusController::class, 'statistics'])->name('tracking-statuses.statistics');
+    Route::get('tracking-statuses/follow-ups', [\App\Http\Controllers\TrackingStatusController::class, 'followUps'])->name('tracking-statuses.follow-ups');
 
     // Debug Routes - remove in production
     Route::get('/debug-routes', function () {
