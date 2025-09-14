@@ -141,4 +141,91 @@ class Alumni extends Model
     {
         return $this->hasOne(EmploymentHistory::class)->where('is_current', true);
     }
+
+    /**
+     * Get the social accounts for the alumni.
+     */
+    public function socialAccounts()
+    {
+        return $this->hasMany(SocialAccount::class)->orderBy('platform');
+    }
+
+    /**
+     * Get only public social accounts for the alumni.
+     */
+    public function publicSocialAccounts()
+    {
+        return $this->hasMany(SocialAccount::class)->where('is_public', true)->orderBy('platform');
+    }
+
+    /**
+     * Get the attachments for the alumni (polymorphic relationship).
+     */
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable')->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get only public attachments for the alumni.
+     */
+    public function publicAttachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable')
+                    ->where('is_public', true)
+                    ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get the tracking statuses for the alumni.
+     */
+    public function trackingStatuses()
+    {
+        return $this->hasMany(TrackingStatus::class)->orderBy('effective_date', 'desc');
+    }
+
+    /**
+     * Get current tracking statuses for the alumni.
+     */
+    public function currentTrackingStatuses()
+    {
+        return $this->hasMany(TrackingStatus::class)
+                    ->where('is_current', true)
+                    ->orderBy('effective_date', 'desc');
+    }
+
+    /**
+     * Get tracking status by type.
+     */
+    public function getTrackingStatusByType($type)
+    {
+        return $this->trackingStatuses()
+                    ->where('status_type', $type)
+                    ->where('is_current', true)
+                    ->first();
+    }
+
+    /**
+     * Get current employment status from tracking statuses.
+     */
+    public function getCurrentEmploymentStatus()
+    {
+        return $this->getTrackingStatusByType('employment');
+    }
+
+    /**
+     * Get current contact status from tracking statuses.
+     */
+    public function getCurrentContactStatus()
+    {
+        return $this->getTrackingStatusByType('contact');
+    }
+
+    /**
+     * Get current engagement level from tracking statuses.
+     */
+    public function getCurrentEngagementLevel()
+    {
+        return $this->getTrackingStatusByType('engagement');
+    }
 } 
