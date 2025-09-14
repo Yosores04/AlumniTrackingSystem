@@ -30,7 +30,7 @@ class PasswordController extends Controller
             $user->password = Hash::make($request->new_password);
             $user->save();
             
-            // Log the password change (optional - for security audit)
+            // Log the password change
             logger('Password changed', [
                 'user_id' => $user->id,
                 'email' => $user->email,
@@ -48,7 +48,7 @@ class PasswordController extends Controller
                 'timestamp' => now(),
             ]);
             
-            return back()->withErrors(['error' => 'An error occurred while changing your password. Please try again.']);
+            return back()->withErrors(['error' => 'An error occurred while changing your password. Please try again.']); 
         }
     }
 }
