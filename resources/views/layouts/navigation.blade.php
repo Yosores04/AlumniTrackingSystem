@@ -92,6 +92,11 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
+                        <x-dropdown-link :href="route('password.show')" class="flex items-center">
+                            <i class="fas fa-key mr-2 text-primary"></i>
+                            {{ __('Change Password') }}
+                        </x-dropdown-link>
+
                         <x-dropdown-link :href="route('tenant.settings.edit')" class="flex items-center">
                             <i class="fas fa-sliders-h mr-2 text-primary"></i>
                             {{ __('Site Settings') }}
@@ -177,6 +182,11 @@
                 <x-responsive-nav-link :href="route('tenant.profile.edit')" class="flex items-center">
                     <i class="fas fa-user mr-2 text-primary"></i>
                     {{ __('Profile') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('password.show')" class="flex items-center">
+                    <i class="fas fa-key mr-2 text-primary"></i>
+                    {{ __('Change Password') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

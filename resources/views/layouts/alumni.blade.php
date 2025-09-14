@@ -150,6 +150,11 @@
                                     {{ __('Profile') }}
                                 </a>
 
+                                <a href="{{ route('password.show') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-key mr-2 text-primary"></i>
+                                    {{ __('Change Password') }}
+                                </a>
+
                                 <!-- Authentication -->
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
@@ -219,6 +224,11 @@
                         <a href="{{ route('alumni.profile') }}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-white hover:bg-primary-30 text-base font-medium focus:outline-none focus:text-primary focus:bg-primary-5 focus:border-primary transition duration-150 ease-in-out flex items-center">
                             <i class="fas fa-user-circle mr-2"></i>
                             {{ __('Profile') }}
+                        </a>
+
+                        <a href="{{ route('password.show') }}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-white hover:bg-primary-30 text-base font-medium focus:outline-none focus:text-primary focus:bg-primary-5 focus:border-primary transition duration-150 ease-in-out flex items-center">
+                            <i class="fas fa-key mr-2"></i>
+                            {{ __('Change Password') }}
                         </a>
 
                         <!-- Authentication -->

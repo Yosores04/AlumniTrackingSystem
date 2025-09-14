@@ -23,8 +23,9 @@
                 --primary: #2563eb;
                 --primary-hover: #1d4ed8;
                 --primary-light: #dbeafe;
-                --secondary: #1e40af;
-                --secondary-hover: #1e3a8a;
+                --secondary: #1e3a8a;
+                --secondary-hover: #0f172a;
+                --secondary-rgb: 30, 58, 138;
                 --accent: #f59e0b;
                 --accent-hover: #d97706;
                 --danger: #dc2626;
@@ -32,6 +33,24 @@
                 --warning: #f59e0b;
                 --info: #2563eb;
             }
+
+            /* Secondary color utility classes */
+            .bg-secondary { background-color: var(--secondary); }
+            .bg-secondary-5 { background-color: rgba(var(--secondary-rgb), 0.05); }
+            .bg-secondary-10 { background-color: rgba(var(--secondary-rgb), 0.1); }
+            .bg-secondary-20 { background-color: rgba(var(--secondary-rgb), 0.2); }
+            .bg-secondary-30 { background-color: rgba(var(--secondary-rgb), 0.3); }
+            .bg-secondary-40 { background-color: rgba(var(--secondary-rgb), 0.4); }
+            .bg-secondary-50 { background-color: rgba(var(--secondary-rgb), 0.5); }
+            .bg-secondary-60 { background-color: rgba(var(--secondary-rgb), 0.6); }
+            .bg-secondary-70 { background-color: rgba(var(--secondary-rgb), 0.7); }
+            .bg-secondary-80 { background-color: rgba(var(--secondary-rgb), 0.8); }
+            .bg-secondary-90 { background-color: rgba(var(--secondary-rgb), 0.9); }
+            
+            /* Border colors */
+            .border-secondary { border-color: var(--secondary); }
+            .border-secondary-30 { border-color: rgba(var(--secondary-rgb), 0.3); }
+            
             
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -63,7 +82,8 @@
             }
             
             .primary-nav {
-                background-color: var(--secondary);
+                background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+                border-bottom: 1px solid rgba(30, 58, 138, 0.3);
             }
             
             /* Enhanced card styling */

@@ -479,6 +479,9 @@
                                     <a href="#" class="profile-dropdown-item" @click.stop>
                                         <i class="fas fa-user"></i> My Profile
                                     </a>
+                                    <a href="{{ route('password.show') }}" class="profile-dropdown-item" @click.stop>
+                                        <i class="fas fa-key"></i> Change Password
+                                    </a>
                                     <a href="{{ url('/support') }}" class="profile-dropdown-item" @click.stop>
                                         <i class="fas fa-life-ring"></i> Support
                                     </a>
