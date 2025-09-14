@@ -3,381 +3,893 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>{{ $settings->site_name }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=playfair-display:400,500,600,700,800|montserrat:300,400,500,600,700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-
-    <!-- Scripts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
     <style>
         :root {
-            /* Brand Colors */
-            --brand-primary: {{ $settings->primary_color }};
-            --brand-secondary: {{ $settings->secondary_color }};
+            --brand-primary: {{ $settings->primary_color ?? '#1e3a8a' }};
+            --brand-secondary: {{ $settings->secondary_color ?? '#0f172a' }};
+            --accent-color: {{ $settings->accent_color ?? '#dc2626' }};
+            --brand-primary-rgb: {{ implode(', ', sscanf($settings->primary_color ?? '#1e3a8a', "#%02x%02x%02x")) }};
+            --brand-secondary-rgb: {{ implode(', ', sscanf($settings->secondary_color ?? '#0f172a', "#%02x%02x%02x")) }};
+            --accent-color-rgb: {{ implode(', ', sscanf($settings->accent_color ?? '#dc2626', "#%02x%02x%02x")) }};
             
-            /* Interface Colors */
-            --accent-color: {{ $settings->accent_color }};
+            /* University professional variables */
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(30, 58, 138, 0.1);
+            --card-bg: rgba(255, 255, 255, 0.98);
+            --text-muted: #475569;
+            --header-text: #FFFFFF;
+            --university-gold: #d97706;
+            --university-gray: #64748b;
             
-            /* Content Colors */
-            --content-bg: {{ $settings->background_color }};
-            --content-text: {{ $settings->text_color }};
+            /* Typography System */
+            --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            --font-weight-light: 300;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            --font-weight-extrabold: 800;
+            --font-weight-black: 900;
             
-            /* RGB Variables for transparent effects */
-            --brand-primary-rgb: {{ hex2rgbString($settings->primary_color) }};
-            --brand-secondary-rgb: {{ hex2rgbString($settings->secondary_color) }};
-            --accent-color-rgb: {{ hex2rgbString($settings->accent_color) }};
+            /* Font Sizes */
+            --text-xs: 0.75rem;      /* 12px */
+            --text-sm: 0.875rem;     /* 14px */
+            --text-base: 1rem;       /* 16px */
+            --text-lg: 1.125rem;     /* 18px */
+            --text-xl: 1.25rem;      /* 20px */
+            --text-2xl: 1.5rem;      /* 24px */
+            --text-3xl: 1.875rem;    /* 30px */
+            --text-4xl: 2.25rem;     /* 36px */
+            --text-5xl: 3rem;        /* 48px */
+            --text-6xl: 3.75rem;     /* 60px */
+            --text-7xl: 4.5rem;      /* 72px */
             
-            /* Derived Colors (calculated from base colors) */
-            --brand-primary-hover: color-mix(in srgb, var(--brand-primary) 85%, black);
-            --brand-primary-light: color-mix(in srgb, var(--brand-primary) 70%, white);
-            --brand-secondary-hover: color-mix(in srgb, var(--brand-secondary) 85%, black);
-            --accent-hover: color-mix(in srgb, var(--accent-color) 85%, black);
-            --text-muted: color-mix(in srgb, var(--content-text) 70%, var(--content-bg));
-            --card-bg: color-mix(in srgb, var(--content-bg) 95%, white);
-            --header-text: white;
-            --border-color: color-mix(in srgb, var(--content-text) 20%, var(--content-bg));
+            /* Line Heights */
+            --leading-tight: 1.25;
+            --leading-snug: 1.375;
+            --leading-normal: 1.5;
+            --leading-relaxed: 1.625;
+            --leading-loose: 2;
         }
-        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-size: cover !important;
-            background-attachment: fixed !important;
-            background-position: center !important;
-            color: var(--content-text);
-            line-height: 1.7;
-            letter-spacing: 0.01em;
-            font-weight: 400;
+            font-family: var(--font-family-base);
+            font-weight: var(--font-weight-normal);
+            line-height: var(--leading-normal);
+            color: #1f2937;
+            background: #f8fafc;
+            font-size: var(--text-base);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Typography Classes */
+        .text-display-1 {
+            font-size: var(--text-7xl);
+            font-weight: var(--font-weight-black);
+            line-height: var(--leading-tight);
+            letter-spacing: -0.05em;
         }
         
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Playfair Display', serif;
-            letter-spacing: -0.01em;
-            line-height: 1.3;
-            font-weight: 600;
+        .text-display-2 {
+            font-size: var(--text-6xl);
+            font-weight: var(--font-weight-extrabold);
+            line-height: var(--leading-tight);
+            letter-spacing: -0.04em;
         }
         
-        /* Brand Elements */
-        .brand-logo {
-            height: 3.5rem;
-            width: auto;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        .text-display-3 {
+            font-size: var(--text-5xl);
+            font-weight: var(--font-weight-bold);
+            line-height: var(--leading-tight);
+            letter-spacing: -0.03em;
         }
         
-        
-        .brand-name {
-            color: var(--header-text);
-            font-weight: 700;
+        .text-heading-1 {
+            font-size: var(--text-4xl);
+            font-weight: var(--font-weight-bold);
+            line-height: var(--leading-tight);
             letter-spacing: -0.025em;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
-        /* UI Components */
-        .btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: inline-flex;
+        .text-heading-2 {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-weight-bold);
+            line-height: var(--leading-tight);
+            letter-spacing: -0.02em;
+        }
+        
+        .text-heading-3 {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-weight-semibold);
+            line-height: var(--leading-snug);
+            letter-spacing: -0.015em;
+        }
+        
+        .text-body-lg {
+            font-size: var(--text-lg);
+            font-weight: var(--font-weight-normal);
+            line-height: var(--leading-relaxed);
+        }
+        
+        .text-body {
+            font-size: var(--text-base);
+            font-weight: var(--font-weight-normal);
+            line-height: var(--leading-normal);
+        }
+        
+        .text-body-sm {
+            font-size: var(--text-sm);
+            font-weight: var(--font-weight-normal);
+            line-height: var(--leading-normal);
+        }
+
+        /* Modern University Header */
+        .main-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-logo {
+            height: 45px;
+            width: auto;
+            border-radius: 4px;
+        }
+
+        .brand-name {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--brand-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-link {
+            color: var(--brand-primary);
+            text-decoration: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-weight: var(--font-weight-medium);
+            font-size: var(--text-sm);
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-link:hover {
+            background: var(--brand-primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* University Hero Section */
+        .hero-section {
+            position: relative;
+            min-height: 85vh;
+            display: flex;
             align-items: center;
             justify-content: center;
-            text-decoration: none;
-            letter-spacing: 0;
+            background-size: cover;
+            background-position: center;
         }
-        
-        .btn-primary {
-            background-color: var(--brand-primary);
-            color: white;
-            border: 2px solid var(--brand-primary);
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--brand-primary-hover);
-            border-color: var(--brand-primary-hover);
-        }
-        
-        .btn-secondary {
-            background-color: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-        
-        .btn-secondary:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .btn-accent {
-            background-color: var(--accent-color);
-            color: white;
-            border: 2px solid var(--accent-color);
-        }
-        
-        .btn-accent:hover {
-            background-color: var(--accent-hover);
-            border-color: var(--accent-hover);
-        }
-        
-        /* Layout Components */
-        .main-header {
-            background-color: transparent;
-            color: var(--header-text);
+
+        .hero-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            z-index: 10;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(var(--brand-primary-rgb), 0.85) 0%,
+                rgba(var(--brand-secondary-rgb), 0.75) 100%);
         }
-        
-        .main-footer {
-            background-color: var(--brand-secondary);
-            color: var(--header-text);
-        }
-        
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 0.8rem;
-            box-shadow: 0 2px 4px rgba(var(--brand-secondary-rgb), 0.05);
-            padding: 1.75rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(var(--brand-secondary-rgb), 0.1);
-        }
-        
-        /* Typography */
-        .title-primary {
-            color: var(--brand-primary);
-            font-weight: 600;
-        }
-        
-        .title-accent {
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-        
-        .text-muted {
-            color: var(--text-muted);
-        }
-        
-        /* Hero Section */
-        .hero-section {
+
+        .hero-content {
             position: relative;
-            background-size: cover;
-            background-position: center;
-            min-height: 80vh;
-            padding: 6rem 1.5rem 3rem;
-            display: flex;
-            align-items: center;
+            z-index: 10;
+            text-align: center;
+            max-width: 900px;
+            padding: 2rem;
         }
-        
-        .hero-section::before {
+
+        .hero-title {
+            font-size: clamp(var(--text-4xl), 5vw, var(--text-6xl));
+            font-weight: var(--font-weight-extrabold);
+            color: white;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            line-height: var(--leading-tight);
+            letter-spacing: -0.04em;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(var(--text-lg), 2vw, var(--text-xl));
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2rem;
+            font-weight: var(--font-weight-normal);
+            line-height: var(--leading-relaxed);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .welcome-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-text {
+            color: var(--brand-primary);
+            font-size: var(--text-lg);
+            line-height: var(--leading-relaxed);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* Buttons */
+        .cta-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--text-base);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            letter-spacing: -0.01em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 8px 20px rgba(var(--brand-primary-rgb), 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(var(--brand-primary-rgb), 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn-lg {
+            padding: 1.25rem 2.5rem;
+            font-size: var(--text-lg);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        /* Features Section */
+        .features-section {
+            background: linear-gradient(135deg, 
+                rgba(var(--brand-primary-rgb), 0.05) 0%,
+                rgba(var(--brand-secondary-rgb), 0.02) 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 110%;
-            background: linear-gradient(to bottom, 
-                rgba(var(--brand-secondary-rgb), 0.65) 70%, 
-                rgba(var(--brand-secondary-rgb), 0) 100%);
-            z-index: 1;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-primary), var(--accent-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
-        
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            margin: 0 auto;
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
-        
-        .welcome-message {
-            background-color: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(4px);
-            border-radius: 0.8rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            line-height: 1.6;
-            font-size: 1.125rem;
+
+        .feature-card:hover:before {
+            transform: scaleX(1);
         }
-        
-        /* Navigation */
-        .nav-link {
-            color: var(--header-text);
-            transition: all 0.3s ease;
-            font-weight: 500;
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.25rem;
-            display: inline-flex;
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--brand-primary), var(--accent-color));
+            display: flex;
             align-items: center;
-            background-color: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .nav-link:hover {
+            justify-content: center;
+            font-size: 2rem;
             color: white;
-            background-color: rgba(var(--brand-primary-rgb), 0.3);
-            border-color: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 20px rgba(var(--brand-primary-rgb), 0.3);
         }
-        
-        .nav-link i {
-            font-size: 1rem;
-            margin-right: 0.5rem;
-            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
-        }
-        
-        /* Social Links */
-        .social-link {
-            color: var(--accent-color);
-            transition: color 0.2s ease, transform 0.2s ease;
-            display: inline-flex;
-            padding: 0.5rem;
-            border-radius: 50%;
-        }
-        
-        .social-link:hover {
+
+        .feature-title {
+            font-size: var(--text-xl);
+            font-weight: var(--font-weight-semibold);
             color: var(--brand-primary);
-            transform: scale(1.1);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .feature-description {
+            color: var(--text-muted);
+            line-height: var(--leading-relaxed);
+            font-size: var(--text-base);
+            font-weight: var(--font-weight-normal);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: linear-gradient(135deg, 
+                rgba(var(--brand-secondary-rgb), 0.9) 0%,
+                rgba(var(--brand-primary-rgb), 0.8) 100%);
+            color: white;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        /* CTA Section - University Style */
+        .cta-section {
+            background: linear-gradient(135deg,
+                rgba(var(--brand-primary-rgb), 0.05) 0%,
+                rgba(var(--university-gray), 0.02) 100%);
+            backdrop-filter: blur(20px);
+        }
+
+        .cta-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .cta-title {
+            font-size: var(--text-4xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--brand-primary);
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+            line-height: var(--leading-tight);
+        }
+
+        .cta-description {
+            font-size: var(--text-lg);
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: var(--leading-relaxed);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: var(--font-weight-normal);
+        }
+
+        /* Professional University Footer */
+        .main-footer {
+            background: linear-gradient(135deg,
+                rgba(var(--brand-secondary-rgb), 0.95) 0%,
+                rgba(var(--brand-primary-rgb), 0.9) 100%);
+            color: white;
+            position: relative;
+        }
+
+        .main-footer:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.25rem;
+        }
+
+        .social-link:hover {
+            transform: translateY(-3px) scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+
+        .animate-on-scroll.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-content {
+                padding: 1rem;
+            }
+            
+            .welcome-card {
+                margin: 1rem 0;
+                padding: 1.5rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+            
+            .feature-card {
+                margin-bottom: 2rem;
+            }
+            
+            .main-header {
+                padding: 1rem;
+            }
+            
+            .nav-link {
+                font-size: var(--text-xs);
+                padding: 0.5rem 0.75rem;
+            }
+            
+            /* Mobile Typography Adjustments */
+            .text-display-3 {
+                font-size: var(--text-4xl);
+            }
+            
+            .text-heading-1 {
+                font-size: var(--text-3xl);
+            }
+            
+            .text-heading-2 {
+                font-size: var(--text-2xl);
+            }
+            
+            .text-heading-3 {
+                font-size: var(--text-xl);
+            }
+            
+            .hero-title {
+                font-size: clamp(var(--text-3xl), 8vw, var(--text-5xl));
+            }
+            
+            .hero-subtitle {
+                font-size: var(--text-base);
+            }
+            
+            .cta-title {
+                font-size: var(--text-3xl);
+            }
+            
+            .cta-description {
+                font-size: var(--text-base);
+            }
         }
         
-        /* Other UI Elements */
-        .divider {
-            border-top: 1px solid var(--border-color);
-            margin: 2.5rem 0;
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: var(--text-3xl);
+            }
+            
+            .text-display-3 {
+                font-size: var(--text-3xl);
+            }
+            
+            .cta-title {
+                font-size: var(--text-2xl);
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="main-header">
-        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="brand-container">
+        <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
                 @if($settings->logo_path)
-                    <img src="{{ Storage::url($settings->logo_path) }}" alt="{{ $settings->site_name }}" class="brand-logo mr-4">
+                    <img src="{{ Storage::url($settings->logo_path) }}" alt="{{ $settings->site_name }}" class="brand-logo">
                 @elseif($settings->logo_url)
-                    <img src="{{ $settings->logo_url }}" alt="{{ $settings->site_name }}" class="brand-logo mr-4">
-                @else
-                    <h1 class="text-2xl brand-name">{{ $settings->site_name }}</h1>
+                    <img src="{{ $settings->logo_url }}" alt="{{ $settings->site_name }}" class="brand-logo">
                 @endif
+                <h1 class="brand-name">{{ $settings->site_name }}</h1>
             </div>
             
             <nav class="hidden md:flex space-x-4">
                 @auth
-                    <a href="{{ url('/dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt mr-1.5"></i> Dashboard</a>
+                    <a href="{{ url('/dashboard') }}" class="nav-link">
+                        <i class="fas fa-chart-pie mr-2"></i>Dashboard
+                    </a>
                 @else
-                    <a href="{{ route('login') }}" class="nav-link"><i class="fas fa-lock mr-1.5"></i> Log in</a>
+                    <a href="{{ route('login') }}" class="nav-link">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Log In
+                    </a>
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="nav-link"><i class="fas fa-user-graduate mr-1.5"></i> Alumni Register</a>
+                        <a href="{{ route('register') }}" class="nav-link">
+                            <i class="fas fa-user-plus mr-2"></i>Join Us
+                        </a>
                     @endif
                 @endauth
             </nav>
         </div>
     </header>
-    
+
     <main>
+        <!-- Hero Section -->
         <section class="hero-section" style="background-image: url('{{ $settings->background_image_path ? Storage::url($settings->background_image_path) : ($settings->background_image_url ? $settings->background_image_url : asset('img/default-background.jpg')) }}')">
-            <div class="hero-content text-center text-white">
-                <h1 class="text-5xl font-bold mb-6">{{ $settings->site_name }}</h1>
+            <div class="hero-overlay"></div>
+            
+            <div class="hero-content animate-fade-in-up">
+                <h1 class="hero-title">{{ $settings->site_name }}</h1>
+                
                 @if($settings->site_description)
-                    <p class="text-xl mb-8 font-light">{{ $settings->site_description }}</p>
+                    <p class="hero-subtitle">{{ $settings->site_description }}</p>
                 @endif
+                
                 @if($settings->welcome_message)
-                    <div class="welcome-message">
-                        {!! nl2br(e($settings->welcome_message)) !!}
+                    <div class="welcome-card animate-float">
+                        <p class="welcome-text">{!! nl2br(e($settings->welcome_message)) !!}</p>
                     </div>
                 @endif
-                <div class="flex flex-wrap justify-center gap-4">
+                
+                <div class="cta-buttons">
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="btn btn-primary">Dashboard</a>
+                        <a href="{{ url('/dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-chart-pie mr-2"></i>
+                            Go to Dashboard
+                        </a>
                     @else
-                        <a href="{{ route('login') }}" class="btn btn-primary">Log In</a>
+                        <a href="{{ route('login') }}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Alumni Sign In
+                        </a>
                         @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="btn btn-secondary">Register as Alumni</a>
+                            <a href="{{ route('register') }}" class="btn btn-secondary">
+                                <i class="fas fa-user-plus mr-2"></i>
+                                Join Alumni Network
+                            </a>
                         @endif
                     @endauth
                 </div>
             </div>
         </section>
-        
-        <section class="py-20 px-4">
-            <div class="container mx-auto max-w-6xl">
-                <h2 class="text-3xl font-semibold mb-10 text-center text-white">About Our Alumni Network</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="card">
-                        <h3 class="text-xl title-primary mb-3">Connect</h3>
-                        <p>Connect with fellow alumni from around the world. Build professional relationships and expand your network.</p>
+
+        <!-- Features Section -->
+        <section class="features-section py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 animate-on-scroll">
+                    <h2 class="text-display-3 text-gray-900 mb-4">
+                        Stay Connected with Your 
+                        <span style="color: var(--brand-primary);">Alma Mater</span>
+                    </h2>
+                    <p class="text-body-lg text-gray-600 max-w-3xl mx-auto">
+                        Our comprehensive alumni platform helps graduates maintain lifelong connections 
+                        with the university community and fellow alumni worldwide.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="feature-title">Alumni Directory</h3>
+                        <p class="feature-description">
+                            Connect with fellow graduates from your program and graduating class. 
+                            Search by degree, year, location, or industry to find meaningful connections.
+                        </p>
                     </div>
-                    <div class="card">
-                        <h3 class="text-xl title-primary mb-3">Grow</h3>
-                        <p>Access exclusive resources, job opportunities, and mentorship programs to further your career and personal growth.</p>
+                    
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3 class="feature-title">Career Services</h3>
+                        <p class="feature-description">
+                            Access career resources, job postings, and networking opportunities. 
+                            Update your professional information to inspire current students.
+                        </p>
                     </div>
-                    <div class="card">
-                        <h3 class="text-xl title-primary mb-3">Contribute</h3>
-                        <p>Give back to your alma mater by sharing your expertise, mentoring current students, or contributing to scholarships.</p>
+                    
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="feature-title">Mentorship Program</h3>
+                        <p class="feature-description">
+                            Participate as a mentor for current students or connect with experienced 
+                            alumni who can guide your professional development.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <h3 class="feature-title">University Events</h3>
+                        <p class="feature-description">
+                            Stay informed about homecoming, reunions, networking events, 
+                            and special university celebrations in your area.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="feature-title">Give Back</h3>
+                        <p class="feature-description">
+                            Support your alma mater through volunteering, guest speaking, 
+                            scholarship contributions, and other meaningful engagement opportunities.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <h3 class="feature-title">University News</h3>
+                        <p class="feature-description">
+                            Receive updates on university achievements, research breakthroughs, 
+                            faculty news, and other important developments from campus.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section class="cta-section py-20">
+            <div class="container mx-auto px-6">
+                <div class="cta-card animate-on-scroll">
+                    <h2 class="cta-title">Join Your Alumni Community</h2>
+                    <p class="cta-description">
+                        Connect with fellow graduates, access career resources, and stay involved 
+                        with your university community. Your journey continues here.
+                    </p>
+                    
+                    <div class="cta-buttons">
+                        @auth
+                            <a href="{{ url('/dashboard') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-chart-pie mr-2"></i>
+                                Access Your Profile
+                            </a>
+                        @else
+                            <a href="{{ route('register') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus mr-2"></i>
+                                Join Alumni Network
+                            </a>
+                            <a href="{{ route('login') }}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-sign-in-alt mr-2"></i>
+                                Alumni Sign In
+                            </a>
+                        @endauth
                     </div>
                 </div>
             </div>
         </section>
     </main>
-    
-    <footer class="main-footer py-10">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between">
-                <div class="mb-6 md:mb-0">
-                    <h2 class="text-xl font-semibold mb-3">{{ $settings->site_name }}</h2>
-                    @if($settings->footer_text)
-                        <p class="max-w-md text-white/80">{!! nl2br(e($settings->footer_text)) !!}</p>
+
+    <!-- Footer -->
+    <footer class="main-footer py-12">
+        <div class="container mx-auto px-6">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-4 mb-4">
+                    @if($settings->logo_path)
+                        <img src="{{ Storage::url($settings->logo_path) }}" alt="{{ $settings->site_name }}" class="brand-logo">
+                    @elseif($settings->logo_url)
+                        <img src="{{ $settings->logo_url }}" alt="{{ $settings->site_name }}" class="brand-logo">
+                    @endif
+                    <h3 class="text-heading-3 text-white">{{ $settings->site_name }}</h3>
+                </div>
+                
+                @if($settings->site_description)
+                    <p class="text-body-lg text-white/90 mb-6 max-w-2xl mx-auto">{{ $settings->site_description }}</p>
+                @endif
+                
+                <div class="social-links">
+                    @if($settings->facebook_url)
+                        <a href="{{ $settings->facebook_url }}" target="_blank" class="social-link" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    @endif
+                    @if($settings->twitter_url)
+                        <a href="{{ $settings->twitter_url }}" target="_blank" class="social-link" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    @endif
+                    @if($settings->linkedin_url)
+                        <a href="{{ $settings->linkedin_url }}" target="_blank" class="social-link" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    @endif
+                    @if($settings->instagram_url)
+                        <a href="{{ $settings->instagram_url }}" target="_blank" class="social-link" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
                     @endif
                 </div>
                 
-                @if($settings->show_social_links)
-                <div>
-                    <h3 class="text-lg font-semibold mb-3">Connect With Us</h3>
-                    <div class="flex space-x-3">
-                        @if($settings->facebook_url)
-                            <a href="{{ $settings->facebook_url }}" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z"/></svg>
-                            </a>
-                        @endif
-                        @if($settings->twitter_url)
-                            <a href="{{ $settings->twitter_url }}" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Twitter">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 6.012a9.35 9.35 0 0 1-2.65.728 4.66 4.66 0 0 0 2.042-2.557 9.33 9.33 0 0 1-2.93 1.12 4.65 4.65 0 0 0-7.92 4.23 13.18 13.18 0 0 1-9.57-4.84 4.65 4.65 0 0 0 1.44 6.2 4.59 4.59 0 0 1-2.1-.58v.06a4.65 4.65 0 0 0 3.73 4.56 4.72 4.72 0 0 1-2.1.08 4.65 4.65 0 0 0 4.35 3.22 9.34 9.34 0 0 1-6.89 1.93 13.14 13.14 0 0 0 7.1 2.08c8.5 0 13.14-7.05 13.14-13.14 0-.2 0-.4-.02-.6a9.4 9.4 0 0 0 2.31-2.39Z"/></svg>
-                            </a>
-                        @endif
-                        @if($settings->instagram_url)
-                            <a href="{{ $settings->instagram_url }}" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.254 1.216.598 1.772 1.153.509.5.902 1.105 1.153 1.772.247.637.415 1.363.465 2.428.047 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772c-.5.508-1.105.902-1.772 1.153-.637.247-1.363.415-2.428.465-1.066.047-1.405.06-4.122.06-2.717 0-3.056-.01-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 0 1 1.153-1.772A4.897 4.897 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.013 9.283 2 12 2zm0 1.802c-2.67 0-2.986.01-4.04.059-.976.045-1.505.207-1.858.344-.466.182-.8.398-1.15.748-.35.35-.566.684-.748 1.15-.137.353-.3.882-.344 1.857-.048 1.055-.058 1.37-.058 4.041 0 2.67.01 2.986.058 4.04.045.977.207 1.505.344 1.858.182.466.399.8.748 1.15.35.35.684.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058 2.67 0 2.987-.01 4.04-.058.977-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.684.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041 0-2.67-.01-2.986-.058-4.04-.045-.977-.207-1.505-.344-1.858a3.097 3.097 0 0 0-.748-1.15 3.098 3.098 0 0 0-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.055-.048-1.37-.058-4.041-.058zm0 3.063a5.135 5.135 0 1 1 0 10.27 5.135 5.135 0 0 1 0-10.27zm0 8.468a3.333 3.333 0 1 0 0-6.666 3.333 3.333 0 0 0 0 6.666zm6.538-8.671a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z"/></svg>
-                            </a>
-                        @endif
-                        @if($settings->linkedin_url)
-                            <a href="{{ $settings->linkedin_url }}" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="LinkedIn">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                            </a>
-                        @endif
-                    </div>
+                <div class="border-t border-white/20 mt-8 pt-8 text-center">
+                    <p class="text-body-sm text-white/70">
+                        &copy; {{ date('Y') }} {{ $settings->site_name }}. All rights reserved. 
+                        Connecting alumni for lifelong academic and professional excellence.
+                    </p>
                 </div>
-                @endif
-            </div>
-            <div class="divider"></div>
-            <div class="text-center">
-                <p class="text-white/70">&copy; {{ date('Y') }} {{ $settings->site_name }}. All rights reserved.</p>
             </div>
         </div>
     </footer>
+
+    <!-- JavaScript for scroll animations -->
+    <script>
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animatable elements
+        document.addEventListener('DOMContentLoaded', () => {
+            const animateElements = document.querySelectorAll('.animate-on-scroll');
+            animateElements.forEach(el => observer.observe(el));
+        });
+
+        // Add floating animation to hero elements
+        const floatingElements = document.querySelectorAll('.animate-float');
+        floatingElements.forEach((el, index) => {
+            el.style.animationDelay = `${index * 0.2}s`;
+        });
+
+        // Header transparency on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.main-header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(255, 255, 255, 0.95)';
+                header.style.backdropFilter = 'blur(30px)';
+            } else {
+                header.style.background = 'rgba(255, 255, 255, 0.1)';
+                header.style.backdropFilter = 'blur(20px)';
+            }
+        });
+    </script>
 </body>
-</html> 
+</html>
