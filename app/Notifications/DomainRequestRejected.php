@@ -3,15 +3,11 @@
 namespace App\Notifications;
 
 use App\Models\DomainRequest;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class DomainRequestRejected extends Notification
 {
-    use Queueable;
-
     protected $domainRequest;
 
     /**

@@ -3,15 +3,11 @@
 namespace App\Notifications;
 
 use App\Models\DomainRequest;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class DomainRequestReceived extends Notification
 {
-    use Queueable;
-
     protected $domainRequest;
 
     /**
@@ -36,10 +32,20 @@ class DomainRequestReceived extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Domain Request Received')
+            ->subject('✅ Domain Request Received - ' . $this->domainRequest->domain_prefix)
             ->greeting('Hello ' . $this->domainRequest->admin_name . '!')
-            ->line('We have received your request for the domain: ' . $this->domainRequest->domain_prefix . '.localhost:8000')
-            ->line('Your request is now being reviewed by our administrators. You will be notified once it has been processed.')
-            ->line('Thank you for your interest in our service!');
+            ->line('Thank you for submitting your domain request!')
+            ->line('')
+            ->line('**Requested Domain:** ' . $this->domainRequest->domain_prefix . '.localhost:8000')
+            ->line('**Request ID:** #' . $this->domainRequest->id)
+            ->line('')
+            ->line('📋 **What happens next:**')
+            ->line('• Your request is now being reviewed by our administrators')
+            ->line('• You will receive an email notification once it has been processed')
+            ->line('• If approved, you will receive your login credentials via email')
+            ->line('')
+            ->line('⏱️ **Review Time:** Usually processed within 1-2 business days')
+            ->line('')
+            ->line('Thank you for your interest in our Alumni Tracking System!');
     }
 }
