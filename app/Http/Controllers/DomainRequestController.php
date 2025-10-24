@@ -85,7 +85,7 @@ class DomainRequestController extends Controller
             }
 
             return redirect()->route('request-domain')
-                ->with('success', 'Your domain request has been submitted successfully. We will notify you once it has been reviewed.');
+                ->with('success', 'Domain request submitted successfully! We will review your request and notify you at ' . $request->admin_email . ' within 24-48 hours.');
                 
         } catch (\Exception $e) {
             Log::error('Failed to submit domain request', ['error' => $e->getMessage()]);
