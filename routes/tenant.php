@@ -30,6 +30,7 @@ Route::middleware([
     'web',
     InitializeTenancy::class,
     PreventAccessFromCentralDomains::class,
+    \App\Http\Middleware\PreventCentralAdminOnTenant::class,
 ])->group(function () {
     Route::get('/', function () {
 
@@ -37,8 +38,8 @@ Route::middleware([
         return view('tenant.landing', compact('settings'));
     });
     
-    // Include authentication routes for tenants
-    require __DIR__.'/auth.php';
+    // Tenant domains use separate auth routes (allows alumni registration)
+    require __DIR__.'/auth/tenant.php';
     
     // Authenticated routes
     Route::middleware(['auth'])->group(function () {

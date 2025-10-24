@@ -15,11 +15,35 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Display the tenant registration view (for alumni).
+     */
+    public function tenantCreate(): View
+    {
+        return view('tenant.auth.register');
+    }
+
+    /**
+     * Handle tenant registration request.
+     */
+    public function tenantStore(Request $request): RedirectResponse
+    {
+        return $this->store($request);
+    }
+
+    /**
+     * Display the registration view (legacy method).
      */
     public function create(): View
     {
-        return view('auth.register');
+        // Determine if we're on tenant domain
+        $isCentral = in_array(request()->getHost(), config('tenancy.central_domains'));
+        
+        if ($isCentral) {
+            // Should not reach here as central registration is disabled
+            abort(404);
+        }
+        
+        return $this->tenantCreate();
     }
 
     /**
@@ -91,6 +115,7 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         // Redirect to the alumni dashboard route now that the middleware is not required
-        return redirect(route('alumni.dashboard'));
+        return redirect(route('alumni.dashboard'))
+            ->with('success', 'Welcome to BukSU AlumniConnect, ' . $user->name . '! Your account has been created successfully.');
     }
 }

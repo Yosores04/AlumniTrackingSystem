@@ -7,20 +7,24 @@ use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
-    // Registration disabled on central domain - Alumni register through tenant portals
-    // Route::get('register', [RegisteredUserController::class, 'create'])
-    //     ->name('register');
-    // Route::post('register', [RegisteredUserController::class, 'store']);
+/*
+|--------------------------------------------------------------------------
+| Central Domain Authentication Routes
+|--------------------------------------------------------------------------
+|
+| These routes handle authentication for ADMINISTRATORS ONLY on the central domain.
+| No registration is allowed - admins must be created by super admins.
+|
+*/
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+Route::middleware('guest')->group(function () {
+    Route::get('login', [AuthenticatedSessionController::class, 'centralLogin'])
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('login', [AuthenticatedSessionController::class, 'centralStore']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

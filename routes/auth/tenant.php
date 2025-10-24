@@ -11,16 +11,26 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
-    // Registration disabled on central domain - Alumni register through tenant portals
-    // Route::get('register', [RegisteredUserController::class, 'create'])
-    //     ->name('register');
-    // Route::post('register', [RegisteredUserController::class, 'store']);
+/*
+|--------------------------------------------------------------------------
+| Tenant Domain Authentication Routes
+|--------------------------------------------------------------------------
+|
+| These routes handle authentication for ALUMNI and INSTRUCTORS on tenant domains.
+| Registration is ENABLED for alumni to create their accounts.
+|
+*/
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+Route::middleware('guest')->group(function () {
+    Route::get('register', [RegisteredUserController::class, 'tenantCreate'])
+        ->name('register');
+
+    Route::post('register', [RegisteredUserController::class, 'tenantStore']);
+
+    Route::get('login', [AuthenticatedSessionController::class, 'tenantLogin'])
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('login', [AuthenticatedSessionController::class, 'tenantStore']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
