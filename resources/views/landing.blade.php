@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BukSU AlumniConnect - Official Alumni Tracking System</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/buksu-logo.png') }}">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -43,8 +44,7 @@
                     <a href="#about" class="nav-link text-gray-700 hover:text-buksu-navy-800">About</a>
                     <a href="#contact" class="nav-link text-gray-700 hover:text-buksu-navy-800">Contact</a>
                     <div class="h-6 w-px bg-gray-300 mx-2"></div>
-                    <a href="{{ route('login') }}" class="nav-link text-gray-700 hover:text-buksu-navy-800">Sign In</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary">Get Started</a>
+                    <a href="{{ route('login') }}" class="btn btn-secondary">Admin Sign In</a>
                 </div>
                 
                 <!-- Mobile Menu Button -->
@@ -63,8 +63,7 @@
                 <a href="#about" class="block px-4 py-2 rounded-lg hover:bg-gray-50">About</a>
                 <a href="#contact" class="block px-4 py-2 rounded-lg hover:bg-gray-50">Contact</a>
                 <hr class="border-gray-200">
-                <a href="{{ route('login') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-50">Sign In</a>
-                <a href="{{ route('register') }}" class="block btn btn-primary text-center">Get Started</a>
+                <a href="{{ route('login') }}" class="block btn btn-secondary text-center">Admin Sign In</a>
             </div>
         </div>
     </nav>
@@ -86,22 +85,35 @@
                     </h1>
                     
                     <p class="text-xl text-gray-600 leading-relaxed max-w-xl">
-                        Join the official Bukidnon State University Alumni Tracking System. Connect with fellow alumni, track your career journey, and stay updated with university events.
+                        The official Bukidnon State University Alumni Tracking System. Administrators can manage alumni data, track career journeys, and coordinate university-wide events.
                     </p>
                     
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="{{ route('register') }}" class="btn btn-primary text-lg px-8 py-4">
+                        <a href="{{ route('login') }}" class="btn btn-primary text-lg px-8 py-4">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                             </svg>
-                            Create Account
+                            Administrator Access
                         </a>
-                        <a href="{{ route('login') }}" class="btn btn-secondary text-lg px-8 py-4">
-                            Sign In
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        <a href="#institutions" class="btn btn-secondary text-lg px-8 py-4">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
+                            Find Your Campus
                         </a>
+                    </div>
+                    
+                    <!-- Alumni Notice -->
+                    <div class="mt-8 p-4 bg-buksu-gold-50 border border-buksu-gold-200 rounded-xl">
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-5 h-5 text-buksu-gold-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-semibold text-buksu-gold-900 mb-1">Alumni Registration</p>
+                                <p class="text-sm text-buksu-gold-800">Alumni should register through their specific campus or department portal. Contact your campus administrator for the registration link.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -412,17 +424,17 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="section bg-gradient-primary text-white">
+    <section id="institutions" class="section bg-gradient-primary text-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-4xl md:text-5xl font-display font-bold mb-6">
-                Ready to Connect?
+                Access Your Campus Portal
             </h2>
             <p class="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-                Join thousands of BukSU alumni already connected on our platform. Create your profile today and be part of the community.
+                Alumni can register and access their profiles through their specific campus or department portal. Contact your campus administrator for access.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('register') }}" class="btn bg-white text-buksu-navy-900 hover:bg-gray-100 text-lg px-8 py-4">
-                    Create Free Account
+                <a href="{{ route('login') }}" class="btn bg-white text-buksu-navy-900 hover:bg-gray-100 text-lg px-8 py-4">
+                    Administrator Login
                 </a>
                 <a href="#contact" class="btn bg-white/10 text-white border-2 border-white/20 hover:bg-white/20 text-lg px-8 py-4">
                     Contact Us
@@ -466,8 +478,8 @@
                     <ul class="space-y-3">
                         <li><a href="#features" class="text-gray-600 hover:text-buksu-navy-800 transition-colors">Features</a></li>
                         <li><a href="#about" class="text-gray-600 hover:text-buksu-navy-800 transition-colors">About</a></li>
-                        <li><a href="{{ route('login') }}" class="text-gray-600 hover:text-buksu-navy-800 transition-colors">Sign In</a></li>
-                        <li><a href="{{ route('register') }}" class="text-gray-600 hover:text-buksu-navy-800 transition-colors">Register</a></li>
+                        <li><a href="#institutions" class="text-gray-600 hover:text-buksu-navy-800 transition-colors">Campus Access</a></li>
+                        <li><a href="{{ route('login') }}" class="text-gray-600 hover:text-buksu-navy-800 transition-colors">Admin Login</a></li>
                     </ul>
                 </div>
                 
