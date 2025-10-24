@@ -108,11 +108,11 @@
                 <!-- Right Column - Image/Illustration -->
                 <div class="relative hidden md:block">
                     <div class="relative z-10">
-                        <img src="{{ asset('img/alumni-hero.png') }}" alt="Alumni Illustration" class="rounded-3xl shadow-soft-lg" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 400\'%3E%3Crect fill=\'%23f3f4f6\' width=\'400\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'18\' fill=\'%236b7280\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EAlumni Network%3C/text%3E%3C/svg%3E'">
+                        <img src="{{ asset('img/alumni-hero.jpg') }}" alt="Alumni Illustration" class="rounded-3xl shadow-soft-lg" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 400\'%3E%3Crect fill=\'%23f3f4f6\' width=\'400\' height=\'400\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'18\' fill=\'%236b7280\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EAlumni Network%3C/text%3E%3C/svg%3E'">
                     </div>
                     
                     <!-- Floating Cards -->
-                    <div class="absolute -top-6 -left-6 bg-white rounded-2xl shadow-soft-lg p-4 animate-bounce" style="animation-duration: 3s;">
+                    <div class="absolute -top-6 -left-6 bg-white rounded-2xl shadow-soft-lg p-4 z-20 animate-bounce" style="animation-duration: 3s;">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-full bg-buksu-gold-100 flex items-center justify-center">
                                 <svg class="w-5 h-5 text-buksu-gold-600" fill="currentColor" viewBox="0 0 20 20">
@@ -126,7 +126,7 @@
                         </div>
                     </div>
                     
-                    <div class="absolute -bottom-6 -right-6 bg-white rounded-2xl shadow-soft-lg p-4" style="animation: bounce 3s infinite; animation-delay: 1s;">
+                    <div class="absolute -bottom-6 -right-6 bg-white rounded-2xl shadow-soft-lg p-4 z-20 animate-bounce" style="animation-duration: 3s; animation-delay: 1s;">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-full bg-buksu-accent-100 flex items-center justify-center">
                                 <svg class="w-5 h-5 text-buksu-accent-600" fill="currentColor" viewBox="0 0 20 20">
