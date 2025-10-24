@@ -1,387 +1,233 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name') }} - Register</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        :root {
-            --brand-primary: #1e3a8a;
-            --brand-secondary: #0f172a;
-            --accent-color: #dc2626;
-            --brand-primary-rgb: 30, 58, 138;
-            --brand-secondary-rgb: 15, 23, 42;
-            --accent-color-rgb: 220, 38, 38;
-            
-            /* University professional variables */
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --glass-border: rgba(30, 58, 138, 0.1);
-            --card-bg: rgba(255, 255, 255, 0.98);
-            --text-muted: #475569;
-            --university-gold: #d97706;
-            --university-gray: #64748b;
-            
-            /* Typography System */
-            --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-            --font-weight-light: 300;
-            --font-weight-normal: 400;
-            --font-weight-medium: 500;
-            --font-weight-semibold: 600;
-            --font-weight-bold: 700;
-            --font-weight-extrabold: 800;
-            --font-weight-black: 900;
-            
-            /* Font Sizes */
-            --text-xs: 0.75rem;
-            --text-sm: 0.875rem;
-            --text-base: 1rem;
-            --text-lg: 1.125rem;
-            --text-xl: 1.25rem;
-            --text-2xl: 1.5rem;
-            --text-3xl: 1.875rem;
-            --text-4xl: 2.25rem;
-            
-            /* Line Heights */
-            --leading-tight: 1.25;
-            --leading-snug: 1.375;
-            --leading-normal: 1.5;
-            --leading-relaxed: 1.625;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-family-base);
-            font-weight: var(--font-weight-normal);
-            line-height: var(--leading-normal);
-            color: #1f2937;
-            background: linear-gradient(135deg, 
-                rgba(var(--brand-primary-rgb), 0.9) 0%,
-                rgba(var(--brand-secondary-rgb), 0.8) 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Auth Container */
-        .auth-container {
-            width: 100%;
-            max-width: 500px;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 3rem 2.5rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-            position: relative;
-        }
-
-        /* Header */
-        .auth-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-
-        .auth-logo {
-            height: 50px;
-            width: auto;
-            margin-bottom: 1.5rem;
-            border-radius: 8px;
-        }
-
-        .auth-title {
-            font-size: var(--text-3xl);
-            font-weight: var(--font-weight-bold);
-            color: var(--brand-primary);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.025em;
-            line-height: var(--leading-tight);
-        }
-
-        .auth-subtitle {
-            font-size: var(--text-base);
-            color: var(--text-muted);
-            font-weight: var(--font-weight-normal);
-            line-height: var(--leading-relaxed);
-        }
-
-        /* Form Styling */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            font-size: var(--text-sm);
-            font-weight: var(--font-weight-semibold);
-            color: var(--brand-primary);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.01em;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 2px solid rgba(var(--brand-primary-rgb), 0.1);
-            border-radius: 12px;
-            font-size: var(--text-base);
-            font-weight: var(--font-weight-normal);
-            color: #1f2937;
-            background: rgba(255, 255, 255, 0.8);
-            transition: all 0.3s ease;
-            font-family: var(--font-family-base);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--brand-primary);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.1);
-        }
-
-        /* Button Styling */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            font-weight: var(--font-weight-semibold);
-            font-size: var(--text-base);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: 2px solid;
-            cursor: pointer;
-            letter-spacing: -0.01em;
-            width: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 8px 20px rgba(var(--brand-primary-rgb), 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(var(--brand-primary-rgb), 0.4);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--brand-primary);
-            border-color: rgba(var(--brand-primary-rgb), 0.2);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(var(--brand-primary-rgb), 0.05);
-            transform: translateY(-1px);
-        }
-
-        /* Links */
-        .auth-link {
-            color: var(--brand-primary);
-            text-decoration: none;
-            font-weight: var(--font-weight-medium);
-            font-size: var(--text-sm);
-            transition: color 0.3s ease;
-        }
-
-        .auth-link:hover {
-            color: var(--accent-color);
-            text-decoration: underline;
-        }
-
-        /* Footer Links */
-        .auth-footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(var(--brand-primary-rgb), 0.1);
-        }
-
-        .auth-footer p {
-            font-size: var(--text-sm);
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Error Messages */
-        .error-message {
-            color: var(--accent-color);
-            font-size: var(--text-xs);
-            font-weight: var(--font-weight-medium);
-            margin-top: 0.25rem;
-        }
-
-        /* Grid Layout for Name Fields */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 640px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .auth-container {
-                padding: 2rem 1.5rem;
-                margin: 1rem;
-            }
-            
-            .auth-title {
-                font-size: var(--text-2xl);
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - BukSU AlumniConnect</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-
-<body>
-    <div class="auth-container">
-        <!-- Header -->
-        <div class="auth-header">
-            @php
-                $settings = null;
-                
-                // Only try to get tenant settings if we're in a tenant context
-                if (function_exists('tenant') && tenant()) {
-                    try {
-                        $settings = \App\Models\TenantSettings::getSettings();
-                    } catch (\Exception $e) {
-                        // Fallback to null if settings can't be retrieved
-                        // This could happen if the tenant database isn't set up yet
+<body class="bg-white">
+    <div class="min-h-screen flex">
+        <!-- Left Side - Branding -->
+        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-buksu-navy-900 via-buksu-navy-800 to-buksu-navy-900 relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-buksu-gold-500 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-96 h-96 bg-buksu-gold-500 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2"></div>
+            </div>
+            
+            <!-- Content -->
+            <div class="relative z-10 flex flex-col justify-center items-center w-full px-12 py-16 text-white">
+                @php
+                    $settings = null;
+                    
+                    if (function_exists('tenant') && tenant()) {
+                        try {
+                            $settings = \App\Models\TenantSettings::getSettings();
+                        } catch (\Exception $e) {
+                            // Fallback to null
+                        }
                     }
-                }
+                    
+                    if (!$settings) {
+                        $settings = new \stdClass();
+                        $settings->logo_path = null;
+                        $settings->logo_url = null;
+                    }
+                @endphp
                 
-                // If no settings were found (central domain or new tenant), create a default object
-                if (!$settings) {
-                    $settings = new \stdClass();
-                    $settings->logo_path = null;
-                    $settings->logo_url = null;
-                }
-            @endphp
-            
-            @if(isset($settings->logo_path) && $settings->logo_path)
-                <img src="{{ Storage::url($settings->logo_path) }}" alt="Logo" class="auth-logo">
-            @elseif(isset($settings->logo_url) && $settings->logo_url)
-                <img src="{{ $settings->logo_url }}" alt="Logo" class="auth-logo">
-            @endif
-            
-            <h1 class="auth-title">Join Our Alumni Network</h1>
-            <p class="auth-subtitle">Create your account to connect with fellow graduates</p>
+                @if(isset($settings->logo_path) && $settings->logo_path)
+                    <img src="{{ Storage::url($settings->logo_path) }}" alt="Logo" class="h-20 mb-6">
+                @elseif(isset($settings->logo_url) && $settings->logo_url)
+                    <img src="{{ $settings->logo_url }}" alt="Logo" class="h-20 mb-6">
+                @else
+                    <div class="w-16 h-16 mb-6 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center">
+                        <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                        </svg>
+                    </div>
+                @endif
+                
+                <h1 class="text-4xl font-display font-bold mb-3 text-center text-white">Join BukSU AlumniConnect</h1>
+                <p class="text-lg text-yellow-300 text-center max-w-md mb-10">Become part of our thriving alumni community and unlock new opportunities.</p>
+                
+                <!-- Benefits -->
+                <div class="space-y-5 max-w-md w-full">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center mt-0.5">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-white text-base mb-1">Connect with Alumni</h3>
+                            <p class="text-sm text-white/70">Build your professional network</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center mt-0.5">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-white text-base mb-1">Career Opportunities</h3>
+                            <p class="text-sm text-white/70">Access exclusive job postings</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center mt-0.5">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-white text-base mb-1">Stay Updated</h3>
+                            <p class="text-sm text-white/70">University news and events</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Registration Form -->
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
+        <!-- Right Side - Registration Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 overflow-y-auto">
+            <div class="w-full max-w-md">
+                <!-- Mobile Logo -->
+                <div class="lg:hidden text-center mb-8">
+                    @if(isset($settings->logo_path) && $settings->logo_path)
+                        <img src="{{ Storage::url($settings->logo_path) }}" alt="Logo" class="h-16 mx-auto mb-4">
+                    @elseif(isset($settings->logo_url) && $settings->logo_url)
+                        <img src="{{ $settings->logo_url }}" alt="Logo" class="h-16 mx-auto mb-4">
+                    @else
+                        <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-buksu-navy-600 to-buksu-navy-800 rounded-2xl flex items-center justify-center">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                            </svg>
+                        </div>
+                    @endif
+                </div>
 
-            <!-- Name -->
-            <div class="form-group">
-                <label for="name" class="form-label">
-                    <i class="fas fa-user mr-2"></i>Full Name
-                </label>
-                <input 
-                    id="name" 
-                    class="form-control" 
-                    type="text" 
-                    name="name" 
-                    value="{{ old('name') }}" 
-                    required 
-                    autofocus 
-                    autocomplete="name"
-                    placeholder="Enter your full name"
-                >
-                <x-input-error :messages="$errors->get('name')" class="error-message" />
+                <!-- Header -->
+                <div class="mb-8">
+                    <h2 class="text-3xl font-display font-bold text-buksu-navy-900 mb-2">Create Your Account</h2>
+                    <p class="text-buksu-navy-600">Join the BukSU alumni community today</p>
+                </div>
+
+                <!-- Registration Form -->
+                <form method="POST" action="{{ route('register') }}" class="space-y-5">
+                    @csrf
+
+                    <!-- Full Name -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-buksu-navy-700 mb-2">
+                            Full Name
+                        </label>
+                        <input 
+                            id="name" 
+                            class="input w-full" 
+                            type="text" 
+                            name="name" 
+                            value="{{ old('name') }}" 
+                            required 
+                            autofocus 
+                            autocomplete="name"
+                            placeholder="Enter your full name"
+                        >
+                        @error('name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Email Address -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-buksu-navy-700 mb-2">
+                            Email Address
+                        </label>
+                        <input 
+                            id="email" 
+                            class="input w-full" 
+                            type="email" 
+                            name="email" 
+                            value="{{ old('email') }}" 
+                            required 
+                            autocomplete="username"
+                            placeholder="you@example.com"
+                        >
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-buksu-navy-700 mb-2">
+                            Password
+                        </label>
+                        <input 
+                            id="password" 
+                            class="input w-full"
+                            type="password" 
+                            name="password" 
+                            required 
+                            autocomplete="new-password"
+                            placeholder="Create a strong password"
+                        >
+                        @error('password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium text-buksu-navy-700 mb-2">
+                            Confirm Password
+                        </label>
+                        <input 
+                            id="password_confirmation" 
+                            class="input w-full"
+                            type="password" 
+                            name="password_confirmation" 
+                            required 
+                            autocomplete="new-password"
+                            placeholder="Confirm your password"
+                        >
+                        @error('password_confirmation')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary w-full">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                        Create Alumni Account
+                    </button>
+                </form>
+
+                <!-- Login Link -->
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-buksu-navy-600">
+                        Already have an account? 
+                        <a href="{{ route('login') }}" class="font-semibold text-buksu-navy-700 hover:text-buksu-navy-900 transition">
+                            Sign In
+                        </a>
+                    </p>
+                </div>
+
+                <!-- Back to Home -->
+                <div class="mt-6 text-center">
+                    <a href="{{ route('central.landing') }}" class="inline-flex items-center text-sm text-buksu-navy-600 hover:text-buksu-navy-900 transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Back to home
+                    </a>
+                </div>
             </div>
-
-            <!-- Email Address -->
-            <div class="form-group">
-                <label for="email" class="form-label">
-                    <i class="fas fa-envelope mr-2"></i>Email Address
-                </label>
-                <input 
-                    id="email" 
-                    class="form-control" 
-                    type="email" 
-                    name="email" 
-                    value="{{ old('email') }}" 
-                    required 
-                    autocomplete="username"
-                    placeholder="Enter your email address"
-                >
-                <x-input-error :messages="$errors->get('email')" class="error-message" />
-            </div>
-
-            <!-- Password -->
-            <div class="form-group">
-                <label for="password" class="form-label">
-                    <i class="fas fa-lock mr-2"></i>Password
-                </label>
-                <input 
-                    id="password" 
-                    class="form-control"
-                    type="password" 
-                    name="password" 
-                    required 
-                    autocomplete="new-password"
-                    placeholder="Create a strong password"
-                >
-                <x-input-error :messages="$errors->get('password')" class="error-message" />
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="form-group">
-                <label for="password_confirmation" class="form-label">
-                    <i class="fas fa-lock mr-2"></i>Confirm Password
-                </label>
-                <input 
-                    id="password_confirmation" 
-                    class="form-control"
-                    type="password" 
-                    name="password_confirmation" 
-                    required 
-                    autocomplete="new-password"
-                    placeholder="Confirm your password"
-                >
-                <x-input-error :messages="$errors->get('password_confirmation')" class="error-message" />
-            </div>
-
-            <!-- Submit Button -->
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-user-plus mr-2"></i>
-                    Create Alumni Account
-                </button>
-            </div>
-        </form>
-
-        <!-- Footer -->
-        <div class="auth-footer">
-            <p>Already have an account?</p>
-            <a href="{{ route('login') }}" class="btn btn-secondary">
-                <i class="fas fa-sign-in-alt mr-2"></i>
-                Sign In to Your Account
-            </a>
         </div>
     </div>
 </body>
