@@ -1,3 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply antialiased text-gray-900 bg-white;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-display font-semibold;
+    }
+}
+
+@layer components {
+    /* Modern Card Components */
+    .card {
+        @apply bg-white rounded-2xl shadow-soft border border-gray-100 overflow-hidden transition-all duration-300;
+    }
+
+    .card:hover {
+        @apply shadow-soft-lg border-gray-200;
+    }
+
+    .card-header {
+        @apply px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50;
+    }
+
+    .card-body {
+        @apply px-6 py-5;
+    }
+
+    /* Button Styles */
+    .btn {
+        @apply inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-opacity-50;
+    }
+
+    .btn-primary {
+        @apply bg-buksu-navy-800 text-white hover:bg-buksu-navy-900 focus:ring-buksu-navy-300 shadow-sm hover:shadow-md;
+    }
+
+    .btn-secondary {
+        @apply bg-white text-buksu-navy-800 border-2 border-buksu-navy-200 hover:bg-buksu-navy-50 focus:ring-buksu-navy-200;
+    }
+
+    .btn-accent {
+        @apply bg-buksu-gold-500 text-white hover:bg-buksu-gold-600 focus:ring-buksu-gold-200 shadow-sm hover:shadow-md;
+    }
+
+    .btn-outline {
+        @apply bg-transparent text-buksu-navy-800 border-2 border-gray-300 hover:border-buksu-navy-300 hover:bg-gray-50 focus:ring-gray-200;
+    }
+
+    /* Input Styles */
+    .input {
+        @apply w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-buksu-navy-500 focus:ring-4 focus:ring-buksu-navy-100 transition-all duration-200;
+    }
+
+    /* Badge Styles */
+    .badge {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    }
+
+    .badge-primary {
+        @apply bg-buksu-navy-100 text-buksu-navy-800;
+    }
+
+    .badge-success {
+        @apply bg-success-50 text-success-600;
+    }
+
+    .badge-warning {
+        @apply bg-warning-50 text-warning-600;
+    }
+
+    .badge-error {
+        @apply bg-error-50 text-error-600;
+    }
+
+    /* Section Styles */
+    .section {
+        @apply py-16 md:py-24;
+    }
+
+    .section-header {
+        @apply text-center mb-12 md:mb-16;
+    }
+
+    .section-title {
+        @apply text-3xl md:text-4xl lg:text-5xl font-display font-bold text-buksu-navy-900 mb-4;
+    }
+
+    .section-subtitle {
+        @apply text-lg md:text-xl text-gray-600 max-w-2xl mx-auto;
+    }
+
+    /* Navigation Styles */
+    .nav-link {
+        @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-gray-100;
+    }
+
+    .nav-link-active {
+        @apply bg-buksu-navy-50 text-buksu-navy-800;
+    }
+
+    /* Stat Card */
+    .stat-card {
+        @apply bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-100 hover:border-buksu-navy-200 transition-all duration-300 hover:shadow-soft-lg;
+    }
+
+    .stat-value {
+        @apply text-4xl font-bold text-buksu-navy-900 mb-1;
+    }
+
+    .stat-label {
+        @apply text-sm font-medium text-gray-600 uppercase tracking-wide;
+    }
+
+    /* Alert Styles */
+    .alert {
+        @apply rounded-xl p-4 border-l-4;
+    }
+
+    .alert-info {
+        @apply bg-buksu-accent-50 border-buksu-accent-500 text-buksu-accent-800;
+    }
+
+    .alert-success {
+        @apply bg-success-50 border-success-500 text-success-600;
+    }
+
+    .alert-warning {
+        @apply bg-warning-50 border-warning-500 text-warning-600;
+    }
+
+    .alert-error {
+        @apply bg-error-50 border-error-500 text-error-600;
+    }
+}
+
+@layer utilities {
+    .glass {
+        @apply bg-white bg-opacity-80 backdrop-blur-lg;
+    }
+
+    .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-buksu-navy-800 to-buksu-navy-600;
+    }
+
+    .bg-gradient-primary {
+        @apply bg-gradient-to-r from-buksu-navy-800 to-buksu-navy-900;
+    }
+
+    .bg-gradient-accent {
+        @apply bg-gradient-to-r from-buksu-gold-500 to-buksu-gold-600;
+    }
+}

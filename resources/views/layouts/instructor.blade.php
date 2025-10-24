@@ -454,6 +454,9 @@
                             <a href="{{ url('/support') }}" class="nav-link {{ request()->is('support*') ? 'active' : '' }}">
                                 <i class="fas fa-life-ring"></i> Support
                             </a>
+                            <a href="{{ route('attachments.index') }}" class="nav-link {{ request()->routeIs('attachments.*') ? 'active' : '' }}">
+                                <i class="fas fa-paperclip"></i> Attachments
+                            </a>
                             
                             <div class="profile-dropdown ml-4" x-data="{ open: false }">
                                 <button @click.stop.prevent="open = !open" type="button" class="flex items-center bg-secondary-70 hover:bg-secondary-60 text-white px-3 py-2 rounded-full focus:outline-none transition-colors">

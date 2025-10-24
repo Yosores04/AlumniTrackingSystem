@@ -101,4 +101,28 @@ class User extends Authenticatable
     {
         return $this->hasOne(Alumni::class);
     }
+
+    /**
+     * Get the attachments for the user (polymorphic relationship).
+     */
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    /**
+     * Get only public attachments for the user.
+     */
+    public function publicAttachments()
+    {
+        return $this->attachments()->where('is_public', true)->where('is_verified', true);
+    }
+
+    /**
+     * Get uploaded attachments (files this user uploaded).
+     */
+    public function uploadedAttachments()
+    {
+        return $this->hasMany(Attachment::class, 'uploaded_by');
+    }
 }

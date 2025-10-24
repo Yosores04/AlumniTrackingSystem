@@ -62,6 +62,11 @@
                         {{ __('Support') }}
                     </x-nav-link>
                     
+                    <x-nav-link :href="route('attachments.index')" :active="request()->routeIs('attachments.*')" class="nav-link flex items-center">
+                        <i class="fas fa-paperclip mr-1.5"></i>
+                        {{ __('Attachments') }}
+                    </x-nav-link>
+                    
                     @if(Auth::user()->isAdmin())
                     <x-nav-link :href="route('system.versions')" :active="request()->routeIs('system.*')" class="nav-link flex items-center">
                         <i class="fas fa-server mr-1.5"></i>
@@ -161,6 +166,11 @@
             <x-responsive-nav-link :href="url('/support')" :active="request()->is('support*')" class="flex items-center">
                 <i class="fas fa-life-ring mr-2 text-primary"></i>
                 {{ __('Support') }}
+            </x-responsive-nav-link>
+            
+            <x-responsive-nav-link :href="route('attachments.index')" :active="request()->routeIs('attachments.*')" class="flex items-center">
+                <i class="fas fa-paperclip mr-2 text-primary"></i>
+                {{ __('Attachments') }}
             </x-responsive-nav-link>
             
             @if(Auth::user()->isAdmin())

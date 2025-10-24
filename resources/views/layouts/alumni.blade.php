@@ -128,6 +128,11 @@
                                 <i class="fas fa-life-ring mr-1.5"></i>
                                 {{ __('Support') }}
                             </a>
+                            
+                            <a href="{{ route('attachments.index') }}" class="nav-link flex items-center {{ request()->routeIs('attachments.*') ? 'active' : '' }}">
+                                <i class="fas fa-paperclip mr-1.5"></i>
+                                {{ __('Attachments') }}
+                            </a>
                         </div>
                     </div>
 
@@ -195,6 +200,11 @@
                     <a href="{{ url('/support') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->is('support*') ? 'border-primary text-primary bg-primary-5' : 'border-transparent text-white hover:bg-primary-30' }} text-base font-medium focus:outline-none focus:text-primary focus:bg-primary-5 focus:border-primary transition duration-150 ease-in-out flex items-center">
                         <i class="fas fa-life-ring mr-2"></i>
                         {{ __('Support') }}
+                    </a>
+                    
+                    <a href="{{ route('attachments.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('attachments.*') ? 'border-primary text-primary bg-primary-5' : 'border-transparent text-white hover:bg-primary-30' }} text-base font-medium focus:outline-none focus:text-primary focus:bg-primary-5 focus:border-primary transition duration-150 ease-in-out flex items-center">
+                        <i class="fas fa-paperclip mr-2"></i>
+                        {{ __('Attachments') }}
                     </a>
                     
                     <a href="#" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-white hover:bg-primary-30 text-base font-medium focus:outline-none focus:text-primary focus:bg-primary-5 focus:border-primary transition duration-150 ease-in-out flex items-center">

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Alumni;
 use App\Models\Attachment;
+use App\Http\Requests\StoreAttachmentRequest;
+use App\Http\Requests\UpdateAttachmentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -46,28 +48,29 @@ class AttachmentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Alumni $alumni)
+    public function store(StoreAttachmentRequest $request, Alumni $alumni)
     {
-        $request->validate([
-            'file' => 'required|file|max:10240', // 10MB max
-            'category' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'is_public' => 'boolean',
-        ]);
+        // Validation is handled by StoreAttachmentRequest
 
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
         $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
-        $filePath = "attachments/{$alumni->id}/" . $fileName;
+        $filePath = "attachments/alumni/{$alumni->id}/" . $fileName;
+
+        // Create directory if it doesn't exist
+        $directory = "attachments/alumni/{$alumni->id}";
+        if (!Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->makeDirectory($directory);
+        }
 
         // Store the file
-        $file->storeAs('attachments/' . $alumni->id, $fileName, 'public');
+        $file->storeAs($directory, $fileName, 'public');
 
         $attachment = $alumni->attachments()->create([
             'file_name' => $fileName,
             'original_name' => $originalName,
             'file_path' => $filePath,
-            'file_type' => $file->getClientOriginalExtension(),
+            'file_type' => strtolower($file->getClientOriginalExtension()),
             'mime_type' => $file->getMimeType(),
             'file_size' => $file->getSize(),
             'category' => $request->category,
@@ -122,18 +125,14 @@ class AttachmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Alumni $alumni, Attachment $attachment)
+    public function update(UpdateAttachmentRequest $request, Alumni $alumni, Attachment $attachment)
     {
         // Ensure the attachment belongs to the alumni
         if ($attachment->attachable_id !== $alumni->id || $attachment->attachable_type !== Alumni::class) {
             abort(404);
         }
 
-        $request->validate([
-            'category' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'is_public' => 'boolean',
-        ]);
+        // Validation is handled by UpdateAttachmentRequest
 
         $attachment->update([
             'category' => $request->category,

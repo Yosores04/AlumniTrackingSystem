@@ -380,6 +380,21 @@ Route::middleware([
     Route::get('tracking-statuses/statistics', [\App\Http\Controllers\TrackingStatusController::class, 'statistics'])->name('tracking-statuses.statistics');
     Route::get('tracking-statuses/follow-ups', [\App\Http\Controllers\TrackingStatusController::class, 'followUps'])->name('tracking-statuses.follow-ups');
 
+    // General Attachment Routes (for all users - students, instructors, etc.)
+    Route::prefix('attachments')->name('attachments.')->middleware('auth')->group(function () {
+        Route::get('/', [\App\Http\Controllers\GeneralAttachmentController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\GeneralAttachmentController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\GeneralAttachmentController::class, 'store'])->name('store');
+        Route::get('/public', [\App\Http\Controllers\GeneralAttachmentController::class, 'publicIndex'])->name('public');
+        Route::get('/category/{category}', [\App\Http\Controllers\GeneralAttachmentController::class, 'category'])->name('category');
+        Route::get('/{attachment}', [\App\Http\Controllers\GeneralAttachmentController::class, 'show'])->name('show');
+        Route::get('/{attachment}/edit', [\App\Http\Controllers\GeneralAttachmentController::class, 'edit'])->name('edit');
+        Route::put('/{attachment}', [\App\Http\Controllers\GeneralAttachmentController::class, 'update'])->name('update');
+        Route::delete('/{attachment}', [\App\Http\Controllers\GeneralAttachmentController::class, 'destroy'])->name('destroy');
+        Route::get('/{attachment}/download', [\App\Http\Controllers\GeneralAttachmentController::class, 'download'])->name('download');
+        Route::post('/{attachment}/verify', [\App\Http\Controllers\GeneralAttachmentController::class, 'toggleVerification'])->name('verify');
+    });
+
     // Debug Routes - remove in production
     Route::get('/debug-routes', function () {
         $routes = collect(Route::getRoutes())->map(function ($route) {
